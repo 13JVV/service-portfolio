@@ -12,6 +12,11 @@
 .base-label,.index-row strong,#detail-title{font-family:'Barlow Condensed','Noto Sans KR',sans-serif;font-weight:600}
 .base-label{font-size:14px;letter-spacing:.7px}
 .index-row strong{font-weight:600}
+nav button{font-size:15px;letter-spacing:1.15px}
+#motion span{font-size:13px}
+.floating-label{font-size:16px;letter-spacing:1.6px}
+.floating-foot{font-size:11px;letter-spacing:1.15px}
+@media(max-width:700px){nav button{font-size:12px}#motion span{font-size:10px}.floating-label{font-size:12px}.floating-foot{font-size:9px}}
 .base-label{font-size:18px;font-weight:700;text-shadow:0 2px 4px #000}
 .base-status{font-size:9px}
 .caption-title{font-size:21px;font-weight:500}
