@@ -20,6 +20,14 @@
 .floating-foot{font-size:9px}
 .index-row strong{font-size:clamp(25px,3vw,42px);font-weight:700}
 @media(max-width:700px){.base-label{font-size:22px}.base-status{font-size:12px}.caption-title{font-size:17px}.caption-help{font-size:11px}.index-row strong{font-size:27px}.floating-label{font-size:8px}.floating-foot{font-size:7px}}
+.node .base-status{font-size:12px;letter-spacing:1.1px}
+.node .base-label{font-size:20px;font-weight:700;letter-spacing:.5px}
+nav button{font-size:12px;letter-spacing:1.15px}
+#motion span{font-size:11px}
+.floating-label{font-size:12px;letter-spacing:1.6px}
+.floating-foot{font-size:10px;letter-spacing:1.15px}
+.world-bottom .bottom-note,.coordinate{font-size:10px}
+@media(max-width:700px){nav button{font-size:10px;letter-spacing:.5px}#motion span{font-size:9px}.node .base-status{font-size:12px}.node .base-label{font-size:22px}.floating-label{font-size:9px}.floating-foot{font-size:8px}.world-bottom .bottom-note,.coordinate{font-size:7px}}
 
 /* The preview is projected above the floor, keeping its original film aspect ratio. */
 .node.is-active .hologram{opacity:0}.node.is-active .beam{opacity:0}#floating-holo{position:absolute;z-index:27;pointer-events:none;opacity:0;transform:translateY(85px) scale(.73);transform-origin:center bottom;transition:opacity .22s,transform .6s cubic-bezier(.18,.85,.23,1);perspective:1000px}#floating-holo.shown{opacity:1;transform:translateY(0) scale(1)}.floating-face{transform:rotateY(-7deg) rotateX(3deg);border:1px solid #d9a37199;box-shadow:0 0 30px #ff802124;background:#000;position:relative}.floating-face canvas{width:100%;aspect-ratio:16/9;display:block}.floating-label{position:absolute;top:-22px;left:0;font-size:8px;letter-spacing:1.4px;color:#d8b18c}.floating-foot{position:absolute;bottom:-23px;left:0;right:0;font-size:7px;letter-spacing:1px;color:#bf9473;display:flex;justify-content:space-between}.projection-light{position:absolute;top:80%;left:15%;width:70%;height:160px;clip-path:polygon(0 0,100% 0,65% 100%,35% 100%);background:linear-gradient(#ffb57712,#ff771a03);border-bottom:1px solid #ff9d6044;filter:blur(2px)}@media(max-width:700px){.floating-label{font-size:7px}.floating-foot{font-size:6px}.projection-light{height:95px}}
