@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PPO 강화학습 최적화 — 자율 정밀 착륙 제어</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#E9EAE4;
+  --surface:#F6F6F3;
+  --ink:#15181B;
+  --graphite:#5C6167;
+  --rule:#CDCEC7;
+  --rule-soft:#DEDFD9;
+  --burn:#C33F27;
+  --lander:#7A66DD;
+  --flag:#E3BE3F;
+  --void:#0A0B0D;
+  --sans:"IBM Plex Sans KR",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:17px;
+  font-weight:400;
+  line-height:1.62;
+  letter-spacing:-.005em;
+}
+.wrap{max-width:1120px;margin:0 auto;padding:0 28px}
+
+/* ---------- 공통 섹션 ---------- */
+.band{border-top:1px solid var(--rule);padding:76px 0 8px}
+.band:first-of-type{border-top:none}
+.grid{display:grid;grid-template-columns:186px 1fr;gap:44px;align-items:start}
+.rail{position:sticky;top:34px;font-size:14px;line-height:1.45;color:var(--graphite);font-weight:500}
+.rail b{display:block;color:var(--ink);font-size:20px;font-weight:600;letter-spacing:-.02em;margin-bottom:6px}
+.body-col{min-width:0;max-width:74ch}
+h2{margin:0 0 4px;font-size:20px}
+h3{
+  margin:38px 0 12px;font-size:20px;font-weight:600;
+  letter-spacing:-.02em;line-height:1.35;
+}
+h3:first-child{margin-top:0}
+p{margin:0 0 16px}
+.lede{font-size:19px;line-height:1.65;color:#25292E}
+.dim{color:var(--graphite)}
+.small{font-size:14.5px;line-height:1.6}
+strong{font-weight:600}
+a{color:var(--ink);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;text-decoration-color:var(--rule)}
+a:hover{text-decoration-color:var(--burn)}
+:focus-visible{outline:2px solid var(--burn);outline-offset:3px;border-radius:2px}
+
+/* ---------- 히어로 ---------- */
+.hero{padding:60px 0 60px}
+.kicker{font-size:15px;color:var(--graphite);margin:0 0 18px;font-weight:500}
+h1{
+  margin:0 0 20px;
+  font-size:clamp(34px,5.4vw,58px);
+  line-height:1.1;
+  letter-spacing:-.035em;
+  font-weight:600;
+  max-width:16ch;
+}
+h1 span{display:block;font-weight:300;color:#3A3F45}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:52px;align-items:center;margin-top:8px}
+.hero-sum{font-size:18px;line-height:1.66;margin:0 0 26px;max-width:44ch}
+
+.viewport{
+  background:var(--void);
+  border-radius:3px;
+  padding:10px;
+  box-shadow:0 1px 0 #fff, 0 18px 34px -22px rgba(10,11,13,.55);
+}
+.viewport svg{display:block;width:100%;height:auto;border-radius:1px}
+.viewport figcaption{
+  font-family:var(--mono);font-size:11.5px;color:#6E727A;
+  padding:9px 3px 2px;display:flex;justify-content:space-between;
+}
+
+/* 기체 하강 */
+#lander{will-change:transform}
+#trace{stroke-dasharray:1;stroke-dashoffset:0}
+@media (prefers-reduced-motion:no-preference){
+  .is-animating #trace{animation:draw 2.9s cubic-bezier(.4,.06,.28,1) .25s both}
+}
+@keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+
+/* ---------- 수치 스트립 ---------- */
+.figures{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  border-top:1px solid var(--ink);margin-top:56px;
+}
+.fig{padding:18px 20px 22px 0}
+.fig .n{font-size:32px;font-weight:600;letter-spacing:-.03em;line-height:1.1;display:block}
+.fig .n em{font-style:normal;font-size:19px;font-weight:500;color:var(--graphite);letter-spacing:-.01em}
+.fig .l{font-size:13.5px;color:var(--graphite);line-height:1.45;display:block;margin-top:7px}
+.fig.hi .n{color:var(--burn)}
+
+/* ---------- 사실 목록 ---------- */
+.facts{border-top:1px solid var(--rule-soft);margin:0}
+.facts div{
+  display:grid;grid-template-columns:132px 1fr;gap:20px;
+  padding:11px 0;border-bottom:1px solid var(--rule-soft);
+}
+.facts dt{color:var(--graphite);font-size:14.5px;font-weight:500}
+.facts dd{margin:0;font-size:15.5px}
+
+/* ---------- 실험 결과 ---------- */
+.exp{border-left:2px solid var(--ink);padding:2px 0 2px 20px;margin:0 0 14px}
+.exp .q{font-size:16px;font-weight:600;margin:0 0 3px}
+.exp .a{font-size:15px;color:var(--graphite);margin:0}
+
+.bars{margin:20px 0 6px}
+.bar{display:grid;grid-template-columns:78px 1fr 108px;gap:14px;align-items:center;padding:5px 0}
+.bar .k{font-family:var(--mono);font-size:13px;text-align:right;color:var(--graphite)}
+.bar .t{position:relative;height:19px;background:#DFE0DA;border-radius:1px;overflow:hidden}
+.bar .t i{position:absolute;inset:0 auto 0 0;background:#9FA49C;border-radius:1px}
+.bar .v{font-family:var(--mono);font-size:13px;color:var(--graphite)}
+.bar .v b{color:var(--ink);font-weight:500}
+.bar.win .k{color:var(--burn);font-weight:500}
+.bar.win .t i{background:var(--burn)}
+.bar.win .v b{color:var(--burn)}
+
+table{border-collapse:collapse;width:100%;margin:14px 0 6px;font-family:var(--mono);font-size:13px}
+caption{
+  caption-side:top;text-align:left;font-family:var(--sans);font-size:13.5px;
+  color:var(--graphite);padding-bottom:8px;
+}
+th,td{padding:7px 12px 7px 0;text-align:right;border-bottom:1px solid var(--rule-soft)}
+th:first-child,td:first-child{text-align:left}
+thead th{font-weight:500;color:var(--graphite);border-bottom:1px solid var(--rule);font-size:12px}
+tbody tr.win td{color:var(--burn)}
+tbody tr.win td:first-child{font-weight:500}
+
+.note{
+  background:var(--surface);border-left:2px solid var(--burn);
+  padding:15px 18px;margin:20px 0;font-size:15px;line-height:1.6;
+}
+.note p{margin:0 0 9px}
+.note p:last-child{margin:0}
+.note .h{font-weight:600;font-size:14px}
+
+pre{
+  background:var(--void);color:#D6D8DC;font-family:var(--mono);font-size:13px;
+  line-height:1.72;padding:20px 22px;border-radius:3px;overflow-x:auto;margin:18px 0;
+}
+pre .c{color:#6E727A}
+pre .p{color:#E3BE3F}
+pre .s{color:#8FB4C7}
+
+/* ---------- 면접 Q&A ---------- */
+details{border-bottom:1px solid var(--rule-soft)}
+details summary{
+  list-style:none;cursor:pointer;padding:15px 30px 15px 0;position:relative;
+  font-weight:500;font-size:16.5px;line-height:1.5;
+}
+details summary::-webkit-details-marker{display:none}
+details summary::after{
+  content:"";position:absolute;right:6px;top:24px;width:9px;height:9px;
+  border-right:1.5px solid var(--graphite);border-bottom:1.5px solid var(--graphite);
+  transform:rotate(45deg);transition:transform .18s ease;
+}
+details[open] summary::after{transform:rotate(-135deg)}
+details[open] summary{color:var(--burn)}
+.ans{padding:0 0 20px;font-size:15.5px;line-height:1.66}
+.ans ul{margin:0;padding-left:19px}
+.ans li{margin-bottom:7px}
+.ans li::marker{color:var(--graphite)}
+
+/* ---------- 복사 블록 ---------- */
+.copy{background:var(--surface);border:1px solid var(--rule-soft);padding:18px 20px;margin:0 0 14px}
+.copy p{font-size:15.5px;line-height:1.6;margin:0 0 14px}
+.copy button{
+  font-family:var(--sans);font-size:13.5px;font-weight:500;color:var(--ink);
+  background:transparent;border:1px solid var(--ink);border-radius:2px;
+  padding:6px 14px;cursor:pointer;transition:background .15s ease,color .15s ease;
+}
+.copy button:hover{background:var(--ink);color:var(--paper)}
+.copy button.done{background:var(--burn);border-color:var(--burn);color:#fff}
+
+.todo{border:1px dashed var(--graphite);padding:16px 18px;margin:18px 0;font-size:15px}
+.todo b{display:block;margin-bottom:6px;font-size:14px}
+
+footer{border-top:1px solid var(--ink);margin-top:64px;padding:22px 0 70px;font-size:14px;color:var(--graphite)}
+footer .r{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+
+@media (max-width:880px){
+  .hero-grid{grid-template-columns:1fr;gap:34px}
+  .grid{grid-template-columns:1fr;gap:14px}
+  .rail{position:static;padding-bottom:6px;border-bottom:1px solid var(--rule-soft);margin-bottom:10px}
+  .rail b{display:inline;margin-right:10px}
+  .figures{grid-template-columns:1fr 1fr}
+  .band{padding-top:52px}
+}
+@media (max-width:520px){
+  body{font-size:16px}
+  .wrap{padding:0 20px}
+  .bar{grid-template-columns:62px 1fr;row-gap:0}
+  .bar .v{grid-column:2;font-size:12px;padding-bottom:4px}
+  table{font-size:12px}
+  th,td{padding-right:8px}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<!-- ══════════ HERO ══════════ -->
+<header class="hero">
+  <p class="kicker">강화학습 팀 프로젝트 · 3인 · Stable-Baselines3 &amp; Gymnasium</p>
+  <h1>불확실한 환경에서 스스로 착륙하는 제어 정책<span>PPO 하이퍼파라미터 최적화</span></h1>
+
+  <div class="hero-grid">
+    <div>
+      <p class="hero-sum">재사용 로켓의 자율 정밀 착륙을 축소 모델로 옮긴 LunarLander 환경에서, PPO 에이전트가 연료를 아끼며 두 깃발 사이에 정확히 내려앉도록 만들었습니다. 기본 설정으로는 시드에 따라 성능이 크게 흔들렸고, <strong>어떤 하이퍼파라미터가 그 불안정성을 만드는지</strong>를 30회의 통제 실험으로 분리했습니다.</p>
+      <dl class="facts">
+        <div><dt>환경</dt><dd>Gymnasium LunarLander-v2 (Box2D)</dd></div>
+        <div><dt>알고리즘</dt><dd>PPO (Actor-Critic, MlpPolicy)</dd></div>
+        <div><dt>스택</dt><dd>Python · Stable-Baselines3 · PyTorch · TensorBoard</dd></div>
+        <div><dt>검증</dt><dd>설정별 3개 시드 (42, 1, 2) 반복</dd></div>
+      </dl>
+    </div>
+
+    <figure class="viewport" id="vp">
+      <svg viewBox="0 0 720 405" role="img" aria-label="달 표면 착륙 궤적: 착륙선이 두 깃발 사이 평지로 하강하는 경로">
+        <rect width="720" height="405" fill="#0A0B0D"/>
+        <!-- 별 -->
+        <g fill="#3A3E46">
+          <circle cx="118" cy="70" r="1.2"/><circle cx="512" cy="52" r="1.4"/>
+          <circle cx="640" cy="122" r="1.1"/><circle cx="238" cy="46" r="1"/>
+          <circle cx="596" cy="216" r="1.2"/><circle cx="86" cy="184" r="1"/>
+          <circle cx="424" cy="94" r="1.1"/><circle cx="676" cy="60" r="1"/>
+        </g>
+        <!-- 하강 궤적 -->
+        <path id="trace" d="M 72 44 C 168 96, 236 150, 286 214 S 344 296, 358 314"
+              fill="none" stroke="#585C66" stroke-width="1.4" pathLength="1"
+              stroke-dasharray="1" stroke-linecap="round"/>
+        <!-- 지형 -->
+        <polygon fill="#F2F3F0"
+          points="0,405 0,350 48,366 96,342 144,360 196,338 248,354 310,330 410,330 462,346 512,328 562,348 612,334 662,352 720,340 720,405"/>
+        <!-- 착륙 패드 깃발 -->
+        <g stroke="#F2F3F0" stroke-width="1.6">
+          <line x1="311" y1="330" x2="311" y2="296"/><line x1="409" y1="330" x2="409" y2="296"/>
+        </g>
+        <path d="M311 296 L331 302 L311 308 Z" fill="#E3BE3F"/>
+        <path d="M409 296 L429 302 L409 308 Z" fill="#E3BE3F"/>
+        <!-- 착륙선 -->
+        <g id="lander" transform="translate(358,314)">
+          <g stroke="#5B4CB0" stroke-width="1.6" stroke-linecap="round">
+            <line x1="-9" y1="8" x2="-15" y2="16"/><line x1="9" y1="8" x2="15" y2="16"/>
+            <line x1="-18" y1="16" x2="-12" y2="16"/><line x1="12" y1="16" x2="18" y2="16"/>
+          </g>
+          <rect x="-12" y="-11" width="24" height="20" rx="4" fill="#7A66DD"/>
+          <rect x="-6" y="-6" width="12" height="7" rx="2" fill="#B9AEF0"/>
+        </g>
+      </svg>
+      <figcaption><span>LunarLander-v2 / Box2D</span><span>pad (0, 0) · v→0</span></figcaption>
+    </figure>
+  </div>
+
+  <div class="figures">
+    <div class="fig hi"><span class="n">265.3</span><span class="l">최고 설정 3-시드 평균 보상<br>(Solved 기준 200점)</span></div>
+    <div class="fig"><span class="n">30<em>회</em></span><span class="l">통제 학습 실행<br>누적 약 1,520만 스텝</span></div>
+    <div class="fig"><span class="n">3<em>개</em></span><span class="l">비교한 하이퍼파라미터<br>구조 · 학습률 · 엔트로피</span></div>
+    <div class="fig"><span class="n">+67<em>%</em></span><span class="l">엔트로피 계수 조정만으로<br>얻은 평균 보상 개선</span></div>
+  </div>
+</header>
+
+<!-- ══════════ 역할 ══════════ -->
+<section class="band">
+  <div class="grid">
+    <div class="rail"><b>내 역할</b>3인 팀 프로젝트</div>
+    <div class="body-col">
+      <div class="todo">
+        <b>제출 전에 이 블록만 본인 내용으로 바꿔주세요</b>
+        팀 구성은 3인(박성주 · 신재우 · 정환희)입니다. 채용 담당자가 가장 먼저 확인하는 건 “팀 성과 중 이 지원자가 만든 부분”이라, 아래 형식으로 한두 줄만 구체적으로 적으면 됩니다.<br><br>
+        예시 — “학습률·엔트로피 스윕 스크립트 작성 및 15회 실행 담당. TensorBoard 로그를 파싱해 시드별 평균·편차 비교표를 만들고, 최종 파라미터 선정 근거를 정리함.”
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 문제 정의 ══════════ -->
+<section class="band">
+  <div class="grid">
+    <div class="rail"><b>문제 정의</b>왜 이 문제이고, 왜 강화학습인가</div>
+    <div class="body-col">
+      <p class="lede">재사용 로켓의 경제성은 “기체를 패드 위에 정확히 세우는 일”에 달려 있습니다. 그런데 고도·연료량·바람처럼 불확실한 변수가 섞인 비선형 동역학에서는, 모든 관계를 수식으로 고정하는 고전 제어(PID) 방식의 한계가 분명합니다.</p>
+      <p>LunarLander는 중력·관성·연료 소모에 따른 질량 변화가 함께 작용하고 착륙 성공 조건이 보상으로 정의되어 있어, 이 문제의 축소 모델로 적합합니다. 정책을 손으로 설계하는 대신 <strong>시행착오로 정책을 학습시키는 것</strong>이 이 프로젝트의 전제입니다.</p>
+
+      <h3>MDP 구성</h3>
+      <dl class="facts">
+        <div><dt>상태 (8차원)</dt><dd>좌표 x, y · 속도 v<sub>x</sub>, v<sub>y</sub> · 각도 θ · 각속도 ω · 좌우 다리 접촉 여부</dd></div>
+        <div><dt>행동 (이산 4)</dt><dd>정지 · 좌측 엔진 · 메인 엔진 · 우측 엔진</dd></div>
+        <div><dt>보상</dt><dd>착륙 성공 +100~140 · 추락 −100 · 다리 접촉 +10 · 엔진 사용 시 연료 패널티</dd></div>
+        <div><dt>상태 전이</dt><dd>확률적 모델이 아닌 Box2D 물리 엔진 기반 결정론적 전이 (약 0.02초 간격)</dd></div>
+        <div><dt>종료 조건</dt><dd>패드 정지(성공) · 동체 충돌(실패) · 화면 이탈</dd></div>
+      </dl>
+      <p class="small dim" style="margin-top:18px">전이 예시 — 하강 중(v<sub>y</sub> &lt; 0)인 상태에서 메인 엔진을 점화하면, 물리 엔진이 추진력을 계산해 하강 가속도를 상쇄하고 다음 스텝의 속도와 위치가 갱신됩니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 접근 ══════════ -->
+<section class="band">
+  <div class="grid">
+    <div class="rail"><b>접근</b>PPO 선택과 실험 설계</div>
+    <div class="body-col">
+      <h3>왜 PPO였는가</h3>
+      <p>상태 공간이 연속적인 제어 문제에서 DQN보다 학습이 안정적이었고, TRPO의 신뢰 영역 제약을 클리핑으로 단순화해 구현과 튜닝 비용이 낮습니다. Actor-Critic 구조로 정책과 가치 함수를 함께 최적화합니다.</p>
+
+      <h3>실험을 이렇게 설계했습니다</h3>
+      <p>먼저 Stable-Baselines3 기본값으로 베이스라인을 학습시켜 <strong>성능의 한계가 아니라 불안정성이 문제</strong>라는 걸 확인했습니다. 같은 설정인데도 시드에 따라 결과가 갈렸기 때문에, 원인이 될 만한 세 요소를 하나씩 분리해 비교했습니다.</p>
+      <dl class="facts">
+        <div><dt>신경망 구조</dt><dd>64×64 · 128×128 · 256×256 — 모델 표현력</dd></div>
+        <div><dt>학습률</dt><dd>0.0001 ~ 0.0015 (5단계) — 수렴 속도</dd></div>
+        <div><dt>엔트로피 계수</dt><dd>0.01 · 0.1 — 탐험과 이용의 균형</dd></div>
+      </dl>
+      <p style="margin-top:18px">단일 실험의 우연을 배제하려고 <strong>모든 설정을 시드 42, 1, 2에서 반복</strong>했고, 각 실행은 약 50만 스텝까지 학습한 뒤 TensorBoard의 <span style="font-family:var(--mono);font-size:14px">rollout/ep_rew_mean</span> 곡선으로 비교했습니다. 아래 수치는 모두 학습 종료 시점의 3-시드 실측값입니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 결과 A ══════════ -->
+<section class="band">
+  <div class="grid">
+    <div class="rail"><b>결과 A</b>신경망 구조</div>
+    <div class="body-col">
+      <div class="exp">
+        <p class="q">표현력을 키우면 성능 편차가 줄어들까?</p>
+        <p class="a">줄어듭니다. 다만 가장 좋은 구조와 실제로 채택한 구조는 달랐습니다.</p>
+      </div>
+
+      <div class="bars">
+        <div class="bar"><span class="k">64×64</span><span class="t"><i style="width:64.6%"></i></span><span class="v"><b>186.2</b> ±110.0</span></div>
+        <div class="bar win"><span class="k">128×128</span><span class="t"><i style="width:73.3%"></i></span><span class="v"><b>211.4</b> ±89.1</span></div>
+        <div class="bar"><span class="k">256×256</span><span class="t"><i style="width:84.1%"></i></span><span class="v"><b>242.4</b> ±77.3</span></div>
+      </div>
+      <p class="small dim">막대는 3-시드 평균 보상, 오른쪽 숫자는 평균과 시드 간 최대-최소 폭.</p>
+
+      <table>
+        <caption>시드별 최종 보상 (smoothed)</caption>
+        <thead><tr><th>구조</th><th>Seed 42</th><th>Seed 1</th><th>Seed 2</th><th>평균</th></tr></thead>
+        <tbody>
+          <tr><td>64×64</td><td>158.08</td><td>255.28</td><td>145.27</td><td>186.21</td></tr>
+          <tr class="win"><td>128×128</td><td>228.57</td><td>158.21</td><td>247.31</td><td>211.36</td></tr>
+          <tr><td>256×256</td><td>271.38</td><td>194.13</td><td>261.83</td><td>242.45</td></tr>
+        </tbody>
+      </table>
+
+      <p>파라미터를 늘릴수록 평균은 오르고 시드 간 편차는 좁아집니다. 64×64는 특정 시드에서 145점에 머물러 표현력 부족이 불안정성의 한 축임을 보여줍니다.</p>
+
+      <div class="note">
+        <p class="h">채택은 256×256이 아니라 128×128이었습니다</p>
+        <p>평균만 보면 256×256이 가장 좋습니다. 하지만 파라미터 수가 약 4배로 늘어나는 데 비해 이득은 31점(약 13%)이었고, 두 구조 모두 Solved 기준선인 200점을 넘겼습니다. <strong>성능당 연산 비용</strong>을 기준으로 128×128을 선택했습니다 — 면접에서 반드시 파고드는 지점이라 근거를 이렇게 정리해 두는 편이 좋습니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 결과 B ══════════ -->
+<section class="band">
+  <div class="grid">
+    <div class="rail"><b>결과 B</b>학습률</div>
+    <div class="body-col">
+      <div class="exp">
+        <p class="q">50만 스텝 안에 수렴시키려면 학습률을 얼마나 키워야 하나?</p>
+        <p class="a">0.0005부터 성능이 급격히 올라 0.001 이상에서 평탄해집니다.</p>
+      </div>
+
+      <div class="bars">
+        <div class="bar"><span class="k">0.0001</span><span class="t"><i style="width:46.7%"></i></span><span class="v"><b>134.7</b> ±54.4</span></div>
+        <div class="bar"><span class="k">0.0002</span><span class="t"><i style="width:58.1%"></i></span><span class="v"><b>167.4</b> ±13.0</span></div>
+        <div class="bar"><span class="k">0.0005</span><span class="t"><i style="width:88.1%"></i></span><span class="v"><b>253.8</b> ±31.4</span></div>
+        <div class="bar"><span class="k">0.001</span><span class="t"><i style="width:92.2%"></i></span><span class="v"><b>265.7</b> ±3.4</span></div>
+        <div class="bar win"><span class="k">0.0015</span><span class="t"><i style="width:92.1%"></i></span><span class="v"><b>265.3</b> ±14.6</span></div>
+      </div>
+
+      <p>0.0001처럼 낮은 학습률은 50만 스텝 안에 최적해에 도달하지 못하고 곡선이 완만하게 상승하는 과소적합 양상을 보였습니다. 반대로 0.0005를 넘기면서 200점 고지를 빠르게 통과합니다.</p>
+
+      <div class="note">
+        <p class="h">0.001과 0.0015는 최종 성능이 사실상 같습니다</p>
+        <p>평균 265.7 대 265.3으로 차이가 0.4점에 불과하고, 시드 간 편차는 오히려 0.001 쪽이 훨씬 작습니다(3.4 대 14.6). 그럼에도 0.0015를 채택한 이유는 최종 점수가 아니라 <strong>200점 도달까지 걸린 스텝 수, 즉 수렴 속도</strong>였습니다. 만약 안정성이 더 중요한 과제였다면 0.001이 맞는 선택이며, 이 트레이드오프를 설명할 수 있는지가 실험을 이해했는지 보여주는 부분입니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 결과 C ══════════ -->
+<section class="band">
+  <div class="grid">
+    <div class="rail"><b>결과 C</b>엔트로피 계수</div>
+    <div class="body-col">
+      <div class="exp">
+        <p class="q">베이스라인의 불안정성이 조기 수렴(지역 최적해) 때문이라면, 탐험을 늘리면 해결될까?</p>
+        <p class="a">늘리는 방향은 맞지만, 과하면 오히려 수렴 자체가 무너집니다.</p>
+      </div>
+
+      <div class="bars">
+        <div class="bar win"><span class="k">0.01</span><span class="t"><i style="width:77.9%"></i></span><span class="v"><b>171.3</b> ±88.1</span></div>
+        <div class="bar"><span class="k">0.1</span><span class="t"><i style="width:46.5%"></i></span><span class="v"><b>102.3</b> ±66.4</span></div>
+      </div>
+
+      <table>
+        <caption>시드별 최종 보상 (smoothed) — 세 시드 모두에서 0.01이 우세</caption>
+        <thead><tr><th>계수</th><th>Seed 42</th><th>Seed 1</th><th>Seed 2</th><th>평균</th></tr></thead>
+        <tbody>
+          <tr class="win"><td>0.01</td><td>122.89</td><td>210.98</td><td>180.10</td><td>171.32</td></tr>
+          <tr><td>0.1</td><td>69.25</td><td>135.68</td><td>101.92</td><td>102.29</td></tr>
+        </tbody>
+      </table>
+
+      <p>0.1은 정책에 무작위성을 과도하게 주입해 학습 후반까지 행동이 흔들렸고, 평균 100점대에서 수렴하지 못했습니다. 0.01은 <strong>세 시드 모두에서 0.1보다 55~78% 높은 보상</strong>을 기록했습니다. 초기에는 충분히 탐험하되 후반에는 엔진 출력을 미세 조정하는 정밀 제어가 가능해진 결과입니다.</p>
+
+      <p class="small dim">참고 — 이 스윕의 3-시드 평균은 171.3으로 Solved 기준선 아래입니다. 200점을 넘긴 것은 구조·학습률까지 함께 적용한 최종 조합이며, 발표 시 두 수치를 구분해 말하는 편이 정확합니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 최종 ══════════ -->
+<section class="band">
+  <div class="grid">
+    <div class="rail"><b>최종 구성</b>선택한 조합과 검증</div>
+    <div class="body-col">
+      <pre><span class="c"># 최종 모델</span>
+model = PPO(
+    <span class="s">"MlpPolicy"</span>, env, verbose=1, seed=SEED,
+
+    <span class="p">learning_rate</span>=0.0015,          <span class="c"># 수렴 속도 기준 선정</span>
+    <span class="p">policy_kwargs</span>=dict(net_arch=[128, 128]),   <span class="c"># 성능당 연산 비용</span>
+    <span class="p">ent_coef</span>=0.01,                 <span class="c"># 탐험·이용 균형</span>
+    <span class="p">gamma</span>=0.99,
+
+    tensorboard_log=log_path,
+)</pre>
+
+      <p>이 조합으로 학습한 정책은 <strong>평균 200점 이상을 기록하며 Solved 조건을 충족</strong>했습니다. 시연 영상에서는 기체가 기울어진 채 하강하는 상황에서도 좌우 엔진으로 자세를 잡고, 두 깃발 사이 (0, 0) 지점에 속도를 0으로 수렴시키며 안착합니다.</p>
+
+      <h3>이 실험에서 얻은 결론</h3>
+      <p>학습을 더 오래 반복하는 것보다, <strong>탐험의 양을 결정하는 엔트로피 계수와 수렴 속도를 결정하는 학습률</strong>이 성능을 좌우했습니다. 표현력(신경망 크기)은 하한선을 올려주지만, 그것만으로는 시드 간 편차가 사라지지 않았습니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 한계 ══════════ -->
+<section class="band">
+  <div class="grid">
+    <div class="rail"><b>한계</b>알고 있는 것과 다음 단계</div>
+    <div class="body-col">
+      <p class="lede">면접에서 한계를 먼저 말하는 지원자는 결과를 이해한 사람으로 읽힙니다. 아래 셋은 이 실험의 실제 약점입니다.</p>
+      <div class="exp">
+        <p class="q">시드 3개는 통계적 결론을 내기에 적은 표본입니다</p>
+        <p class="a">시드 간 편차가 최대 110점에 달하는 환경에서 n=3의 평균 차이는 우연일 수 있습니다. 신뢰구간을 붙이려면 시드를 10개 이상으로 늘리거나, 학습 후 별도 평가 에피소드로 재측정해야 합니다.</p>
+      </div>
+      <div class="exp">
+        <p class="q">한 번에 하나씩 바꾼 실험이라 상호작용을 못 봅니다</p>
+        <p class="a">학습률과 엔트로피 계수는 서로 영향을 주지만, 각 스윕은 나머지를 기본값에 고정한 상태에서 진행했습니다. 다음에는 두 축을 격자로 함께 훑는 것이 정확합니다.</p>
+      </div>
+      <div class="exp">
+        <p class="q">학습 곡선의 보상은 평가 성능이 아닙니다</p>
+        <p class="a">비교에 쓴 값은 학습 중 롤아웃 보상이라 탐험 노이즈가 섞여 있습니다. 확정적 정책으로 100 에피소드를 돌린 평가 점수가 실제 성능에 더 가깝습니다.</p>
+      </div>
+      <p>향후 과제로는 강한 바람이나 연료 제한이 더 엄격한 조건 등 심화 환경에서의 일반화 성능 검증을 계획하고 있습니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 면접 ══════════ -->
+<section class="band">
+  <div class="grid">
+    <div class="rail"><b>예상 질문</b>이 프로젝트를 이력서에 쓸 때</div>
+    <div class="body-col">
+      <details>
+        <summary>DQN이 아니라 PPO를 쓴 이유가 뭔가요?</summary>
+        <div class="ans"><ul>
+          <li>행동은 이산 4개라 DQN도 적용 가능하지만, 상태가 8차원 연속값이고 물리적으로 매끄럽게 변합니다.</li>
+          <li>DQN은 가치 함수 추정의 발산과 리플레이 버퍼 구성에 민감한 반면, PPO는 클리핑으로 정책 갱신 폭을 제한해 학습이 안정적입니다.</li>
+          <li>TRPO의 신뢰 영역 제약을 근사해 구현이 단순하고, 이번 과제의 목적이 <em>하이퍼파라미터가 성능에 미치는 영향 분석</em>이었기에 튜닝 반복이 쉬운 알고리즘이 적합했습니다.</li>
+        </ul></div>
+      </details>
+      <details>
+        <summary>256×256이 평균이 제일 높은데 왜 128×128을 골랐죠?</summary>
+        <div class="ans"><ul>
+          <li>두 구조 모두 Solved 기준 200점을 넘겼습니다. 즉 목표는 이미 달성된 구간입니다.</li>
+          <li>파라미터 수가 약 4배 늘어나는 대가로 얻는 이득이 31점(13%)이라, 성능당 연산 비용에서 128×128이 유리하다고 판단했습니다.</li>
+          <li>다만 시드 편차는 256×256이 더 작았으므로, 안정성이 최우선인 과제였다면 반대 선택이 맞습니다.</li>
+        </ul></div>
+      </details>
+      <details>
+        <summary>학습률 0.001과 0.0015의 차이가 거의 없어 보이는데요?</summary>
+        <div class="ans"><ul>
+          <li>맞습니다. 최종 평균은 265.7 대 265.3으로 사실상 동일하고, 편차는 0.001이 더 작습니다.</li>
+          <li>0.0015를 고른 기준은 최종 점수가 아니라 200점 도달까지의 스텝 수, 즉 수렴 속도였습니다.</li>
+          <li>학습 예산이 넉넉하다면 0.001이 더 안전한 선택이라고 봅니다.</li>
+        </ul></div>
+      </details>
+      <details>
+        <summary>엔트로피 계수를 키웠는데 왜 성능이 떨어졌나요?</summary>
+        <div class="ans"><ul>
+          <li>엔트로피 항은 정책 분포를 평평하게 유지하려는 힘입니다. 계수가 크면 학습 후반까지 무작위 행동이 남습니다.</li>
+          <li>착륙은 마지막 순간의 미세한 엔진 조절이 성패를 가르는데, 0.1에서는 그 정밀 제어가 노이즈에 묻혔습니다.</li>
+          <li>0.01은 초기 탐험은 확보하면서 후반에는 정책이 뾰족해질 여지를 남긴 균형점이었습니다.</li>
+        </ul></div>
+      </details>
+      <details>
+        <summary>시드 3개로 결론을 내려도 되나요?</summary>
+        <div class="ans"><ul>
+          <li>엄밀하게는 부족합니다. 편차가 큰 환경이라 n=3의 평균 차이는 우연일 가능성을 배제하기 어렵습니다.</li>
+          <li>다만 엔트로피 실험은 세 시드 <em>모두에서</em> 0.01이 우세해 방향성은 신뢰할 만하다고 봅니다.</li>
+          <li>다시 한다면 시드 10개 이상, 학습 후 확정적 정책으로 100 에피소드 평가를 추가하겠습니다.</li>
+        </ul></div>
+      </details>
+      <details>
+        <summary>LunarLander와 실제 로켓 착륙의 차이는 뭐죠?</summary>
+        <div class="ans"><ul>
+          <li>본 환경은 2차원이고 엔진 출력이 이산적인 4단계인 반면, 실제 제어는 3차원에 연속적인 추력·짐벌 각도를 다룹니다.</li>
+          <li>Box2D 전이는 결정론적이라 센서 노이즈나 모델 불확실성이 없습니다. 실제로는 도메인 랜덤화나 sim-to-real 보정이 필요합니다.</li>
+          <li>그래서 이 프로젝트의 의의는 착륙 제어기 자체가 아니라, <em>보상만으로 비선형 제어 정책이 학습 가능한지</em>를 확인한 데 있다고 정리합니다.</li>
+        </ul></div>
+      </details>
+      <details>
+        <summary>사용한 환경 버전을 확인해 두세요</summary>
+        <div class="ans"><ul>
+          <li>Gymnasium은 버전이 올라가며 Box2D 환경의 넘버링이 바뀐 이력이 있습니다(LunarLander-v2 → v3).</li>
+          <li>제출 전 <span style="font-family:var(--mono);font-size:14px">pip freeze</span>로 gymnasium 버전을 확인하고, 슬라이드·이력서 표기를 실제 사용 버전과 맞춰 두는 편이 안전합니다.</li>
+          <li>사소해 보여도 재현성을 챙기는 사람으로 보이는 지점입니다.</li>
+        </ul></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 지원서 문장 ══════════ -->
+<section class="band">
+  <div class="grid">
+    <div class="rail"><b>지원서 문장</b>그대로 복사해 쓰세요</div>
+    <div class="body-col">
+      <p class="small dim">역할 부분은 본인이 실제로 맡은 범위로 바꾸고, 지원 직무에 따라 강조점을 조정하세요.</p>
+
+      <div class="copy">
+        <p data-copy>PPO 기반 자율 착륙 제어 에이전트 최적화 (3인 팀) — 신경망 구조·학습률·엔트로피 계수를 각 3개 시드로 통제 비교한 30회 학습 실험(누적 1,500만 스텝)을 통해 성능 불안정성의 원인을 규명하고, 3-시드 평균 보상 265점으로 LunarLander Solved 기준(200점)을 달성. Python, Stable-Baselines3, PyTorch, TensorBoard.</p>
+        <button type="button">이력서 한 줄 복사</button>
+      </div>
+
+      <div class="copy">
+        <p data-copy>강화학습 팀 프로젝트에서 기본 설정 학습이 시드마다 100점대와 250점대를 오가는 것을 보고, 성능의 한계가 아니라 재현성이 문제라고 판단했습니다. 원인 후보를 신경망 구조·학습률·엔트로피 계수 세 가지로 좁힌 뒤 각각을 3개 시드에서 반복 학습해 30회를 비교했고, 엔트로피 계수를 0.1에서 0.01로 낮추는 것만으로 세 시드 모두에서 보상이 55~78% 개선되는 것을 확인했습니다. 이 과정에서 평균값 하나로 우열을 단정하지 않고 시드 간 편차까지 함께 보는 습관을 얻었습니다. 실제로 학습률 0.001과 0.0015는 평균이 0.4점 차이로 같았고, 최종 선택은 성능이 아닌 수렴 속도라는 별도 기준으로 내렸습니다.</p>
+        <button type="button">자기소개서 문단 복사</button>
+      </div>
+
+      <div class="copy">
+        <p data-copy>가장 기억에 남는 건 가설이 절반만 맞았던 순간입니다. 베이스라인의 불안정성이 탐험 부족 때문이라고 보고 엔트로피 계수를 키웠는데, 0.1에서는 오히려 평균 100점대로 떨어졌습니다. 탐험을 늘리는 방향은 맞았지만 정도가 문제였고, 착륙처럼 마지막 순간의 미세 조정이 중요한 과제에서는 후반부에 정책이 수렴할 여지를 남겨야 한다는 걸 데이터로 확인했습니다.</p>
+        <button type="button">면접 답변용 일화 복사</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="r">
+    <span>강화학습 및 알고리즘 · 팀 프로젝트 — 박성주 · 신재우 · 정환희</span>
+    <span>수치 출처: 팀 발표자료의 TensorBoard rollout/ep_rew_mean 기록 (약 50만 스텝 시점)</span>
+  </div>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  // 히어로: 착륙 하강 1회 재생
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var lander = document.getElementById('lander');
+  var trace  = document.getElementById('trace');
+  if(!reduced && lander && trace){
+    document.getElementById('vp').classList.add('is-animating');
+    var d = trace.getAttribute('d');
+    var m = document.createElementNS('http://www.w3.org/2000/svg','animateMotion');
+    m.setAttribute('dur','2.9s');
+    m.setAttribute('begin','0.25s');
+    m.setAttribute('fill','freeze');
+    m.setAttribute('path', d);
+    m.setAttribute('calcMode','spline');
+    m.setAttribute('keyTimes','0;1');
+    m.setAttribute('keySplines','.4 .06 .28 1');
+    lander.setAttribute('transform','translate(0,0)');
+    lander.appendChild(m);
+  }
+
+  // 복사 버튼
+  document.querySelectorAll('.copy button').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var text = btn.parentNode.querySelector('[data-copy]').textContent.trim();
+      var label = btn.textContent;
+      var done = function(){
+        btn.textContent = '복사했습니다';
+        btn.classList.add('done');
+        setTimeout(function(){ btn.textContent = label; btn.classList.remove('done'); }, 1800);
+      };
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(done, function(){ fallback(text, done); });
+      } else { fallback(text, done); }
+    });
+  });
+  function fallback(text, cb){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); cb(); } catch(e){}
+    document.body.removeChild(ta);
+  }
+})();
+</script>
+</body>
+</html>

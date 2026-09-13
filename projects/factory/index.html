@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>위덴 생산공정 시뮬레이션 · 공정 개선 프로젝트</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root{
+    --paper:#EEF0EF;
+    --card:#FFFFFF;
+    --ink:#17232B;
+    --soft:#5A6771;
+    --faint:#8F9AA1;
+    --rule:#D5DAD8;
+    --cobalt:#2B54C6;
+    --teal:#0F7269;
+    --amber:#E8B93B;
+    --amber-fill:#F8EAB6;
+    --salmon:#E9928F;
+    --green:#3F8A63;
+    --warn:#B4562A;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;
+    font-size:15px;
+    line-height:1.66;
+    font-variant-numeric:tabular-nums;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px 96px}
+  .prose{max-width:64ch}
+
+  /* ---------- hero ---------- */
+  header.hero{padding:56px 0 30px}
+  .kicker{font-size:13px;color:var(--soft);letter-spacing:.01em;margin:0 0 14px}
+  h1{
+    font-size:clamp(28px,4.6vw,46px);
+    line-height:1.16;
+    font-weight:800;
+    letter-spacing:-.022em;
+    margin:0 0 16px;
+    max-width:22ch;
+  }
+  .lede{font-size:clamp(16px,1.9vw,19px);color:var(--soft);max-width:56ch;margin:0 0 30px;line-height:1.6}
+  .lede b{color:var(--ink);font-weight:700}
+
+  dl.meta{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));
+    gap:18px 26px;margin:0;padding:20px 0 0;border-top:1px solid var(--rule);
+  }
+  dl.meta dt{font-size:12.5px;color:var(--faint);margin:0 0 3px}
+  dl.meta dd{margin:0;font-size:14.5px;font-weight:600}
+  .todo{
+    display:inline-block;border:1px dashed var(--warn);color:var(--warn);
+    border-radius:2px;padding:1px 7px;font-size:12.5px;font-weight:500;background:#FBF3EE;
+  }
+
+  /* ---------- diagram ---------- */
+  .diagram{margin:44px 0 0}
+  .dg-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;margin:0 0 6px}
+  .dg-tag{font-size:12.5px;font-weight:700;padding:2px 9px;border-radius:2px}
+  .dg-tag.before{background:#E2E5E4;color:var(--soft)}
+  .dg-tag.after{background:#DCEDE9;color:var(--teal)}
+  .dg-note{font-size:13.5px;color:var(--soft)}
+  .scroller{overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+  .scroller svg{display:block;min-width:780px;width:100%;height:auto}
+  .swipe{display:none;font-size:12px;color:var(--faint);margin:2px 0 0}
+  @media(max-width:820px){.swipe{display:block}}
+  .sv-box{fill:var(--amber-fill);stroke:#BC9B2C;stroke-width:1.2}
+  .sv-box-t{fill:#FFFFFF;stroke:var(--teal);stroke-width:1.4}
+  .sv-dia{fill:#FFFFFF;stroke:var(--green);stroke-width:1.3}
+  .sv-line{stroke:#98A3A9;stroke-width:1.3;fill:none}
+  .sv-line-t{stroke:var(--teal);stroke-width:1.4;fill:none}
+  .sv-t{font:600 13px "Pretendard Variable",Pretendard,sans-serif;fill:var(--ink);text-anchor:middle}
+  .sv-s{font:500 11px "Pretendard Variable",Pretendard,sans-serif;fill:var(--soft);text-anchor:middle}
+  .sv-em{font:700 13px "Pretendard Variable",Pretendard,sans-serif;fill:var(--teal)}
+  .sv-x{font:700 13px "Pretendard Variable",Pretendard,sans-serif;fill:var(--warn)}
+
+  /* ---------- sections ---------- */
+  section{padding:52px 0 0}
+  h2{font-size:clamp(20px,2.5vw,25px);font-weight:800;letter-spacing:-.015em;margin:0 0 6px}
+  .sub{color:var(--soft);font-size:14.5px;margin:0 0 26px;max-width:60ch}
+  h3{font-size:16.5px;font-weight:700;margin:0 0 8px}
+
+  /* ---------- kpi ---------- */
+  .kpi{border-top:1px solid var(--rule)}
+  .kpi-row{
+    display:grid;grid-template-columns:190px 1fr 132px;gap:22px;align-items:center;
+    padding:20px 0;border-bottom:1px solid var(--rule);
+  }
+  .kpi-name{font-weight:700;font-size:15.5px}
+  .kpi-def{font-size:12.5px;color:var(--faint);font-weight:400;line-height:1.45;margin-top:2px}
+  .bars{display:grid;gap:7px}
+  .bar{display:grid;grid-template-columns:52px 1fr auto;gap:10px;align-items:center;font-size:13px}
+  .bar span:first-child{color:var(--faint);font-size:12px}
+  .track{height:11px;background:#E2E5E4;border-radius:1px;overflow:hidden}
+  .fill{height:100%;transform-origin:left;animation:grow .85s cubic-bezier(.22,.7,.3,1) both}
+  .fill.b{background:#AEB7BC}
+  .fill.a{background:var(--teal)}
+  .val{font-weight:700;font-size:13.5px;white-space:nowrap}
+  .val.b{color:var(--soft);font-weight:500}
+  .delta{text-align:right}
+  .delta strong{display:block;font-size:20px;font-weight:800;letter-spacing:-.02em;color:var(--teal)}
+  .delta span{font-size:12px;color:var(--faint)}
+  @keyframes grow{from{transform:scaleX(.02)}to{transform:scaleX(1)}}
+  @media(prefers-reduced-motion:reduce){.fill{animation:none}}
+  @media(max-width:700px){
+    .kpi-row{grid-template-columns:1fr auto;gap:12px}
+    .bars{grid-column:1/-1}
+    .delta{text-align:left}
+    .delta strong{font-size:18px}
+  }
+
+  /* ---------- bottleneck ---------- */
+  table.q{width:100%;border-collapse:collapse;font-size:14px;margin-top:4px}
+  table.q th{
+    text-align:left;font-size:12.5px;color:var(--faint);font-weight:500;
+    padding:0 10px 8px 0;border-bottom:1px solid var(--rule);
+  }
+  table.q th:last-child,table.q td:last-child{text-align:right;padding-right:0}
+  table.q td{padding:10px 10px 10px 0;border-bottom:1px solid #E4E7E6}
+  table.q td:first-child{font-weight:600}
+  table.q tr.top td{color:var(--warn)}
+  .qbar{display:inline-block;height:8px;background:var(--salmon);border-radius:1px;vertical-align:middle}
+  .caption{font-size:12.5px;color:var(--faint);margin:12px 0 0;max-width:62ch}
+
+  /* ---------- levers ---------- */
+  .lever{padding:26px 0;border-top:1px solid var(--rule)}
+  .lever:last-of-type{border-bottom:1px solid var(--rule)}
+  .lever-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:12px;margin-bottom:14px}
+  .lever-head h3{margin:0}
+  .chip{font-size:12px;font-weight:700;color:#fff;background:var(--cobalt);padding:2px 9px;border-radius:2px}
+  .ab{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  @media(max-width:640px){.ab{grid-template-columns:1fr;gap:16px}}
+  .ab h4{font-size:12.5px;color:var(--faint);font-weight:600;margin:0 0 6px}
+  .ab ul{margin:0;padding-left:17px}
+  .ab li{margin-bottom:5px}
+  .ab .to h4{color:var(--teal)}
+  .gain{margin-top:14px;font-size:13.5px;color:var(--soft);border-left:2px solid var(--teal);padding-left:12px}
+
+  /* ---------- setup ---------- */
+  .setup{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule)}
+  .setup div{background:var(--card);padding:14px 16px}
+  .setup dt{font-size:12px;color:var(--faint)}
+  .setup dd{margin:2px 0 0;font-size:17px;font-weight:700}
+
+  /* ---------- pitch ---------- */
+  .pitch{background:var(--card);border:1px solid var(--rule);padding:26px 26px 28px;margin-top:8px}
+  .oneline{font-size:17px;font-weight:600;line-height:1.55;margin:0 0 26px;padding-bottom:24px;border-bottom:1px solid var(--rule)}
+  .pitch ul{margin:0;padding-left:18px}
+  .pitch li{margin-bottom:9px}
+  .qa{margin-top:26px;padding-top:22px;border-top:1px solid var(--rule)}
+  .qa dt{font-weight:700;margin-top:16px}
+  .qa dt:first-of-type{margin-top:0}
+  .qa dd{margin:4px 0 0;color:var(--soft)}
+
+  /* ---------- fix list ---------- */
+  ol.fix{margin:0;padding-left:20px}
+  ol.fix li{margin-bottom:14px}
+  ol.fix b{display:block}
+  ol.fix span{color:var(--soft);font-size:14px}
+
+  footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--rule);font-size:13px;color:var(--faint)}
+  a{color:var(--cobalt)}
+  @media print{
+    body{background:#fff}
+    .fill{animation:none}
+    section{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <p class="kicker">시스템 시뮬레이션 · 팀 프로젝트</p>
+  <h1>검사를 다섯 번 하던 칫솔 라인을 한 번에 흐르게</h1>
+  <p class="lede">칫솔 제조업체 ‘위덴’의 전 공정을 Arena로 모델링해 병목을 수치로 특정하고,
+    <b>검수 통합 · U자형 셀 배치 · 배치 출고 제거</b> 세 가지를 적용해
+    시간당 생산량 <b>182 → 338ea</b>, 평균 리드타임 <b>905.6 → 648.4분</b>으로 개선했습니다.</p>
+
+  <dl class="meta">
+    <div><dt>대상</dt><dd>칫솔 제조업체 ‘위덴’</dd></div>
+    <div><dt>도구</dt><dd>Rockwell Arena</dd></div>
+    <div><dt>팀</dt><dd>7조 · 5명</dd></div>
+    <div><dt>본인 역할</dt><dd><span class="todo">담당 파트 채우기</span></dd></div>
+    <div><dt>기간</dt><dd><span class="todo">기간 채우기</span></dd></div>
+  </dl>
+</header>
+
+<section class="diagram">
+  <div class="dg-head">
+    <span class="dg-tag before">기존</span>
+    <span class="dg-note">공정마다 검사가 끼어들고, 마지막엔 50개가 모일 때까지 완제품이 대기</span>
+  </div>
+  <div class="scroller">
+    <svg viewBox="0 0 1180 118" role="img" aria-label="기존 공정 흐름: 사출, 인쇄, 식모, 결합, 포장 각 단계마다 검사가 붙고 마지막에 50개 묶음 대기 후 출고">
+      <g>
+        <rect class="sv-box" x="10" y="34" width="96" height="36" rx="3"/><text class="sv-t" x="58" y="57">사출</text>
+        <rect class="sv-box" x="195" y="34" width="96" height="36" rx="3"/><text class="sv-t" x="243" y="57">인쇄</text>
+        <rect class="sv-box" x="380" y="34" width="96" height="36" rx="3"/><text class="sv-t" x="428" y="57">식모</text>
+        <rect class="sv-box" x="565" y="34" width="96" height="36" rx="3"/><text class="sv-t" x="613" y="57">결합</text>
+        <rect class="sv-box" x="750" y="34" width="96" height="36" rx="3"/><text class="sv-t" x="798" y="57">포장</text>
+      </g>
+      <g>
+        <polygon class="sv-dia" points="140,35 157,52 140,69 123,52"/><text class="sv-s" x="140" y="86">검사</text>
+        <polygon class="sv-dia" points="325,35 342,52 325,69 308,52"/><text class="sv-s" x="325" y="86">검사</text>
+        <polygon class="sv-dia" points="510,35 527,52 510,69 493,52"/><text class="sv-s" x="510" y="86">검사</text>
+        <polygon class="sv-dia" points="695,35 712,52 695,69 678,52"/><text class="sv-s" x="695" y="86">검사</text>
+        <polygon class="sv-dia" points="880,35 897,52 880,69 863,52"/><text class="sv-s" x="880" y="86">검사</text>
+      </g>
+      <g class="sv-line">
+        <path d="M106 52 H123"/><path d="M157 52 H195"/>
+        <path d="M291 52 H308"/><path d="M342 52 H380"/>
+        <path d="M476 52 H493"/><path d="M527 52 H565"/>
+        <path d="M661 52 H678"/><path d="M712 52 H750"/>
+        <path d="M846 52 H863"/><path d="M897 52 H925"/>
+      </g>
+      <g>
+        <rect x="925" y="26" width="92" height="14" rx="2" fill="#F0D3D2" stroke="#D08683" stroke-width="1"/>
+        <rect x="925" y="43" width="92" height="14" rx="2" fill="#F0D3D2" stroke="#D08683" stroke-width="1"/>
+        <rect x="925" y="60" width="92" height="14" rx="2" fill="#F0D3D2" stroke="#D08683" stroke-width="1"/>
+        <text class="sv-s" x="971" y="90">50개 묶음 대기</text>
+        <path class="sv-line" d="M1017 52 H1048"/>
+        <text class="sv-x" x="1056" y="57">출고 지연</text>
+      </g>
+    </svg>
+  </div>
+  <p class="swipe">← 가로로 넘겨서 보기</p>
+
+  <div class="dg-head" style="margin-top:30px">
+    <span class="dg-tag after">개선</span>
+    <span class="dg-note">중간 검사를 통합 검수존으로 묶고, 라인을 U자로 접고, 완성 즉시 1개씩 출고</span>
+  </div>
+  <div class="scroller">
+    <svg viewBox="0 0 1180 176" role="img" aria-label="개선 공정 흐름: 다섯 공정 위에 통합 검수존, 아래에 U자형 셀 순환 동선, 완성 즉시 1개 출고">
+      <g>
+        <path class="sv-line-t" d="M10 42 V26 H846 V42"/>
+        <text class="sv-em" x="330" y="18">검수 작업존 통합 — 중간 검사 모듈 삭제, 병렬 일괄 검수</text>
+      </g>
+      <g>
+        <rect class="sv-box-t" x="10" y="52" width="96" height="36" rx="3"/><text class="sv-t" x="58" y="75">사출</text>
+        <rect class="sv-box-t" x="195" y="52" width="96" height="36" rx="3"/><text class="sv-t" x="243" y="75">인쇄</text>
+        <rect class="sv-box-t" x="380" y="52" width="96" height="36" rx="3"/><text class="sv-t" x="428" y="75">식모</text>
+        <rect class="sv-box-t" x="565" y="52" width="96" height="36" rx="3"/><text class="sv-t" x="613" y="75">결합</text>
+        <rect class="sv-box-t" x="750" y="52" width="96" height="36" rx="3"/><text class="sv-t" x="798" y="75">포장</text>
+      </g>
+      <g class="sv-line-t">
+        <path d="M106 70 H195"/><path d="M291 70 H380"/><path d="M476 70 H565"/><path d="M661 70 H750"/>
+        <path d="M846 70 H880"/>
+      </g>
+      <text class="sv-em" x="888" y="75">완성 즉시 1개 출고</text>
+      <g>
+        <path class="sv-line-t" d="M846 88 V118 Q846 132 832 132 H38 Q24 132 24 118 V100" stroke-dasharray="5 4"/>
+        <polygon points="24,90 30,102 18,102" fill="var(--teal)"/>
+        <text class="sv-s" x="428" y="152" fill="#0F7269">U자형 셀 — 투입과 반출을 한곳으로, 포장 작업자는 set으로 묶어 병목 지원</text>
+      </g>
+    </svg>
+  </div>
+  <p class="swipe">← 가로로 넘겨서 보기</p>
+</section>
+
+<section>
+  <h2>결과</h2>
+  <p class="sub">동일 조건(8시간 × 5 replication)으로 기존 모델과 개선 모델을 각각 돌려 비교했습니다.</p>
+
+  <div class="kpi">
+    <div class="kpi-row">
+      <div>
+        <div class="kpi-name">시간당 생산량</div>
+        <div class="kpi-def">1시간당 완성되는 칫솔 수</div>
+      </div>
+      <div class="bars">
+        <div class="bar"><span>기존</span><div class="track"><div class="fill b" style="width:53.8%"></div></div><span class="val b">182 ea</span></div>
+        <div class="bar"><span>개선</span><div class="track"><div class="fill a" style="width:100%"></div></div><span class="val">338 ea</span></div>
+      </div>
+      <div class="delta"><strong>+85.7%</strong><span>같은 8시간 기준</span></div>
+    </div>
+
+    <div class="kpi-row">
+      <div>
+        <div class="kpi-name">평균 리드타임</div>
+        <div class="kpi-def">원자재 투입부터 완제품 포장까지</div>
+      </div>
+      <div class="bars">
+        <div class="bar"><span>기존</span><div class="track"><div class="fill b" style="width:100%"></div></div><span class="val b">905.6 min</span></div>
+        <div class="bar"><span>개선</span><div class="track"><div class="fill a" style="width:71.6%"></div></div><span class="val">648.4 min</span></div>
+      </div>
+      <div class="delta"><strong>−28.4%</strong><span>제품 1개 완성 시간</span></div>
+    </div>
+
+    <div class="kpi-row">
+      <div>
+        <div class="kpi-name">총 공정 대기 시간</div>
+        <div class="kpi-def">가공되지 않고 대기열에 머문 시간</div>
+      </div>
+      <div class="bars">
+        <div class="bar"><span>기존</span><div class="track"><div class="fill b" style="width:100%"></div></div><span class="val b">666.8 min</span></div>
+        <div class="bar"><span>개선</span><div class="track"><div class="fill a" style="width:81.8%"></div></div><span class="val">545.5 min</span></div>
+      </div>
+      <div class="delta"><strong>−18.2%</strong><span>병목 정체 해소</span></div>
+    </div>
+
+    <div class="kpi-row">
+      <div>
+        <div class="kpi-name">평균 이동 시간</div>
+        <div class="kpi-def">공정 간 이동에 쓰인 시간</div>
+      </div>
+      <div class="bars">
+        <div class="bar"><span>기존</span><div class="track"><div class="fill b" style="width:100%"></div></div><span class="val b">399.1 min</span></div>
+        <div class="bar"><span>개선</span><div class="track"><div class="fill a" style="width:52.6%"></div></div><span class="val">210.0 min</span></div>
+      </div>
+      <div class="delta"><strong>−47.4%</strong><span>U자형 배치 효과</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>문제를 어디서 찾았나</h2>
+  <p class="sub">기존 모델의 Waiting Time 리포트에서 평균 대기가 큰 대기열을 뽑았더니, 상위권이 전부 ‘묶어서 기다리는’ 공정이었습니다.</p>
+
+  <table class="q">
+    <thead>
+      <tr><th>대기열</th><th>성격</th><th>평균 대기</th><th>Half Width</th></tr>
+    </thead>
+    <tbody>
+      <tr class="top"><td>캡_핸들_결합 Queue2</td><td>합류 대기</td><td>426.83</td><td>371.82</td></tr>
+      <tr class="top"><td>브리스타_6개 묶음</td><td>묶음(batch)</td><td>106.83</td><td>7.60</td></tr>
+      <tr><td>캡_핸들_결합 Queue1</td><td>합류 대기</td><td>46.70</td><td>128.93</td></tr>
+      <tr><td>모세척 5개 batch</td><td>묶음(batch)</td><td>41.60</td><td>2.25</td></tr>
+      <tr><td>출고전_묶음</td><td>묶음(batch)</td><td>10.87</td><td>1.00</td></tr>
+      <tr><td>인박스_포장</td><td>단일 작업자</td><td>9.79</td><td>0.86</td></tr>
+      <tr><td>칫솔랩 포장 / 포장 검수</td><td>포장·검수</td><td>7.82 / 7.13</td><td>2.08 / 1.95</td></tr>
+    </tbody>
+  </table>
+  <p class="caption">여기서 개선 방향이 갈렸습니다. 묶음 대기가 리드타임을 먹고 있으니 <b>배치를 없애고</b>,
+    검사가 흐름을 계속 끊으니 <b>검수를 한곳으로 모으고</b>, 이동과 작업자 고립이 겹치니 <b>라인을 U자로 접는다</b>.</p>
+</section>
+
+<section>
+  <h2>세 가지 개선 레버</h2>
+  <p class="sub">각각 AS-IS 문제, TO-BE 설계, 기대효과 순으로 정리했습니다.</p>
+
+  <div class="lever">
+    <div class="lever-head"><span class="chip">검수</span><h3>검수 작업존 통합</h3></div>
+    <div class="ab">
+      <div><h4>기존</h4><ul>
+        <li>매 단계 검사로 공정 흐름이 반복적으로 끊김</li>
+        <li>검사 대기열이 쌓이며 전체 리드타임 지연</li>
+      </ul></div>
+      <div class="to"><h4>개선</h4><ul>
+        <li>직렬로 붙어 있던 중간 검수 모듈을 삭제</li>
+        <li>통합 검수존을 신설해 병렬로 일괄 검수</li>
+        <li>중간 정체 구간 제거로 Non-Stop Flow 구성</li>
+      </ul></div>
+    </div>
+    <p class="gain">resource 활용도 증가, 전체 cycle time 감소</p>
+  </div>
+
+  <div class="lever">
+    <div class="lever-head"><span class="chip">배치</span><h3>직선형 라인 → U자형 셀</h3></div>
+    <div class="ab">
+      <div><h4>기존</h4><ul>
+        <li>긴 일자형 라인으로 작업자 간 소통·협업 차질</li>
+        <li>끝에서 처음으로 돌아오는 편도 공차 발생</li>
+      </ul></div>
+      <div class="to"><h4>개선</h4><ul>
+        <li>입구와 출구를 한곳으로 모아 순환형 동선 구성</li>
+        <li>한 작업자가 투입과 배출을 동시에 관리</li>
+        <li>포장 작업자를 set으로 묶어 병목 구간을 돕는 다능공 운영</li>
+      </ul></div>
+    </div>
+    <p class="gain">작업자 동선 최소화와 이용률 향상, 인박스 포장 대기 감소</p>
+  </div>
+
+  <div class="lever">
+    <div class="lever-head"><span class="chip">출고</span><h3>배치 출고 → 1개 흐름</h3></div>
+    <div class="ab">
+      <div><h4>기존</h4><ul>
+        <li>출고 단위(50개)를 채우려 완제품이 창고에 체류</li>
+        <li>배치 완료 대기로 출고 지연과 재고 비용 상승</li>
+      </ul></div>
+      <div class="to"><h4>개선</h4><ul>
+        <li>Batch 모듈 삭제, 완성 즉시 1개 단위 출고</li>
+        <li>완제품이 공장에 머무는 시간 최소화</li>
+      </ul></div>
+    </div>
+    <p class="gain">재공품 감축, 리드타임 단축, Throughput 향상</p>
+  </div>
+</section>
+
+<section>
+  <h2>시뮬레이션 조건</h2>
+  <p class="sub">기존·개선 모델 모두 동일하게 설정해 비교 가능성을 확보했습니다.</p>
+  <dl class="setup">
+    <div><dt>Replication Length</dt><dd>8 hours</dd></div>
+    <div><dt>Number of Replications</dt><dd>5</dd></div>
+    <div><dt>Hours Per Day</dt><dd>8</dd></div>
+    <div><dt>Base Time Units</dt><dd>Seconds</dd></div>
+    <div><dt>Warm-up Period</dt><dd>0.0</dd></div>
+  </dl>
+</section>
+
+<section>
+  <h2>지원 서류에 바로 쓰는 문장</h2>
+  <p class="sub">복사해서 쓰되, 회사 직무에 맞춰 맨 앞 한 문장만 바꾸면 됩니다.</p>
+
+  <div class="pitch">
+    <p class="oneline">칫솔 제조 전 공정을 Arena로 모델링해 대기시간 데이터로 병목을 특정하고,
+      검수 통합·U자형 셀 배치·배치 출고 제거 세 가지를 설계해 시간당 생산량을 85.7% 끌어올린 프로젝트입니다.</p>
+
+    <h3>이력서 항목</h3>
+    <ul>
+      <li>사출–인쇄–식모–결합–포장 5개 공정과 검사·이동·포장 분기를 Arena로 모델링(8시간 × 5 replication), Waiting Time 리포트로 병목 대기열 상위 3개를 정량 특정</li>
+      <li>공정마다 반복되던 직렬 검사 모듈을 병렬 통합 검수존으로 재설계하고, 직선형 라인을 U자형 셀로 재배치해 이동 시간 47.4% 단축</li>
+      <li>출고 직전 50개 배치 공정을 1개 흐름으로 전환해 평균 리드타임 905.6 → 648.4분(−28.4%), 시간당 생산량 182 → 338ea(+85.7%) 달성</li>
+    </ul>
+
+    <div class="qa">
+      <h3>면접에서 나올 질문</h3>
+      <dl>
+        <dt>왜 하필 이 세 가지를 골랐나요?</dt>
+        <dd>감이 아니라 대기시간 리포트에서 출발했다고 답하세요. 상위 병목이 결합·묶음·검사에 몰려 있었고, 각 병목의 원인 유형(배치 대기 / 흐름 단절 / 동선)에 하나씩 대응시킨 구조입니다.</dd>
+
+        <dt>세 개 중 어느 개선이 가장 효과가 컸나요?</dt>
+        <dd>지금 모델은 세 개를 동시에 적용한 결과만 있습니다. 단독 적용 실험을 안 했다는 점을 인정하고, “다시 한다면 각 안을 개별로 켜고 끄는 요인 실험을 설계하겠다”로 마무리하는 편이 훨씬 좋게 들립니다.</dd>
+
+        <dt>검사를 줄였는데 불량이 새어 나가지 않나요?</dt>
+        <dd>검사 항목 자체를 없앤 게 아니라 시점을 모아 병렬로 처리한 것이라고 설명하세요. 다만 불량률을 KPI로 측정하지 않은 건 한계이니 먼저 인정하는 편이 안전합니다.</dd>
+
+        <dt>replication 5회면 신뢰할 수 있나요?</dt>
+        <dd>일부 대기열은 half width가 평균만큼 커서(캡_핸들_결합 426.8 ± 371.8) 신뢰구간이 넓습니다. 이 지표는 반복 횟수를 늘려야 한다고 먼저 말하면 오히려 점수를 얻습니다.</dd>
+
+        <dt>U자형 배치를 Arena에서 어떻게 표현했나요?</dt>
+        <dd>Station 간 이동 시간 파라미터 조정과 Resource Set 공유로 구현했다는 점, 즉 물리 배치를 모델 파라미터로 번역한 과정을 설명하면 됩니다.</dd>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>제출 전에 손볼 곳</h2>
+  <p class="sub">원본 발표자료를 그대로 옮기면서 눈에 걸린 부분입니다. 면접관이 파고들기 쉬운 순서로 적었습니다.</p>
+  <ol class="fix prose">
+    <li><b>‘평균 이동 시간’의 정의가 값과 맞지 않습니다</b>
+      <span>정의 칸에는 “실제 작업을 수행한 비율”이라고 적혀 있는데 값은 399.1 min입니다. 정의를 “제품 1개당 누적 이동 시간”으로 고치세요.</span></li>
+    <li><b>리드타임 905.6분이 런 길이 480분보다 깁니다</b>
+      <span>8시간 런에서 나온 평균 리드타임이 8시간을 넘는 이유(초기 과부하, warm-up 미설정, 미완료 엔티티 처리 방식)를 한 줄로 준비해 두세요. 가장 먼저 들어올 질문입니다.</span></li>
+    <li><b>Warm-up이 0이고 replication이 5회입니다</b>
+      <span>정상상태 도달 전 구간이 통계에 섞입니다. 여유가 되면 warm-up을 주고 replication을 10~20회로 올려 다시 돌린 값으로 교체하면 수치 신뢰도가 확 올라갑니다.</span></li>
+    <li><b>품질·비용 지표가 없습니다</b>
+      <span>생산성만 좋아진 그림이라 “품질은?”이 반드시 따라옵니다. 불량률이나 재공품 수 같은 지표 하나만 추가해도 이야기가 완결됩니다.</span></li>
+    <li><b>본인 역할이 비어 있습니다</b>
+      <span>맨 위 메타 항목에 담당 파트(모델링 / 데이터 수집 / 개선안 설계 / 발표)를 구체적으로 채우세요. 5인 팀플에서 채용 담당자가 가장 궁금해하는 항목입니다.</span></li>
+  </ol>
+</section>
+
+<footer>
+  원본: 시스템 시뮬레이션 7조 최종발표 — 신재우, 이동희, 정환희, 홍채경, 손나영.
+  이 페이지는 발표자료의 내용을 포트폴리오용으로 재구성한 것입니다.
+</footer>
+
+</div>
+</body>
+</html>

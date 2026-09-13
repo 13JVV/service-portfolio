@@ -1,0 +1,539 @@
+<title>반갑꼬리 개발 기록</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --ground: #FFFFFF;
+    --surface: #FFF7FA;
+    --ink: #2A2530;
+    --muted: #857E8C;
+    --line: #F0E4EA;
+    --line-firm: #E4D3DC;
+    --accent: #E86397;
+    --accent-deep: #C4457A;
+    --accent-wash: #FDEFF5;
+    --good: #2E9E6B;
+    --warn: #C98A2E;
+
+    --sans: 'IBM Plex Sans KR', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+    --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #15121A;
+      --surface: #1D1824;
+      --ink: #F3EEF5;
+      --muted: #A69EAE;
+      --line: #2E2637;
+      --line-firm: #3D3347;
+      --accent: #F07FAB;
+      --accent-deep: #F5A3C4;
+      --accent-wash: #2A1F28;
+      --good: #4FBF8B;
+      --warn: #E0A94F;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #15121A;
+    --surface: #1D1824;
+    --ink: #F3EEF5;
+    --muted: #A69EAE;
+    --line: #2E2637;
+    --line-firm: #3D3347;
+    --accent: #F07FAB;
+    --accent-deep: #F5A3C4;
+    --accent-wash: #2A1F28;
+    --good: #4FBF8B;
+    --warn: #E0A94F;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 840px;
+    margin: 0 auto;
+    padding: 64px 28px 96px;
+  }
+
+  /* ── 머리말 ─────────────────────────────── */
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 18px;
+  }
+
+  h1 {
+    font-size: clamp(34px, 6vw, 50px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    margin: 0 0 20px;
+    text-wrap: balance;
+  }
+
+  .lede {
+    font-size: 19px;
+    font-weight: 300;
+    line-height: 1.7;
+    color: var(--muted);
+    margin: 0 0 40px;
+    max-width: 62ch;
+  }
+
+  .lede strong { color: var(--ink); font-weight: 500; }
+
+  /* ── 메타 ─────────────────────────────── */
+  .meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 56px;
+  }
+
+  .meta div { background: var(--ground); padding: 16px 18px; }
+
+  .meta dt {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 5px;
+  }
+
+  .meta dd { margin: 0; font-size: 15px; font-weight: 500; }
+
+  /* ── 섹션 ─────────────────────────────── */
+  section { margin-bottom: 60px; }
+
+  h2 {
+    font-size: 13px;
+    font-family: var(--mono);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 6px;
+  }
+
+  .h2sub {
+    font-size: 25px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin: 0 0 26px;
+    text-wrap: balance;
+  }
+
+  p { margin: 0 0 18px; max-width: 66ch; }
+  p:last-child { margin-bottom: 0; }
+
+  /* ── 지표 ─────────────────────────────── */
+  .figures {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+    gap: 28px 20px;
+    padding: 28px 0;
+    border-top: 1px solid var(--line-firm);
+    border-bottom: 1px solid var(--line-firm);
+  }
+
+  .fig b {
+    display: block;
+    font-family: var(--mono);
+    font-size: 30px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+  }
+
+  .fig span {
+    display: block;
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 5px;
+  }
+
+  /* ── 판단 사례 ─────────────────────────── */
+  .case {
+    border-top: 1px solid var(--line);
+    padding-top: 26px;
+    margin-bottom: 34px;
+  }
+
+  .case:last-child { margin-bottom: 0; }
+
+  .case-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 8px;
+  }
+
+  .case h3 {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    margin: 0 0 16px;
+    text-wrap: balance;
+  }
+
+  .step { display: flex; gap: 14px; margin-bottom: 13px; }
+  .step:last-child { margin-bottom: 0; }
+
+  .step-k {
+    flex: 0 0 46px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding-top: 5px;
+  }
+
+  .step-v { flex: 1; margin: 0; max-width: none; }
+  .step-v strong { font-weight: 600; }
+
+  /* ── 코드 ─────────────────────────────── */
+  pre {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 14px 16px;
+    margin: 14px 0 0;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.65;
+  }
+
+  pre b { color: var(--accent-deep); font-weight: 600; }
+  pre i { color: var(--muted); font-style: normal; }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.88em;
+    background: var(--accent-wash);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  /* ── 목록 ─────────────────────────────── */
+  .rows { display: flex; flex-direction: column; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+  .row { background: var(--ground); padding: 14px 18px; display: flex; gap: 16px; align-items: baseline; }
+  .row-k { flex: 0 0 104px; font-size: 13px; color: var(--muted); font-family: var(--mono); }
+  .row-v { flex: 1; font-size: 14.5px; }
+
+  ul { margin: 0; padding-left: 18px; max-width: 66ch; }
+  li { margin-bottom: 9px; }
+  li:last-child { margin-bottom: 0; }
+
+  /* ── 상태 배지 ─────────────────────────── */
+  .state {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    padding: 2px 8px;
+    border-radius: 3px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+
+  .state.done { color: var(--good); }
+  .state.wait { color: var(--warn); }
+
+  .note {
+    font-size: 14px;
+    color: var(--muted);
+    border-left: 2px solid var(--line-firm);
+    padding-left: 16px;
+    margin: 20px 0 0;
+    max-width: 62ch;
+  }
+
+  footer {
+    margin-top: 76px;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 560px) {
+    .page { padding: 44px 20px 72px; }
+    .step { flex-direction: column; gap: 3px; }
+    .step-k { flex: none; padding-top: 0; }
+    .row { flex-direction: column; gap: 3px; }
+    .row-k { flex: none; }
+  }
+</style>
+
+<div class="page">
+
+  <p class="eyebrow">2026 관광데이터 활용 공모전 · 지정과제 6</p>
+  <h1>반갑꼬리</h1>
+  <p class="lede">
+    "반려동물 동반 가능"이라고 적혀 있어도 막상 가면 다릅니다. 10kg까지만, 소형견만, 실외 좌석만 —
+    조건은 제각각인데 어디에도 정리돼 있지 않습니다. <strong>우리 아이의 몸무게와 품종을 기준으로
+    그 시설에 들어갈 수 있는지 미리 알려주는 앱</strong>을 만들었습니다.
+  </p>
+
+  <dl class="meta">
+    <div><dt>역할</dt><dd>프론트엔드 · 기능/DB 설계</dd></div>
+    <div><dt>팀</dt><dd>2인 (백엔드 1)</dd></div>
+    <div><dt>기간</dt><dd>2026.07 – 진행 중</dd></div>
+    <div><dt>배포</dt><dd>App Store 심사 준비</dd></div>
+  </dl>
+
+  <section>
+    <div class="figures">
+      <div class="fig"><b>48,786</b><span>관광공사 시설 데이터</span></div>
+      <div class="fig"><b>43/44</b><span>라이브 API 연동</span></div>
+      <div class="fig"><b>26</b><span>화면</span></div>
+      <div class="fig"><b>20,218</b><span>TypeScript 줄</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Problem</h2>
+    <p class="h2sub">데이터는 있는데, 답이 안 나온다</p>
+    <p>
+      한국관광공사 반려동물 동반여행 데이터에는 4만 8천여 곳이 있습니다. 그런데 그중
+      <strong>동반 조건이 정리된 곳은 1.3%뿐</strong>입니다. 나머지는 "일부 구역 동반가능",
+      "10kg 미만 소형견에 한함" 같은 자연어 문장이거나 아예 비어 있습니다.
+    </p>
+    <p>
+      그래서 이 앱의 핵심은 지도가 아니라 <strong>판별</strong>입니다. 자연어 조건을 파싱해
+      규칙으로 바꾸고, 등록된 반려동물의 몸무게·품종과 대조해 "가능 / 조건부 / 어려움"을
+      근거와 함께 보여줍니다.
+    </p>
+    <p class="note">
+      DB 실측 기준 <code>PARSED</code> 626건(1.28%) · <code>AMBIGUOUS</code> 468건(0.96%) ·
+      <code>NO_CONDITION</code> 47,692건(97.76%). 조건이 없는 97%를 "가능"으로 단정하지 않는 것이
+      이 서비스의 설계 전제입니다.
+    </p>
+  </section>
+
+  <section>
+    <h2>Scope</h2>
+    <p class="h2sub">맡은 범위</p>
+    <div class="rows">
+      <div class="row"><div class="row-k">앱 전체</div><div class="row-v">Expo · React Native · TypeScript. 화면 26개, 공용 컴포넌트 37개</div></div>
+      <div class="row"><div class="row-k">API 연동</div><div class="row-v">라이브 44개 중 43개. 미연동 1개는 QR 검증 페이지로 앱이 부를 일이 없는 엔드포인트</div></div>
+      <div class="row"><div class="row-k">설계</div><div class="row-v">기능 명세 · DB 스키마 · 조건 파싱 파이프라인 · 게이미피케이션</div></div>
+      <div class="row"><div class="row-k">배포</div><div class="row-v">EAS 빌드 · App Store Connect · TestFlight · 소셜 로그인 4종 콘솔 등록</div></div>
+    </div>
+    <p class="note">백엔드(Spring)는 팀원이 맡았습니다. 아래 판단 사례는 모두 앱과 연동 층에서 내린 것입니다.</p>
+  </section>
+
+  <section>
+    <h2>Decisions</h2>
+    <p class="h2sub">기록해둘 만한 판단들</p>
+
+    <div class="case">
+      <p class="case-tag">Resilience</p>
+      <h3>모듈 하나가 없다고 앱 전체가 죽지 않게</h3>
+      <div class="step">
+        <div class="step-k">상황</div>
+        <p class="step-v">푸시 알림을 붙인 뒤 팀 개발 빌드에서 앱이 <strong>시작조차 못 했습니다.</strong>
+        <code>Native module NativeRNFBTurboApp is not registered</code>. Firebase·expo-notifications는
+        import되는 순간 네이티브 모듈을 찾는데, 그 파일이 스토어 → 테마 → 탭 레이아웃으로 이어지는
+        최상위 의존이라 화면 하나가 아니라 앱이 통째로 뜨지 않았습니다.</p>
+      </div>
+      <div class="step">
+        <div class="step-k">판단</div>
+        <p class="step-v">재빌드로 덮지 않고 <strong>구조로 막았습니다.</strong> 실제로 쓸 때만 안에서
+        require하고, 그 전에 모듈이 있는지부터 확인합니다.</p>
+      </div>
+      <div class="step">
+        <div class="step-k">근거</div>
+        <p class="step-v"><code>try/catch</code>만으로는 부족했습니다. Metro가 모듈 로드 실패를
+        <strong>먼저 기록해 에러 화면을 띄우기 때문에</strong>, 예외를 잡았을 땐 이미 화면이 떠 있습니다.
+        던지지 않고 확인만 하는 API가 따로 있어 그걸 씁니다.</p>
+        <pre><i>// expo-modules와 TurboModule은 확인 방법이 다르다</i>
+<b>requireOptionalNativeModule</b>('ExpoPushTokenManager') != null &&
+<b>TurboModuleRegistry.get</b>('NativeRNFBTurboApp') != null</pre>
+      </div>
+    </div>
+
+    <div class="case">
+      <p class="case-tag">Trust</p>
+      <h3>보내지 않은 것을 보냈다고 말하지 않기</h3>
+      <div class="step">
+        <div class="step-k">상황</div>
+        <p class="step-v">「사업자에게 확인 요청」을 누르면 <strong>"보냈어요"가 떴지만 아무 데도 가지
+        않았습니다.</strong> 로컬 상태만 바뀌는 코드였고, 서버에 그런 엔드포인트가 없었습니다.
+        「제보하기」도 같은 상태였습니다.</p>
+      </div>
+      <div class="step">
+        <div class="step-k">판단</div>
+        <p class="step-v">제보는 <strong>서버 전송을 붙였고</strong>, 붙일 데가 없는 확인 요청은
+        문구를 사실에 맞게 낮췄습니다. 완료 화면이 1.6초 만에 자동으로 닫히던 것도 확인 버튼으로 바꿨습니다 —
+        무슨 일이 일어났는지 읽을 시간이 없었습니다.</p>
+      </div>
+      <div class="step">
+        <div class="step-k">근거</div>
+        <p class="step-v">제보 종류 셋 중 <strong>「실제로는 입장됐어요」만 서버에 보내지 않습니다.</strong>
+        거부의 반대인데 거부 제보로 보내면 그 시설을 보려던 다른 사용자에게 <strong>없던 경고가 뜹니다.</strong>
+        기능을 붙이는 것보다 데이터를 오염시키지 않는 게 먼저였습니다.</p>
+      </div>
+    </div>
+
+    <div class="case">
+      <p class="case-tag">Constraint</p>
+      <h3>인증을 강제하지 않는 인증</h3>
+      <div class="step">
+        <div class="step-k">상황</div>
+        <p class="step-v">여권 도장(방문 기록)에 GPS 현장 확인을 넣기로 했습니다. 시설 반경 안에서
+        찍었는지 확인하는 기능입니다.</p>
+      </div>
+      <div class="step">
+        <div class="step-k">판단</div>
+        <p class="step-v"><strong>확인하되 막지 않습니다.</strong> 반경 밖이거나 위치를 거부해도 도장은
+        남고, 「현장」 배지만 붙지 않습니다.</p>
+      </div>
+      <div class="step">
+        <div class="step-k">근거</div>
+        <p class="step-v">강제하면 <strong>앱 심사자가 그 기능을 아예 못 씁니다.</strong> 미국에 있는
+        심사자가 강릉 카페 반경 안에 있을 리 없고, 공모전 심사위원도 마찬가지입니다. 동작하지 않는
+        것으로 보이면 리젝 사유가 됩니다. 반경 1km도 GPS가 실내에서 수백 m씩 튀는 걸 감안한 값입니다 —
+        부정 방지가 아니라 집에서 찍은 것과 구분하는 게 목적입니다.</p>
+      </div>
+    </div>
+
+    <div class="case">
+      <p class="case-tag">Build</p>
+      <h3>검증된 것을 지키는 쪽으로</h3>
+      <div class="step">
+        <div class="step-k">상황</div>
+        <p class="step-v">첫 production 빌드가 <code>Install pods</code> 단계에서 실패했습니다.
+        RN 0.75부터 Firebase iOS SDK를 Swift Package Manager로 푸는데, SPM은
+        <code>use_frameworks! :linkage =&gt; :dynamic</code>을 요구합니다.</p>
+      </div>
+      <div class="step">
+        <div class="step-k">판단</div>
+        <p class="step-v">그 설정을 켜는 대신 <strong>Firebase만 CocoaPods로 되돌렸습니다</strong>
+        (<code>disableSPM</code>).</p>
+      </div>
+      <div class="step">
+        <div class="step-k">근거</div>
+        <p class="step-v"><code>useFrameworks</code>는 Podfile 전체에 걸립니다. 모든 네이티브 모듈의
+        링크 방식이 바뀌고, <strong>실기기에서 이미 검증을 끝낸 소셜 로그인 4종</strong>(카카오·네이버·구글·애플)을
+        전부 다시 확인해야 합니다. 마감 12일 전에 질 위험이 아니었습니다.</p>
+      </div>
+    </div>
+
+    <div class="case">
+      <p class="case-tag">Locale</p>
+      <h3>한글에서만 드러나는 결함</h3>
+      <div class="step">
+        <div class="step-k">상황</div>
+        <p class="step-v">실기기에서 시설 이름의 <strong>글자 윗부분이 수평으로 잘려</strong> 나왔습니다.
+        시뮬레이터와 웹에서는 멀쩡했습니다.</p>
+      </div>
+      <div class="step">
+        <div class="step-k">판단</div>
+        <p class="step-v"><code>lineHeight</code> 누락이었습니다. 한 곳만 고치지 않고
+        <strong>같은 패턴 18곳을 전수 조사해 일괄</strong> 지정했습니다.</p>
+      </div>
+      <div class="step">
+        <div class="step-k">근거</div>
+        <p class="step-v">iOS는 <code>fontWeight: 900</code> 같은 무거운 굵기에서 시스템 폰트 메트릭으로
+        행 높이를 잡는데, 한글은 폴백 폰트의 ascender가 그보다 커서 넘칩니다. 작은 텍스트에는
+        <code>lineHeight</code>가 붙어 있는데 <strong>큰 제목에만 빠져 있었습니다</strong> —
+        두 곳만 고쳤으면 다른 화면에서 그대로 다시 나왔을 겁니다.</p>
+      </div>
+    </div>
+
+    <div class="case">
+      <p class="case-tag">Data</p>
+      <h3>목 데이터로는 안 드러나는 것</h3>
+      <div class="step">
+        <div class="step-k">상황</div>
+        <p class="step-v">판별을 끝내고 「동반 출입증 보기」를 눌러도 <strong>"먼저 AI 판별을 해주세요"</strong>가
+        떴습니다. 핵심 기능 하나가 실서비스에서 통째로 막혀 있었습니다.</p>
+      </div>
+      <div class="step">
+        <div class="step-k">판단</div>
+        <p class="step-v">출입증 화면이 시설을 <strong>목 데이터에서만</strong> 찾고 있었습니다.
+        스토어 캐시를 보도록 바꾸고, 같은 패턴을 홈·제보 화면에서도 찾아 고쳤습니다.</p>
+      </div>
+      <div class="step">
+        <div class="step-k">근거</div>
+        <p class="step-v">관광공사에서 온 실제 시설은 목 데이터에 없으니 조회가 항상 실패하고,
+        판별 기록이 있어도 "판별한 적 없음" 분기로 빠졌습니다. <strong>데모용 목 시설로 테스트할 때는
+        전혀 드러나지 않습니다.</strong> 실기기에 실데이터를 물려보지 않았으면 심사에서 발견됐을 결함입니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Stack</h2>
+    <p class="h2sub">기술 구성</p>
+    <div class="rows">
+      <div class="row"><div class="row-k">앱</div><div class="row-v">Expo SDK 57 · React Native 0.86 · TypeScript 6 · Expo Router</div></div>
+      <div class="row"><div class="row-k">상태·저장</div><div class="row-v">Context + Reducer 패턴 · SecureStore / localStorage 플랫폼 분기</div></div>
+      <div class="row"><div class="row-k">애니메이션</div><div class="row-v">Reanimated 4 · Gesture Handler (공유 요소 전환, 스와이프)</div></div>
+      <div class="row"><div class="row-k">네이티브</div><div class="row-v">Firebase Messaging(FCM) · 소셜 로그인 4종 · expo-location · image-picker</div></div>
+      <div class="row"><div class="row-k">빌드</div><div class="row-v">EAS Build · TestFlight · 파일 타입 환경변수로 시크릿 분리</div></div>
+      <div class="row"><div class="row-k">외부 데이터</div><div class="row-v">한국관광공사 반려동물 동반여행 정보 (areaCode / sigunguCode)</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Status</h2>
+    <p class="h2sub">현재 상태</p>
+    <div class="rows">
+      <div class="row"><div class="row-k">앱</div><div class="row-v"><span class="state done">완료</span> 판별 · 탐색 · 출입증 · 코스 · 리뷰 · 거부 경고 · 여권 도장 · 푸시</div></div>
+      <div class="row"><div class="row-k">배포</div><div class="row-v"><span class="state done">완료</span> TestFlight 내부 테스트 — 빌드 13</div></div>
+      <div class="row"><div class="row-k">심사</div><div class="row-v"><span class="state wait">대기</span> 스크린샷 · 계정 삭제 API 후 제출</div></div>
+      <div class="row"><div class="row-k">게임 요소</div><div class="row-v"><span class="state wait">진행</span> 도장·뱃지 1차 완료, 레벨·경험치 연동 예정</div></div>
+    </div>
+    <p class="note">
+      계정 삭제는 Apple 심사 가이드라인 5.1.1(v)의 필수 요건입니다. 앱에 탈퇴 버튼이 있는데
+      서버 API가 없어 로그아웃만 되고 있던 것을 발견해, 백엔드에 우선순위 1로 요청한 상태입니다.
+      버튼을 숨겨도 "삭제 수단 없음"으로 리젝이라 우회가 불가능한 항목입니다.
+    </p>
+  </section>
+
+  <footer>
+    <span>반갑꼬리 · 반려동물 동반여행 AI 판별</span>
+    <span>2026.09</span>
+  </footer>
+</div>

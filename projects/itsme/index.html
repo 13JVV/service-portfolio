@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body style="margin:0">
+<title>It's me 개발 기록</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500&family=Jua&display=swap">
+<style>
+  :root{
+    --paper:#EFEFF2;
+    --card:#FFFFFF;
+    --card-2:#F7F7F9;
+    --ink:#161A28;
+    --ink-soft:#414860;
+    --muted:#787F93;
+    --rule:#DBDBE2;
+    --rule-soft:#E8E8ED;
+    --coral:#D9503A;
+    --coral-soft:#FBE9E5;
+    --rose:#B76E79;
+    --navy:#2A3350;
+    --good:#2F7A5B;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#12141C;
+      --card:#1A1D28;
+      --card-2:#20242F;
+      --ink:#ECEDF3;
+      --ink-soft:#B4BACB;
+      --muted:#858BA0;
+      --rule:#2E323F;
+      --rule-soft:#252936;
+      --coral:#FF7C63;
+      --coral-soft:#33201C;
+      --rose:#D79BA4;
+      --navy:#9FAAD0;
+      --good:#63BE99;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#12141C;
+    --card:#1A1D28;
+    --card-2:#20242F;
+    --ink:#ECEDF3;
+    --ink-soft:#B4BACB;
+    --muted:#858BA0;
+    --rule:#2E323F;
+    --rule-soft:#252936;
+    --coral:#FF7C63;
+    --coral-soft:#33201C;
+    --rose:#D79BA4;
+    --navy:#9FAAD0;
+    --good:#63BE99;
+  }
+
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Gothic A1","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    font-size:15px;line-height:1.7;font-weight:400;letter-spacing:-0.012em;
+  }
+  .wrap{max-width:1020px;margin:0 auto;padding:0 26px 100px}
+  a{color:var(--coral);text-decoration:none;border-bottom:1px solid color-mix(in srgb, var(--coral) 35%, transparent)}
+  a:hover{border-bottom-color:var(--coral)}
+  a:focus-visible{outline:2px solid var(--coral);outline-offset:2px;border-radius:2px}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+
+  /* ── 상단 식별 밴드 ── */
+  .band{
+    display:flex;flex-wrap:wrap;gap:6px 26px;align-items:baseline;
+    padding:20px 0 14px;border-bottom:2px solid var(--ink);
+    font-size:12.5px;color:var(--muted);
+  }
+  .band b{color:var(--ink);font-weight:700}
+
+  /* ── 히어로 ── */
+  .hero{display:grid;grid-template-columns:1.25fr 0.75fr;gap:48px;padding:46px 0 42px;align-items:start}
+  h1{margin:0 0 20px;font-size:44px;line-height:1.16;font-weight:900;letter-spacing:-0.045em;text-wrap:balance}
+  h1 .en{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:0.82em;letter-spacing:-0.03em}
+  .thesis{font-size:18px;line-height:1.62;color:var(--ink-soft);margin:0 0 26px;max-width:31em}
+  .thesis mark{background:linear-gradient(transparent 60%, var(--coral-soft) 60%);color:var(--ink);font-weight:700}
+  .links{display:flex;flex-wrap:wrap;gap:8px}
+  .pill{
+    display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border:1px solid var(--rule);
+    border-radius:999px;background:var(--card);font-size:13px;color:var(--ink-soft);border-bottom:1px solid var(--rule);
+  }
+  .pill:hover{border-color:var(--coral);color:var(--coral)}
+  .pill .dot{width:6px;height:6px;border-radius:50%;background:var(--coral)}
+
+  /* ── 명함 목업 (9:5, 실제 명함 비율) ── */
+  .cardmock{
+    aspect-ratio:9/5;border-radius:12px;padding:20px 22px;position:relative;overflow:hidden;
+    background:linear-gradient(135deg,#B76E79 0%,#D79A8C 48%,#E8C4A2 100%);
+    color:#fff;box-shadow:0 14px 34px -18px rgba(22,26,40,.55);
+    display:flex;flex-direction:column;justify-content:space-between;
+  }
+  .cardmock .brand{font-family:"Jua",sans-serif;font-size:15px;opacity:.9;letter-spacing:0}
+  .cardmock .nm{font-size:26px;font-weight:900;letter-spacing:-0.04em;line-height:1.1;margin-top:2px}
+  .cardmock .rl{font-size:12.5px;opacity:.92;margin-top:5px;line-height:1.5}
+  .cardmock .qr{position:absolute;right:20px;bottom:18px;width:54px;height:54px;background:rgba(255,255,255,.94);border-radius:6px;padding:5px}
+  .cardcap{margin-top:12px;font-size:12px;color:var(--muted);line-height:1.6}
+  .cardcap b{color:var(--ink-soft);font-weight:700}
+
+  /* ── 숫자 스트립 ── */
+  .strip{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+  .strip div{padding:18px 20px 20px;border-right:1px solid var(--rule-soft)}
+  .strip div:last-child{border-right:none}
+  .n{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;font-size:25px;font-weight:500;letter-spacing:-0.03em;display:block;line-height:1.15;color:var(--ink)}
+  .n small{font-size:14px;font-weight:400;color:var(--muted);margin-left:2px}
+  .l{display:block;font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5}
+
+  /* ── 섹션 (스펙시트 레이아웃) ── */
+  section{display:grid;grid-template-columns:168px 1fr;gap:36px;padding:54px 0 0;align-items:start}
+  .rail{position:sticky;top:22px}
+  .kicker{font-size:11.5px;font-weight:700;letter-spacing:.08em;color:var(--coral);text-transform:uppercase;font-family:"IBM Plex Mono",monospace}
+  .rail h2{margin:8px 0 0;font-size:19px;font-weight:900;letter-spacing:-0.035em;line-height:1.3}
+  .rail p{margin:8px 0 0;font-size:12.5px;color:var(--muted);line-height:1.6}
+  .body-col > :first-child{margin-top:0}
+  p{margin:0 0 14px;max-width:64em}
+  .lead{font-size:16px;color:var(--ink-soft);max-width:46em}
+  h3{margin:30px 0 12px;font-size:17px;font-weight:700;letter-spacing:-0.02em}
+  code{font-family:"IBM Plex Mono",monospace;font-size:12.5px;background:var(--card-2);border:1px solid var(--rule-soft);padding:1px 5px;border-radius:3px;color:var(--ink-soft)}
+
+  /* ── 기능 3열 ── */
+  .feat{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:4px;overflow:hidden}
+  .feat > div{background:var(--card);padding:18px 18px 20px}
+  .feat h4{margin:0 0 4px;font-size:14.5px;font-weight:900;letter-spacing:-0.02em}
+  .feat .sub{font-size:11.5px;color:var(--coral);font-family:"IBM Plex Mono",monospace;letter-spacing:.02em;margin-bottom:10px}
+  .feat ul{margin:0;padding-left:16px;font-size:13.5px;color:var(--ink-soft);line-height:1.72}
+  .feat li{margin-bottom:3px}
+  .feat li b{color:var(--ink);font-weight:700}
+
+  /* ── 아키텍처 ── */
+  .arch{background:var(--card);border:1px solid var(--rule);border-radius:4px;padding:22px;overflow-x:auto}
+  .arch svg{display:block;min-width:640px;width:100%;height:auto}
+
+  /* ── 문제 해결 케이스 ── */
+  .case{background:var(--card);border:1px solid var(--rule);border-radius:4px;margin-bottom:14px;overflow:hidden}
+  .case-top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--rule-soft);background:var(--card-2)}
+  .tag{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.06em;padding:3px 8px;border-radius:3px;background:var(--coral);color:#fff;font-weight:500;white-space:nowrap}
+  .tag.plain{background:transparent;color:var(--muted);border:1px solid var(--rule)}
+  .case-top h4{margin:0;font-size:15px;font-weight:900;letter-spacing:-0.025em;flex:1 1 240px}
+  .rows{display:grid;grid-template-columns:76px 1fr;gap:0}
+  .rows dt{padding:11px 0 11px 18px;font-size:11.5px;color:var(--muted);font-family:"IBM Plex Mono",monospace;letter-spacing:.03em;border-bottom:1px solid var(--rule-soft)}
+  .rows dd{margin:0;padding:11px 18px 11px 0;font-size:13.8px;color:var(--ink-soft);line-height:1.68;border-bottom:1px solid var(--rule-soft)}
+  .rows dd b{color:var(--ink);font-weight:700}
+  .rows dt:last-of-type,.rows dd:last-of-type{border-bottom:none}
+  .rows dd.res{color:var(--good);font-weight:500}
+
+  /* ── 타임라인 ── */
+  ol.tl{list-style:none;margin:0;padding:0}
+  ol.tl li{display:grid;grid-template-columns:88px 1fr;gap:18px;padding:0 0 22px;position:relative}
+  ol.tl li:last-child{padding-bottom:0}
+  .tl .when{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--muted);padding-top:1px;font-variant-numeric:tabular-nums}
+  .tl .what{border-left:1px solid var(--rule);padding:0 0 4px 20px;position:relative}
+  .tl li:last-child .what{border-left-color:transparent}
+  .tl .what::before{content:"";position:absolute;left:-4.5px;top:7px;width:8px;height:8px;border-radius:50%;background:var(--paper);border:1.5px solid var(--coral)}
+  .tl b{display:block;font-size:14.5px;font-weight:900;letter-spacing:-0.02em;margin-bottom:2px}
+  .tl span{font-size:13.5px;color:var(--ink-soft);line-height:1.68;display:block;max-width:56em}
+
+  /* ── 표 ── */
+  .sheet{background:var(--card);border:1px solid var(--rule);border-radius:4px;overflow:hidden;margin:0 0 16px}
+  table{border-collapse:collapse;width:100%;font-size:13.5px}
+  .sheet th,.sheet td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+  .sheet thead th{background:var(--card-2);font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:.04em;border-bottom:1px solid var(--rule)}
+  .sheet tbody tr:last-child td{border-bottom:none}
+  .sheet td:first-child{font-weight:700;color:var(--ink);white-space:nowrap}
+  .sheet td.t{color:var(--ink-soft)}
+
+  /* ── 자소서 소재 ── */
+  .quote{background:var(--card);border:1px solid var(--rule);border-left:3px solid var(--coral);border-radius:4px;padding:18px 20px;margin-bottom:14px}
+  .quote .qh{font-size:11.5px;font-family:"IBM Plex Mono",monospace;color:var(--coral);letter-spacing:.05em;margin-bottom:8px}
+  .quote blockquote{margin:0 0 12px;font-size:16px;line-height:1.6;font-weight:700;letter-spacing:-0.025em;color:var(--ink);max-width:40em;text-wrap:balance}
+  .quote ul{margin:0;padding-left:17px;font-size:13.3px;color:var(--ink-soft);line-height:1.7}
+  .quote li{margin-bottom:2px}
+  .quote li b{color:var(--ink);font-weight:700}
+
+  .note{font-size:12.5px;color:var(--muted);line-height:1.65;border-top:1px solid var(--rule);padding-top:14px;margin-top:18px}
+
+  footer{margin-top:64px;border-top:2px solid var(--ink);padding-top:20px;display:flex;flex-wrap:wrap;gap:14px 34px;align-items:baseline;font-size:13px;color:var(--muted)}
+  footer b{color:var(--ink);font-weight:900;font-size:15px;letter-spacing:-0.02em}
+
+  @media (max-width:860px){
+    .hero{grid-template-columns:1fr;gap:30px;padding:34px 0}
+    h1{font-size:34px}
+    .strip{grid-template-columns:repeat(2,1fr)}
+    .strip div{border-bottom:1px solid var(--rule-soft)}
+    section{grid-template-columns:1fr;gap:18px;padding:44px 0 0}
+    .rail{position:static}
+    .feat{grid-template-columns:1fr}
+    ol.tl li{grid-template-columns:74px 1fr;gap:12px}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+
+  <div class="band">
+    <span><b>It's me(잇츠미)</b> — 디지털 명함 앱</span>
+    <span>개인 프로젝트 · 기획/개발/디자인/배포 단독</span>
+    <span>2026.03 – 진행 중</span>
+    <span class="mono">신재우 · 산업경영공학 4학년</span>
+  </div>
+
+  <div class="hero">
+    <div>
+      <h1>종이 명함 한 장을<br><span class="en">iOS · Android</span> 앱으로 옮기고,<br>직접 운영하고 있습니다</h1>
+      <p class="thesis">기획부터 App Store·Google Play 배포, 심사 반려 대응, 실사용자 버그 수정까지 <mark>혼자 끝까지 굴려본 프로덕트</mark>입니다. 명함을 만들고 QR로 건네는 데서 끝내지 않고, <mark>만난 다음의 관계 관리</mark>까지를 제품의 범위로 잡았습니다.</p>
+      <div class="links">
+        <a class="pill" href="https://apps.apple.com/kr/app/id6769245736"><span class="dot"></span>App Store — iOS 1.4.2</a>
+        <a class="pill" href="https://persona-772ab.web.app"><span class="dot"></span>웹 명함 페이지</a>
+        <span class="pill"><span class="dot"></span>Google Play — Android 1.0.20</span>
+      </div>
+    </div>
+    <div>
+      <div class="cardmock">
+        <div>
+          <div class="brand">It's me</div>
+          <div class="nm">신재우</div>
+          <div class="rl">산업경영공학 · 앱 개발<br>sjwtlswodn@naver.com</div>
+        </div>
+        <div class="qr" aria-hidden="true">
+          <svg viewBox="0 0 44 44" width="100%" height="100%">
+            <rect x="0" y="0" width="44" height="44" fill="none"></rect>
+            <g fill="#3A2A2C">
+              <path d="M0 0h14v14H0V0zm3 3v8h8V3H3z"></path>
+              <path d="M30 0h14v14H30V0zm3 3v8h8V3h-8z"></path>
+              <path d="M0 30h14v14H0V30zm3 3v8h8v-8H3z"></path>
+              <rect x="5" y="5" width="4" height="4"></rect>
+              <rect x="35" y="5" width="4" height="4"></rect>
+              <rect x="5" y="35" width="4" height="4"></rect>
+              <rect x="18" y="2" width="3" height="3"></rect><rect x="22" y="6" width="3" height="3"></rect>
+              <rect x="18" y="10" width="3" height="3"></rect><rect x="24" y="14" width="3" height="3"></rect>
+              <rect x="2" y="18" width="3" height="3"></rect><rect x="7" y="22" width="3" height="3"></rect>
+              <rect x="12" y="18" width="3" height="3"></rect><rect x="16" y="24" width="3" height="3"></rect>
+              <rect x="20" y="20" width="3" height="3"></rect><rect x="26" y="24" width="3" height="3"></rect>
+              <rect x="30" y="18" width="3" height="3"></rect><rect x="35" y="22" width="3" height="3"></rect>
+              <rect x="40" y="18" width="3" height="3"></rect><rect x="31" y="28" width="3" height="3"></rect>
+              <rect x="20" y="31" width="3" height="3"></rect><rect x="25" y="35" width="3" height="3"></rect>
+              <rect x="20" y="40" width="3" height="3"></rect><rect x="30" y="36" width="3" height="3"></rect>
+              <rect x="35" y="31" width="3" height="3"></rect><rect x="39" y="35" width="3" height="3"></rect>
+              <rect x="35" y="40" width="3" height="3"></rect><rect x="40" y="27" width="3" height="3"></rect>
+            </g>
+          </svg>
+        </div>
+      </div>
+      <p class="cardcap">앱에서 실제로 만들어지는 명함 형태(<b>가로 9 : 세로 5</b>, 국내 명함 규격). 스킨 11종 · 레이아웃 3종 · 서체/글자크기 6단계를 사용자가 조합합니다.</p>
+    </div>
+  </div>
+
+  <div class="strip">
+    <div><span class="n">128</span><span class="l">커밋 (2026.03–09)</span></div>
+    <div><span class="n">14,121<small>줄</small></span><span class="l">TypeScript · Swift · Kotlin</span></div>
+    <div><span class="n">2<small>개 스토어</small></span><span class="l">App Store · Google Play</span></div>
+    <div><span class="n">11</span><span class="l">Cloud Functions 엔드포인트</span></div>
+    <div><span class="n">3<small>회</small></span><span class="l">심사 반려 → 자체 수정 후 통과</span></div>
+  </div>
+
+  <!-- 01 개요 -->
+  <section>
+    <div class="rail">
+      <div class="kicker">01 / Overview</div>
+      <h2>무엇을, 왜 만들었나</h2>
+      <p>제품의 정의와 포지셔닝</p>
+    </div>
+    <div class="body-col">
+      <p class="lead">명함을 처음 갖게 되는 사람 — 대학생·취준생·1년차 — 에게는 명함이 <b>수집 대상</b>이 아니라 <b>첫인상</b>입니다. 리멤버가 잘하는 "명함을 스캔해 쌓아두는 일" 대신, <b>예쁜 첫 명함을 만들어 건네고 그 인연을 이어가는 일</b>에 제품을 맞췄습니다.</p>
+      <p>리멤버·HiHello·Blinq·Popl 4종을 뜯어보고 나서 포지셔닝을 <b>"예쁜 첫 명함 → AI 관계 비서"</b>로 확정했습니다. 경쟁 앱이 교환의 <em>순간</em>에서 끝난다면, 잇츠미는 교환 이후 — 언제 어디서 만났는지, 얼마나 연락이 뜸해졌는지, 다시 만나기 전 무엇을 기억해야 하는지 — 를 다룹니다.</p>
+
+      <div class="feat">
+        <div>
+          <h4>만들고 건네기</h4>
+          <div class="sub">CREATE &amp; SHARE</div>
+          <ul>
+            <li>명함 스킨 <b>11종</b>(그라디언트·글래스모피즘) + 레이아웃 3종</li>
+            <li>QR 1탭 공유, <b>유니버설 링크/앱 링크</b>로 앱 없이도 웹 명함 열람</li>
+            <li>카카오톡 공유 → 딥링크로 상대 지갑에 바로 저장</li>
+            <li>Apple Wallet 패스, 홈·잠금화면 위젯, 이메일 서명 생성</li>
+          </ul>
+        </div>
+        <div>
+          <h4>받아서 모으기</h4>
+          <div class="sub">SCAN &amp; WALLET</div>
+          <ul>
+            <li>종이 명함 촬영 → <b>Claude Vision</b>이 항목 자동 추출</li>
+            <li>지갑: 카테고리·검색·정렬·즐겨찾기, 수집 배지 6단계</li>
+            <li><b>이벤트 모드</b> — 전시회·학회에서 받은 명함에 행사명 자동 태깅</li>
+            <li>CSV · vCard 내보내기</li>
+          </ul>
+        </div>
+        <div>
+          <h4>만난 다음</h4>
+          <div class="sub">RELATIONSHIP</div>
+          <ul>
+            <li><b>살아있는 명함</b> — 상대가 명함을 고치면 내 지갑도 자동 갱신</li>
+            <li><b>만남 지도</b> — 저장 시점 위치를 기록해 지도에 표시</li>
+            <li><b>관계 온도</b> — 최근성 70 + 빈도 30점으로 0~100° 산출</li>
+            <li>AI 만남 브리핑 · 안부문자 초안 · 조회 분석</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 아키텍처 -->
+  <section>
+    <div class="rail">
+      <div class="kicker">02 / Architecture</div>
+      <h2>어떻게 굴러가나</h2>
+      <p>클라이언트 · 서버 · 외부 API의 경계</p>
+    </div>
+    <div class="body-col">
+      <p class="lead">API 키를 앱에 넣지 않는다는 원칙 하나로 구조가 정해졌습니다. AI 호출과 소셜 로그인 토큰 교환은 전부 Cloud Functions를 거칩니다.</p>
+      <div class="arch">
+        <svg viewBox="0 0 720 268" role="img" aria-label="It's me 시스템 구성도">
+          <defs>
+            <marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+              <path d="M0 1 L7 4 L0 7 z" fill="currentColor"></path>
+            </marker>
+          </defs>
+          <g style="color:var(--muted)" fill="none" stroke="currentColor" stroke-width="1.1">
+            <line x1="140" y1="96" x2="140" y2="138" marker-end="url(#ar)"></line>
+            <line x1="300" y1="96" x2="300" y2="138" marker-end="url(#ar)"></line>
+            <line x1="460" y1="96" x2="460" y2="138" marker-end="url(#ar)"></line>
+            <line x1="522" y1="168" x2="537" y2="168" marker-end="url(#ar)"></line>
+            <line x1="120" y1="196" x2="120" y2="230" marker-end="url(#ar)"></line>
+          </g>
+          <g font-family="Gothic A1, sans-serif" font-size="12.5" fill="var(--ink)">
+            <!-- 클라이언트 -->
+            <rect x="20" y="18" width="680" height="78" rx="6" fill="var(--card-2)" stroke="var(--rule)"></rect>
+            <text x="34" y="38" font-size="11" font-family="IBM Plex Mono, monospace" fill="var(--coral)">CLIENT — React Native 0.84 / TypeScript</text>
+            <g>
+              <rect x="34" y="48" width="126" height="34" rx="4" fill="var(--card)" stroke="var(--rule)"></rect>
+              <text x="97" y="69" text-anchor="middle">홈 · 편집 · 공유</text>
+              <rect x="172" y="48" width="126" height="34" rx="4" fill="var(--card)" stroke="var(--rule)"></rect>
+              <text x="235" y="69" text-anchor="middle">지갑 · 만남 지도</text>
+              <rect x="310" y="48" width="126" height="34" rx="4" fill="var(--card)" stroke="var(--rule)"></rect>
+              <text x="373" y="69" text-anchor="middle">QR · 명함 스캔</text>
+              <rect x="448" y="48" width="110" height="34" rx="4" fill="var(--card)" stroke="var(--rule)"></rect>
+              <text x="503" y="69" text-anchor="middle">위젯 · 알림</text>
+              <rect x="570" y="48" width="116" height="34" rx="4" fill="var(--card)" stroke="var(--rule)"></rect>
+              <text x="628" y="69" text-anchor="middle">Apple Wallet</text>
+            </g>
+            <!-- 서버 -->
+            <rect x="20" y="140" width="500" height="56" rx="6" fill="var(--card-2)" stroke="var(--rule)"></rect>
+            <text x="34" y="159" font-size="11" font-family="IBM Plex Mono, monospace" fill="var(--coral)">FIREBASE — Auth · Firestore · Storage · Hosting · Functions(11)</text>
+            <text x="34" y="181" fill="var(--ink-soft)" font-size="12">claudeProxy · kakaoAuth · naverAuth · generateWalletPass · shelfData …</text>
+            <!-- 외부 -->
+            <rect x="540" y="140" width="160" height="56" rx="6" fill="var(--card)" stroke="var(--coral)"></rect>
+            <text x="620" y="164" text-anchor="middle" font-weight="700">Claude API</text>
+            <text x="620" y="182" text-anchor="middle" font-size="11.5" fill="var(--ink-soft)">Vision · Haiku</text>
+            <!-- 웹 -->
+            <rect x="20" y="232" width="330" height="30" rx="6" fill="var(--card)" stroke="var(--rule)"></rect>
+            <text x="185" y="252" text-anchor="middle" font-size="12">웹 명함 · 서재 페이지 (Hosting, 앱 없이 열람)</text>
+            <text x="368" y="252" font-size="11.5" fill="var(--muted)">↑ 조회 기록 → 주인에게 FCM 푸시</text>
+          </g>
+        </svg>
+      </div>
+      <p class="note">클라이언트는 React Navigation 없이 <code>Animated API</code> 기반 커스텀 네비게이터를 직접 구현했습니다(<code>useNativeDriver: true</code>로 전환을 네이티브 스레드에서 처리). 화면 11개 · 서비스 모듈 27개 · 공용 컴포넌트 11개 구성.</p>
+    </div>
+  </section>
+
+  <!-- 03 문제 해결 -->
+  <section>
+    <div class="rail">
+      <div class="kicker">03 / Debugging</div>
+      <h2>직접 부딪힌 문제들</h2>
+      <p>증상 → 원인 → 해결 → 결과 순으로 정리했습니다</p>
+    </div>
+    <div class="body-col">
+
+      <div class="case">
+        <div class="case-top"><span class="tag">스토어 심사</span><h4>App Store 반려 3건을 원인별로 나눠 통과시키기</h4><span class="tag plain">iOS build 14</span></div>
+        <dl class="rows">
+          <dt>증상</dt><dd>1.4 제출본이 <b>2.1a(구글 로그인 크래시)</b>, <b>5.1.1(카메라 권한 목적 미고지)</b>, <b>2.1(미완성 NFC 기능 노출)</b>로 연속 반려.</dd>
+          <dt>원인</dt><dd>세 건의 성격이 전부 달랐습니다. 크래시는 코드 결함, 권한은 <code>Info.plist</code> 문구 누락, NFC는 릴리즈 노트에만 있고 동작하지 않던 기능이었습니다.</dd>
+          <dt>해결</dt><dd>크래시는 로그인 플로우 수정, 권한은 사용 목적 문구를 화면 맥락에 맞게 재작성, NFC는 <b>구현 대신 제거</b>를 선택해 심사 리스크를 없앴습니다. 위치 권한 누락(<code>ITMS-90683</code>)도 함께 처리.</dd>
+          <dt>결과</dt><dd class="res">재제출 후 통과. 이후 1.4.1 · 1.4.2 업데이트까지 반려 없이 배포.</dd>
+        </dl>
+      </div>
+
+      <div class="case">
+        <div class="case-top"><span class="tag">플랫폼 대응</span><h4>Android 16에서 키보드가 입력창을 가리는 문제</h4></div>
+        <dl class="rows">
+          <dt>증상</dt><dd>안드로이드 이식 후 로그인·명함 편집 화면에서 <b>키보드가 입력창을 덮어</b> 무엇을 치는지 보이지 않음.</dd>
+          <dt>원인</dt><dd><code>targetSdk 36</code>에서 엣지투엣지가 강제되면서 기존 <code>adjustResize</code> 동작이 무력화된 것. 표면적으로는 RN 문제처럼 보였지만 실제로는 OS 정책 변경이었습니다.</dd>
+          <dt>해결</dt><dd>임시로 targetSdk를 낮추는 우회 대신, <code>MainActivity.kt</code>에서 <code>WindowInsetsCompat.Type.ime()</code> 인셋을 콘텐츠 하단 패딩으로 직접 적용해 표준 동작을 복원했습니다.</dd>
+          <dt>결과</dt><dd class="res">에뮬레이터 실검증 — 로그인·편집 양쪽 모두 키보드 위로 정상 상승. 최신 SDK를 유지한 채 해결.</dd>
+        </dl>
+      </div>
+
+      <div class="case">
+        <div class="case-top"><span class="tag">데이터 동기화</span><h4>"살아있는 명함"이 갱신되지 않던 끊긴 체인 찾기</h4></div>
+        <dl class="rows">
+          <dt>증상</dt><dd>상대가 명함을 수정해도 내 지갑 속 명함이 그대로. 기능 자체가 조용히 동작하지 않는 상태.</dd>
+          <dt>원인</dt><dd>서로 다른 두 지점의 결함이 겹쳐 있었습니다. ① 내 명함에 <code>ownerId</code>가 없어 QR에 빈 값이 실림 ② 지갑 구독이 <code>originalCardId</code>만 조회하는 <b>필드 불일치</b>.</dd>
+          <dt>해결</dt><dd>발급-저장-구독으로 이어지는 <b>ownerId 체인 전체를 복구</b>하고, <code>onSnapshot</code> 전역 실시간 구독 + Cloud Functions 트리거(<code>onMyCardUpdated</code>) → FCM 푸시를 연결. 이직·승진을 구분해 알림 문구를 다르게 냈습니다.</dd>
+          <dt>결과</dt><dd class="res">앱 내 실시간 갱신 + 백그라운드 푸시 E2E 검증 통과. 변경 이력이 AI 만남 브리핑에도 반영됨.</dd>
+        </dl>
+      </div>
+
+      <div class="case">
+        <div class="case-top"><span class="tag">운영 비용</span><h4>조회 분석이 Firestore 읽기를 선형으로 태우던 문제</h4></div>
+        <dl class="rows">
+          <dt>증상</dt><dd>내 명함 조회 통계를 볼 때마다 조회 이력 <b>전체</b>를 읽어옴. 사용자가 늘수록 요금이 그대로 따라 오르는 구조.</dd>
+          <dt>원인</dt><dd>기능을 먼저 붙이느라 읽기 범위를 설계하지 않았습니다. 화면 진입 = 전체 컬렉션 스캔.</dd>
+          <dt>해결</dt><dd>전체 이력 읽기를 제거하고 필요한 집계·기간만 읽도록 재작성. 조회 기록도 불필요한 Cloud Run 왕복을 없애고 클라이언트에서 직접 기록하도록 정리.</dd>
+          <dt>결과</dt><dd class="res">기능(주간 차트 · 최다 조회자 · 최근 목록)은 유지한 채 읽기량을 사용량과 분리.</dd>
+        </dl>
+      </div>
+
+      <div class="case">
+        <div class="case-top"><span class="tag">안정성</span><h4>가끔 로그인이 풀리던 경쟁 상태(race condition)</h4></div>
+        <dl class="rows">
+          <dt>증상</dt><dd>분명 로그인해 뒀는데 앱을 켜면 <b>가끔</b> 로그인 화면으로 튕김. 재현이 들쭉날쭉했습니다.</dd>
+          <dt>원인</dt><dd>스플래시 2.5초 타이머가 Firebase의 세션 복원보다 먼저 끝나면, 클로저에 갇힌 <code>user = null</code>을 읽고 로그인 화면으로 보내던 것.</dd>
+          <dt>해결</dt><dd>인증 상태를 <code>userRef</code>로 분리해 타이머 만료 <b>시점의 최신 값</b>을 참조하도록 수정. 같은 패턴(stale closure)이 화면 전환에도 있어 <code>screenRef</code>로 함께 정리.</dd>
+          <dt>결과</dt><dd class="res">자동 로그인 실패 재발 없음.</dd>
+        </dl>
+      </div>
+
+      <div class="case">
+        <div class="case-top"><span class="tag">실사용자 피드백</span><h4>내 기기에서는 안 나던 버그 — 어머니 휴대폰</h4></div>
+        <dl class="rows">
+          <dt>증상</dt><dd>가족·지인에게 설치해 보게 했더니 <b>명함 이미지 저장이 실패</b>. 제 기기에서는 한 번도 나지 않던 문제였습니다.</dd>
+          <dt>원인</dt><dd>사진 권한을 이미 허용해 둔 개발 기기에서만 테스트한 탓. 권한 요청 자체가 없었고, 저장 실패 시 폴백도 없었습니다.</dd>
+          <dt>해결</dt><dd>사진 권한 요청 + 앨범 저장 폴백 추가. 같은 방식으로 모인 문제들(지갑 카드 1장일 때 정렬 틀어짐, 다크모드에서 카테고리 글자 안 보임, 편집 화면 키보드 답답함)을 8월 릴리즈에 묶어 반영했습니다.</dd>
+          <dt>결과</dt><dd class="res">"내 기기에서 되는 것"과 "출시된 앱이 되는 것"이 다르다는 걸 기준으로 삼게 된 계기.</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 AI -->
+  <section>
+    <div class="rail">
+      <div class="kicker">04 / AI</div>
+      <h2>AI를 붙인 방식</h2>
+      <p>기능이 아니라 구조로 다뤘습니다</p>
+    </div>
+    <div class="body-col">
+      <p class="lead">모델 호출을 앱에서 직접 하지 않고 <b>Cloud Functions 프록시(<code>claudeProxy</code>) 한 곳</b>으로 모았습니다. 키가 앱 번들에 실리지 않고, 모델을 바꿔도 앱을 재배포할 필요가 없습니다.</p>
+      <div class="sheet">
+        <table>
+          <thead><tr><th>기능</th><th>모델 · 방식</th><th>설계에서 신경 쓴 점</th></tr></thead>
+          <tbody>
+            <tr><td>종이 명함 인식</td><td class="t">Claude Sonnet (Vision)</td><td class="t">문서 스캐너로 자동 크롭 → base64 전송 → 이름·직함·연락처 JSON 파싱. <code>AbortController</code>로 20초 타임아웃, 단계별 진행 문구 표시, 결과를 <b>저장 전에 사용자가 수정</b>할 수 있게 함</td></tr>
+            <tr><td>만남 브리핑</td><td class="t">Claude Haiku</td><td class="t">만남 맥락 + 대화 타임라인 + 명함 변경 이력을 묶어 "다시 만나기 전 30초 요약" 생성. 결과를 카드에 저장해 재진입 시 재호출하지 않음</td></tr>
+            <tr><td>안부문자 초안</td><td class="t">Claude Haiku</td><td class="t">어색한 첫 문장을 대신 씀. 원탭 SMS 또는 복사, 발송하면 타임라인에 기록</td></tr>
+            <tr><td>한줄 소개 생성</td><td class="t">Claude Haiku</td><td class="t">이름·직함·소속만으로 초안 → 다시 만들기 / 저장</td></tr>
+            <tr><td>운영</td><td class="t">프록시 레벨 처리</td><td class="t">모델이 폐기돼 AI 기능이 한 번에 죽은 적이 있어, <b>프록시에서 폐기 모델을 자동 치환</b>하도록 바꿔 앱 업데이트 없이 복구</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 타임라인 -->
+  <section>
+    <div class="rail">
+      <div class="kicker">05 / Timeline</div>
+      <h2>6개월의 진행</h2>
+      <p>커밋 128개로 남은 기록</p>
+    </div>
+    <div class="body-col">
+      <ol class="tl">
+        <li><div class="when">2026.03</div><div class="what"><b>착수</b><span>React Native + Firebase로 첫 커밋. 명함 생성·QR 공유라는 최소 기능부터.</span></div></li>
+        <li><div class="when">2026.05</div><div class="what"><b>App Store 출시</b><span>Apple Developer Program 등록, 심사 통과, 한국 App Store 출시(v1.0). 개인정보처리방침·계정 삭제 등 심사 요구사항을 직접 준비.</span></div></li>
+        <li><div class="when">2026.06–07</div><div class="what"><b>경쟁 앱 분석 후 방향 재설정</b><span>리멤버·HiHello·Blinq·Popl을 뜯어보고 "관계 유지"로 포지셔닝 확정. 앱 이름을 <b>Persona → It's me(잇츠미)</b>로 바꾸고 UI를 전면 리뉴얼하면서, 사용자에게 보이는 옛 이름 노출을 0건까지 정리.</span></div></li>
+        <li><div class="when">2026.07</div><div class="what"><b>차별화 기능 5종 + 4종 구현</b><span>자동 최신화 · 조회 분석 · AI 팔로업 · 이벤트 모드 · 내보내기, 이어서 살아있는 명함 · AI 만남 브리핑 · 만남 지도 · 관계 온도. FCM 푸시 E2E까지 검증.</span></div></li>
+        <li><div class="when">2026.07–08</div><div class="what"><b>Android 이식 &amp; Google Play</b><span>패키지 <code>com.jaewoo.itsme</code>로 안드로이드 빌드, 릴리즈 키스토어·소셜 로그인 키 해시 등록, 스토어 등록정보와 그래픽 애셋 제작. 출시 절차를 런북 문서로 남김.</span></div></li>
+        <li><div class="when">2026.08</div><div class="what"><b>실사용자 피드백 반영 · 심사 반려 대응</b><span>App Store 반려 3건 해결, 가족·지인 테스트에서 나온 버그 수정, 정보 밀도를 낮추는 UI 재설계(아코디언·3탭 분리), 컬러를 코랄로 통일.</span></div></li>
+        <li><div class="when">2026.09</div><div class="what"><b>현재</b><span>iOS 1.4.2(build 14) / Android 1.0.20(versionCode 22) 운영 중. 다국어(영어)와 배포 국가 확대가 다음 과제.</span></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 06 스택 -->
+  <section>
+    <div class="rail">
+      <div class="kicker">06 / Stack</div>
+      <h2>사용한 기술</h2>
+      <p>각 선택의 이유를 함께 적었습니다</p>
+    </div>
+    <div class="body-col">
+      <div class="sheet">
+        <table>
+          <thead><tr><th>영역</th><th>기술</th><th>선택 이유 / 한 일</th></tr></thead>
+          <tbody>
+            <tr><td>앱</td><td class="t">React Native 0.84 · React 19 · TypeScript</td><td class="t">iOS 먼저 내고 Android까지 한 코드베이스로. 실제로 7월에 이식하며 이 선택의 값을 확인</td></tr>
+            <tr><td>백엔드</td><td class="t">Firebase Auth · Firestore · Storage · Hosting · Cloud Functions</td><td class="t">서버 운영 인력이 없는 1인 프로젝트에 맞춘 선택. 보안 규칙·인덱스·Secrets까지 직접 관리</td></tr>
+            <tr><td>AI</td><td class="t">Anthropic Claude API (Sonnet Vision · Haiku)</td><td class="t">키를 앱에 넣지 않기 위해 전부 Functions 프록시 경유</td></tr>
+            <tr><td>인증</td><td class="t">카카오 · 네이버 · 구글 · 애플 · 이메일</td><td class="t">카카오/네이버는 Custom Token 발급을 Functions로 직접 구현</td></tr>
+            <tr><td>네이티브</td><td class="t">Swift(WidgetKit · App Groups · Multipeer) · Kotlin(MainActivity)</td><td class="t">위젯 QR 렌더링, 근처 기기 교환, 안드로이드 IME 인셋 처리</td></tr>
+            <tr><td>기기 기능</td><td class="t">카메라·문서 스캐너, 위치, 연락처, 사진, 알림(notifee), FCM</td><td class="t">권한 요청 UI와 거부 시 폴백을 화면마다 설계</td></tr>
+            <tr><td>링크</td><td class="t">Universal Links · App Links · 커스텀 스킴</td><td class="t">AASA / assetlinks.json 배포와 SHA 지문 등록까지 처리</td></tr>
+            <tr><td>웹</td><td class="t">Firebase Hosting (명함 페이지 · 비공개 서재)</td><td class="t">앱이 없는 상대도 링크로 명함 열람. 서재는 토큰 링크로만 접근</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 자소서 소재 -->
+  <section>
+    <div class="rail">
+      <div class="kicker">07 / Talking points</div>
+      <h2>자기소개서에 쓸 소재</h2>
+      <p>주장 한 줄 + 뒷받침할 사실</p>
+    </div>
+    <div class="body-col">
+      <p class="lead">아래는 위 내용을 문항별로 꺼내 쓰기 쉽게 정리한 것입니다. 굵은 숫자·고유명사가 근거이므로, 문장은 바꾸되 <b>근거는 그대로 유지</b>하는 편이 좋습니다.</p>
+
+      <div class="quote">
+        <div class="qh">도전 · 끈기 문항</div>
+        <blockquote>"만드는 것보다 끝까지 내놓는 게 어렵다는 걸, 반려 세 번을 통과시키며 배웠습니다."</blockquote>
+        <ul>
+          <li>App Store 반려 <b>3건</b>(크래시 · 권한 고지 · 미완성 기능 노출)을 성격별로 나눠 처리, 재제출 통과</li>
+          <li>미완성이던 NFC는 <b>구현 대신 제거</b>를 택함 — 일정과 리스크를 놓고 내린 판단</li>
+          <li>iOS 빌드 <b>14회</b>, Android versionCode <b>22</b>까지 실제 배포·운영</li>
+        </ul>
+      </div>
+
+      <div class="quote">
+        <div class="qh">문제 해결 · 분석력 문항</div>
+        <blockquote>"증상이 아니라 원인을 고치는 습관을 프로젝트 내내 지켰습니다."</blockquote>
+        <ul>
+          <li>안드로이드 키보드 가림 → 원인은 <b>targetSdk 36의 엣지투엣지 강제</b>. SDK를 낮추는 우회 대신 IME 인셋을 직접 처리</li>
+          <li>동작하지 않던 실시간 갱신 → <b>ownerId 체인 단절 + 필드 불일치</b> 두 지점을 찾아 복구</li>
+          <li>간헐적 로그아웃 → 스플래시 타이머와 세션 복원의 <b>경쟁 상태</b>로 규명</li>
+        </ul>
+      </div>
+
+      <div class="quote">
+        <div class="qh">사용자 지향 · 협업/소통 문항</div>
+        <blockquote>"제 기기에서 되는 것과 사용자의 기기에서 되는 것은 다른 문제였습니다."</blockquote>
+        <ul>
+          <li>가족·지인 실사용 테스트에서 나온 버그(<b>사진 권한 · 카드 정렬 · 다크모드 가독성</b>)를 한 릴리즈에 묶어 반영</li>
+          <li>정보가 빽빽하다는 피드백에 <b>편집·설정 화면을 아코디언으로, 명함 상세를 3탭으로</b> 재설계</li>
+          <li>기능 이름과 안내 문구도 사용자의 말로 교정 — "웹으로 자랑하기"를 "나만의 명함 서재"로 바꾼 것이 예</li>
+        </ul>
+      </div>
+
+      <div class="quote">
+        <div class="qh">전공(산업경영공학) 연결 · 직무 적합성 문항</div>
+        <blockquote>"기능을 늘리는 대신, 쓰이는 자리를 정하고 비용을 관리했습니다."</blockquote>
+        <ul>
+          <li>경쟁 앱 <b>4종</b> 분석 후 타깃 공백(첫 명함이 필요한 대학생·취준생)을 골라 포지셔닝을 문서로 확정하고 로드맵을 그 순서대로 실행</li>
+          <li>조회 분석의 <b>Firestore 읽기 구조를 재설계</b>해 사용량과 요금의 연동을 끊음</li>
+          <li>출시 절차를 <b>런북 문서</b>로 남겨 재현 가능하게 만듦(키 등록 순서를 놓치면 전 사용자 로그인이 막히는 구간 포함)</li>
+        </ul>
+      </div>
+
+      <p class="note">면접에서 자주 이어지는 질문: <b>"왜 Firebase였나"</b>(1인 운영 · 서버 비용/시간), <b>"AI를 왜 프록시로 뺐나"</b>(키 노출 방지 + 앱 재배포 없이 모델 교체), <b>"가장 어려웠던 버그"</b>(엣지투엣지 IME 또는 ownerId 체인 — 둘 다 원인 규명 과정을 말할 수 있음).</p>
+    </div>
+  </section>
+
+  <footer>
+    <b>신재우</b>
+    <span>산업경영공학 4학년 · It's me(잇츠미) 기획/개발/배포</span>
+    <span class="mono">sjwtlswodn@naver.com</span>
+    <span><a href="https://apps.apple.com/kr/app/id6769245736">App Store</a> · <a href="https://persona-772ab.web.app">persona-772ab.web.app</a></span>
+    <span class="mono">2026.09.11 기준</span>
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,858 @@
+<title>CrowdSense 개발 기록</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --paper: #FAF8F5;
+    --card: #FFFFFF;
+    --ink: #1A1713;
+    --ink-soft: #4A443C;
+    --muted: #857D72;
+    --rule: #E3DED6;
+    --rule-soft: #EFEBE4;
+    --brand: #E2580C;
+    --brand-soft: #FDF0E6;
+    --lv-watch: #C79400;
+    --lv-caution: #E2580C;
+    --lv-alert: #D32F2F;
+    --lv-severe: #9A1C1C;
+    --good: #2C6E52;
+    --shadow: 0 1px 2px rgba(26, 23, 19, .05), 0 8px 24px -16px rgba(26, 23, 19, .3);
+
+    --sans: "IBM Plex Sans KR", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #14120F;
+      --card: #1C1A16;
+      --ink: #F2EEE8;
+      --ink-soft: #C0B9AE;
+      --muted: #8B8378;
+      --rule: #33302A;
+      --rule-soft: #262320;
+      --brand: #FB923C;
+      --brand-soft: #2A1C10;
+      --lv-watch: #E3B341;
+      --lv-caution: #FB923C;
+      --lv-alert: #F87171;
+      --lv-severe: #DC5555;
+      --good: #6EBF97;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px -16px rgba(0, 0, 0, .8);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper: #14120F;
+    --card: #1C1A16;
+    --ink: #F2EEE8;
+    --ink-soft: #C0B9AE;
+    --muted: #8B8378;
+    --rule: #33302A;
+    --rule-soft: #262320;
+    --brand: #FB923C;
+    --brand-soft: #2A1C10;
+    --lv-watch: #E3B341;
+    --lv-caution: #FB923C;
+    --lv-alert: #F87171;
+    --lv-severe: #DC5555;
+    --good: #6EBF97;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px -16px rgba(0, 0, 0, .8);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.75;
+    letter-spacing: -0.003em;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 860px; margin: 0 auto; padding-left: 28px; padding-right: 28px; }
+  .narrow { max-width: 680px; }
+
+  h1, h2, h3 { text-wrap: balance; letter-spacing: -0.02em; line-height: 1.3; margin: 0; }
+  p { margin: 0; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ── 헤더 ───────────────────────────────────────────── */
+  header {
+    border-bottom: 1px solid var(--rule);
+    background: var(--card);
+  }
+  .head-inner { padding-top: 56px; padding-bottom: 46px; display: flex; flex-direction: column; gap: 22px; }
+
+  .mark-row { display: flex; align-items: center; gap: 12px; }
+  .mark {
+    width: 34px; height: 34px; border-radius: 8px;
+    background: #F97316;
+    display: grid; place-items: center;
+    flex-shrink: 0;
+  }
+  .mark svg { display: block; }
+  .mark-name { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+
+  h1 { font-size: clamp(30px, 5.2vw, 44px); font-weight: 700; }
+  .lede {
+    font-size: clamp(16px, 2.2vw, 18px);
+    color: var(--ink-soft);
+    max-width: 44ch;
+    font-weight: 300;
+  }
+
+  .award {
+    display: inline-flex; flex-direction: column; gap: 3px;
+    border-left: 3px solid var(--brand);
+    padding: 4px 0 4px 14px;
+  }
+  .award-title { font-size: 15px; font-weight: 600; }
+  .award-meta { font-size: 13px; color: var(--muted); }
+
+  .links { display: flex; flex-wrap: wrap; gap: 8px; }
+  .link {
+    font-family: var(--mono);
+    font-size: 12px;
+    text-decoration: none;
+    color: var(--ink);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 6px 11px;
+    background: var(--paper);
+    transition: border-color .15s, color .15s;
+  }
+  .link:hover { border-color: var(--brand); color: var(--brand); }
+  .link:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+  /* ── 지표 스트립 ─────────────────────────────────────── */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper);
+  }
+  .metric { padding: 20px 18px; border-right: 1px solid var(--rule-soft); }
+  .metric:last-child { border-right: 0; }
+  .metric-num {
+    font-family: var(--mono);
+    font-size: 24px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.15;
+    color: var(--ink);
+  }
+  .metric-num .unit { font-size: 13px; font-weight: 500; color: var(--muted); margin-left: 2px; }
+  .metric-label { font-size: 12px; color: var(--muted); margin-top: 5px; line-height: 1.5; }
+
+  /* ── 섹션 ───────────────────────────────────────────── */
+  section.wrap { padding-top: 62px; padding-bottom: 62px; border-bottom: 1px solid var(--rule-soft); }
+  section.wrap:last-of-type { border-bottom: 0; }
+  .sec-head { display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px; }
+  h2 { font-size: clamp(22px, 3.4vw, 27px); font-weight: 600; }
+  .sec-sub { color: var(--ink-soft); font-size: 15.5px; max-width: 58ch; font-weight: 300; }
+
+  .body-text { color: var(--ink-soft); font-size: 15.5px; max-width: 66ch; }
+  .body-text + .body-text { margin-top: 15px; }
+  .body-text strong { color: var(--ink); font-weight: 600; }
+  em { font-style: normal; color: var(--brand); font-weight: 500; }
+
+  code {
+    font-family: var(--mono);
+    font-size: .88em;
+    background: var(--rule-soft);
+    padding: 1px 5px;
+    border-radius: 4px;
+    color: var(--ink);
+  }
+
+  /* ── 파이프라인 ─────────────────────────────────────── */
+  .pipeline { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; }
+  .stage { background: var(--card); padding: 18px 15px; display: flex; flex-direction: column; gap: 7px; }
+  .stage-n { font-family: var(--mono); font-size: 11px; color: var(--brand); font-weight: 600; }
+  .stage-t { font-size: 14px; font-weight: 600; }
+  .stage-d { font-size: 12.5px; color: var(--muted); line-height: 1.55; }
+  .stage.exists { background: var(--rule-soft); }
+  .stage.exists .stage-n { color: var(--muted); }
+
+  .pipeline-note { font-size: 13px; color: var(--muted); margin-top: 12px; }
+
+  /* ── 판단 카드 ──────────────────────────────────────── */
+  .decisions { display: flex; flex-direction: column; gap: 16px; }
+  .decision {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 11px;
+    padding: 22px 24px;
+    box-shadow: var(--shadow);
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .d-head { display: flex; align-items: baseline; gap: 11px; flex-wrap: wrap; }
+  .d-idx {
+    font-family: var(--mono); font-size: 11px; font-weight: 600;
+    color: var(--brand); background: var(--brand-soft);
+    padding: 2px 7px; border-radius: 4px; flex-shrink: 0;
+  }
+  .d-title { font-size: 17px; font-weight: 600; letter-spacing: -0.015em; }
+  .d-body { font-size: 15px; color: var(--ink-soft); }
+  .d-body strong { color: var(--ink); font-weight: 600; }
+
+  .evidence {
+    border-left: 2px solid var(--rule);
+    padding-left: 15px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .ev-label { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .ev-text { font-size: 14px; color: var(--ink-soft); }
+  .ev-text b { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--ink); font-weight: 600; }
+
+  /* ── 비포/애프터 ────────────────────────────────────── */
+  .ba { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: center; margin-top: 2px; }
+  .ba-cell { border: 1px solid var(--rule); border-radius: 8px; padding: 11px 13px; background: var(--paper); }
+  .ba-cell .k { font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 3px; }
+  .ba-cell .v { font-size: 13.5px; line-height: 1.5; }
+  .ba-cell.bad { border-color: color-mix(in srgb, var(--lv-alert) 35%, var(--rule)); }
+  .ba-cell.good { border-color: color-mix(in srgb, var(--good) 40%, var(--rule)); }
+  .ba-arrow { font-family: var(--mono); color: var(--muted); font-size: 15px; }
+
+  /* ── 표 ─────────────────────────────────────────────── */
+  .table-scroll { overflow-x: auto; border: 1px solid var(--rule); border-radius: 10px; background: var(--card); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 520px; }
+  th, td { text-align: left; padding: 11px 15px; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+  thead th { font-size: 12px; font-weight: 600; color: var(--muted); background: var(--paper); letter-spacing: .02em; }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .yes { color: var(--good); font-weight: 600; }
+  .no { color: var(--muted); }
+
+  /* ── 리뷰 타임라인 ──────────────────────────────────── */
+  .rounds { display: flex; flex-direction: column; gap: 0; margin-top: 4px; }
+  .round { display: grid; grid-template-columns: 62px 1fr; gap: 16px; padding: 13px 0; border-bottom: 1px solid var(--rule-soft); }
+  .round:last-child { border-bottom: 0; }
+  .round-n { font-family: var(--mono); font-size: 12px; color: var(--muted); font-weight: 500; padding-top: 2px; }
+  .round-body { display: flex; flex-direction: column; gap: 4px; }
+  .round-t { font-size: 14.5px; font-weight: 600; }
+  .round-d { font-size: 13.5px; color: var(--ink-soft); }
+  .sev { display: inline-block; font-family: var(--mono); font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 3px; margin-right: 6px; vertical-align: 1px; }
+  .sev.crit { background: color-mix(in srgb, var(--lv-severe) 15%, transparent); color: var(--lv-severe); }
+  .sev.high { background: color-mix(in srgb, var(--lv-alert) 15%, transparent); color: var(--lv-alert); }
+
+  /* ── 스택 ───────────────────────────────────────────── */
+  .stack { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .stack-grp { border: 1px solid var(--rule); border-radius: 10px; padding: 16px 18px; background: var(--card); }
+  .stack-grp h3 { font-size: 12px; font-family: var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 9px; }
+  .stack-grp ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 5px; }
+  .stack-grp li { font-size: 14px; color: var(--ink-soft); }
+
+  /* ── 자소서 소재 ────────────────────────────────────── */
+  .quotes { display: flex; flex-direction: column; gap: 14px; }
+  .quote {
+    background: var(--brand-soft);
+    border-radius: 11px;
+    padding: 20px 24px;
+    display: flex; flex-direction: column; gap: 9px;
+  }
+  .q-tag { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--brand); font-weight: 600; }
+  .q-text { font-size: 15px; color: var(--ink); line-height: 1.8; }
+
+  /* ── 상태 ───────────────────────────────────────────── */
+  .status { display: flex; flex-direction: column; gap: 9px; }
+  .status-row { display: grid; grid-template-columns: 74px 1fr; gap: 14px; align-items: baseline; font-size: 14.5px; }
+  .status-k { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .status-v { color: var(--ink-soft); }
+
+  footer { padding-top: 42px; padding-bottom: 64px; color: var(--muted); font-size: 13px; line-height: 1.9; }
+
+  ul.plain { margin: 12px 0 0; padding-left: 19px; display: flex; flex-direction: column; gap: 7px; }
+  ul.plain li { font-size: 15px; color: var(--ink-soft); }
+  ul.plain li strong { color: var(--ink); font-weight: 600; }
+
+  @media (max-width: 760px) {
+    .metrics { grid-template-columns: repeat(2, 1fr); }
+    .metric:nth-child(2) { border-right: 0; }
+    .metric:nth-child(-n+2) { border-bottom: 1px solid var(--rule-soft); }
+    .pipeline { grid-template-columns: 1fr; }
+    .ba { grid-template-columns: 1fr; }
+    .ba-arrow { justify-self: start; transform: rotate(90deg); }
+    .round { grid-template-columns: 1fr; gap: 4px; }
+    .stack { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<header>
+  <div class="wrap head-inner">
+    <div class="mark-row">
+      <span class="mark" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 48 48">
+          <polygon points="22.5,6 41.5,6 36,33 28,33" fill="#fff"></polygon>
+          <rect x="26.5" y="37" width="8" height="6" fill="#fff"></rect>
+        </svg>
+      </span>
+      <span class="mark-name">CrowdSense</span>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <h1>인파 참사를 막는 건<br>경보가 아니라 그 다음 1분입니다</h1>
+      <p class="lede">
+        밀집 위험을 경보 전에 예측하고, 경보 순간 담당 공무원이 해야 할
+        조치·대피·전파·보고를 즉시 만들어내는 AI 관제 레이어.
+      </p>
+    </div>
+
+    <div class="award">
+      <span class="award-title">제4회 재난안전데이터 활용 창업경진대회 — 최우수상 (행정안전부 장관상)</span>
+      <span class="award-meta">제품·서비스 개발 부문 · 주최 행정안전부 / 주관 한국지능정보사회진흥원(NIA) · 2026.7 · 사업지원금 200만원</span>
+      <span class="award-meta">기획·설계·개발·배포 전 과정 <strong>1인 수행</strong> — 아이디어가 아니라 실제 배포·운영 중인 서비스로 출품</span>
+    </div>
+
+    <div class="links">
+      <a class="link" href="https://crowdsense-jvv1.vercel.app" target="_blank" rel="noopener">라이브 데모 ↗</a>
+      <a class="link" href="https://github.com/13JVV/crowdsense" target="_blank" rel="noopener">GitHub ↗</a>
+      <span class="link" style="cursor:default">Next.js 14 · TypeScript · Claude API</span>
+    </div>
+  </div>
+</header>
+
+<div class="metrics">
+  <div class="metric">
+    <div class="metric-num">32<span class="unit">곳</span></div>
+    <div class="metric-label">서울 실시간 감시지점<br>인파사고 위험도 기준 선정</div>
+  </div>
+  <div class="metric">
+    <div class="metric-num">33<span class="unit">분</span></div>
+    <div class="metric-label">공공데이터 노출 지연 실측<br>예측 기준점을 관측 시각으로 잡은 이유</div>
+  </div>
+  <div class="metric">
+    <div class="metric-num">4<span class="unit">개 국어</span></div>
+    <div class="metric-label">재난문자·안내방송 자동 번역<br>한 · 영 · 중 · 일</div>
+  </div>
+  <div class="metric">
+    <div class="metric-num">15<span class="unit">라운드</span></div>
+    <div class="metric-label">커밋 전 코드 리뷰<br>기능 2건에 대해 수행</div>
+  </div>
+</div>
+
+<main>
+
+  <!-- ── 문제 ─────────────────────────────────────────── -->
+  <section class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Problem</span>
+      <h2>기존 시스템은 경보에서 멈춥니다</h2>
+    </div>
+
+    <p class="body-text">
+      행정안전부 인파관리지원시스템(2025~, 전국 100개소)은 기지국 기반 밀집도를 히트맵으로 보여주고
+      임계를 넘으면 담당 공무원에게 문자를 보냅니다. 여기까지는 잘 작동합니다.
+    </p>
+    <p class="body-text">
+      문제는 그 다음입니다. <strong>문자를 받은 담당자가 "지금 무엇을, 누구에게, 어떤 말로"
+      지시해야 하는지는 여전히 사람의 몫</strong>입니다. 현장 무전과 경찰 공조 요청과 시민 안내방송은
+      각각 다른 어조와 다른 내용이어야 하는데, 그걸 압박 상황에서 몇 분 안에 만들어야 합니다.
+    </p>
+    <p class="body-text">
+      10·29 이태원 참사가 보여준 것처럼 <em>골든타임의 대응 품질이 피해 규모를 결정</em>합니다.
+      CrowdSense는 그 빈 구간 — 감지 다음의 1분 — 을 표준화·자동화합니다.
+      기존 시스템의 대체가 아니라, 그 경보를 입력으로 받아 대응을 완성하는 <strong>보완 레이어</strong>입니다.
+    </p>
+
+    <div style="margin-top:28px">
+      <div class="pipeline">
+        <div class="stage exists">
+          <span class="stage-n">기존</span>
+          <span class="stage-t">감지</span>
+          <span class="stage-d">기지국 밀집도 히트맵</span>
+        </div>
+        <div class="stage exists">
+          <span class="stage-n">기존</span>
+          <span class="stage-t">경보</span>
+          <span class="stage-d">임계 초과 시 담당자 문자</span>
+        </div>
+        <div class="stage">
+          <span class="stage-n">01</span>
+          <span class="stage-t">예측</span>
+          <span class="stage-d">순유입 선행지표로 도달 시각 산출</span>
+        </div>
+        <div class="stage">
+          <span class="stage-n">02</span>
+          <span class="stage-t">지시 · 전파</span>
+          <span class="stage-d">역할별 4종 문안 + 4개 국어</span>
+        </div>
+        <div class="stage">
+          <span class="stage-n">03</span>
+          <span class="stage-t">기록 · 보고</span>
+          <span class="stage-d">골든타임 KPI · 보고서 자동 생성</span>
+        </div>
+      </div>
+      <p class="pipeline-note">회색은 기존 시스템이 이미 하는 일, 주황은 CrowdSense가 채우는 구간입니다.</p>
+    </div>
+  </section>
+
+  <!-- ── 엔지니어링 판단 ──────────────────────────────── -->
+  <section class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Engineering</span>
+      <h2>어려웠던 판단들</h2>
+      <p class="sec-sub">
+        기능을 만드는 것보다 <strong>"이 수치를 화면에 내보내도 되는가"</strong>를 정하는 데
+        시간이 더 걸렸습니다. 재난 대응 화면에서 틀린 확신은 정보가 없는 것보다 위험합니다.
+      </p>
+    </div>
+
+    <div class="decisions">
+
+      <article class="decision">
+        <div class="d-head">
+          <span class="d-idx">01</span>
+          <h3 class="d-title">오차가 신호보다 클 때, 모른다고 말하기</h3>
+        </div>
+        <p class="d-body">
+          서울시는 유입 인원을 정확한 수가 아니라 <strong>구간</strong>(예: 150~200명)으로 제공합니다.
+          처음엔 관행대로 중앙값 하나로 눌러서 썼습니다. 그런데 실측해 보니
+          5분 창 순유입의 구간 폭이 <strong>120명(= 24명/분)</strong>이었고,
+          이건 제 초기 구현이 "급증"으로 판정해 <strong>빨간 경보를 띄우던 신호와 같은 자릿수</strong>였습니다.
+          오차 안에서 춤추는 값으로 재난 경보를 띄우고 있었던 겁니다.
+        </p>
+        <p class="d-body">
+          순유입을 구간 그대로 들고 다니면서, <strong>부호가 결정되는 창</strong>(구간이 0을 넘지 않는 창)만
+          판정에 쓰도록 바꿨습니다. 그런 창이 없으면 <code>판정 불가</code>로 표시합니다.
+          화면이 비는 게 답답하지만, 모르는 것을 모른다고 말하는 편이 틀린 확신보다 낫습니다.
+        </p>
+        <div class="evidence">
+          <span class="ev-label">Measured</span>
+          <span class="ev-text">5분 창 구간 폭 <b>120명</b> = <b>24명/분</b> · 당시 "급증" 판정 임계 <b>+10명/분</b></span>
+        </div>
+      </article>
+
+      <article class="decision">
+        <div class="d-head">
+          <span class="d-idx">02</span>
+          <h3 class="d-title">같은 +150명/분이 어디서는 무의미하고 어디서는 위험하다</h3>
+        </div>
+        <p class="d-body">
+          추세를 원 인원(명/분)으로 판정하고 있었습니다. 그런데 체류 인원 <strong>8.5만 명</strong>인 강남역에서
+          +150명/분은 아무 의미가 없고, <strong>1.3만 명</strong>인 이태원에서는 유의미합니다.
+          같은 숫자가 지점마다 다른 뜻인데 같은 규칙으로 판정하고 있었던 거죠.
+        </p>
+        <p class="d-body">
+          판정 기준을 <strong>밀도 변화율</strong>로 바꿨습니다.
+          <code>Δ밀도/분 = 현재밀도 × (순유입/분 ÷ 체류인원)</code> — 지역 면적이 일정하다는 전제에서 나오는 식이고,
+          이 산출 근거를 화면에 함께 노출합니다. 수치만 던지면 관제사가 검증할 수 없습니다.
+        </p>
+        <div class="evidence">
+          <span class="ev-label">Measured</span>
+          <span class="ev-text">강남역 체류 <b>85,000</b>명 vs 이태원 <b>13,000</b>명 — 같은 유입에 6.5배 다른 밀도 영향</span>
+        </div>
+      </article>
+
+      <article class="decision">
+        <div class="d-head">
+          <span class="d-idx">03</span>
+          <h3 class="d-title">데이터가 33분 늦게 온다는 사실을 예측식에 반영하기</h3>
+        </div>
+        <p class="d-body">
+          서울시 공공데이터는 실시간이 아닙니다. 관측 후 노출까지 <strong>실측 33분</strong>이 걸립니다.
+          서버 현재 시각을 기준으로 임계 도달 시각을 계산하면, 예측이 통째로 <strong>33분 뒤로 밀립니다</strong> —
+          경보가 구조적으로 늦게 뜹니다.
+        </p>
+        <p class="d-body">
+          예측의 기준점을 벽시계가 아니라 <strong>관측 시각</strong>으로 바꾸고,
+          화면에는 관측 시각 · 데이터 나이 · <em>지금 기준</em> 잔여 시간을 함께 표시합니다.
+          경보 색상도 지금 기준 잔여 시간으로 판정합니다.
+        </p>
+        <div class="ba">
+          <div class="ba-cell bad">
+            <span class="k">Before</span>
+            <span class="v">서버 현재 시각 기준 → 도달 예상이 33분 뒤로 밀림</span>
+          </div>
+          <span class="ba-arrow">→</span>
+          <div class="ba-cell good">
+            <span class="k">After</span>
+            <span class="v">관측 시각 기준 + 데이터 나이 노출 → 경보 시점 정상화</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="decision">
+        <div class="d-head">
+          <span class="d-idx">04</span>
+          <h3 class="d-title">AI에게 "하지 마라"고 세 번 말했지만 세 번 다 뚫렸다</h3>
+        </div>
+        <p class="d-body">
+          분산 목적지로 제시하는 장소 중 절반이 <strong>학교 운동장·광장</strong>인데,
+          공공데이터에 개폐 시각 필드가 아예 없습니다. 야간·주말에는 교문이 잠깁니다.
+          그래서 프롬프트에 "개방 여부를 모르는 곳은 시민 문안에 단독 목적지로 쓰지 마라"를 넣었습니다.
+        </p>
+        <p class="d-body">
+          세 라운드에 걸쳐 문구를 강화했고, <strong>세 번 다 뚫렸습니다.</strong>
+          왕십리역 실호출 4회 중 3회가 재난문자에 잠긴 광장을 넣었습니다.
+          규칙을 "학교 운동장" 중심으로 예시화했더니 모델이 광장에는 적용하지 않더군요.
+        </p>
+        <p class="d-body">
+          문구를 더 붙이는 대신 <strong>입력에서 갈랐습니다.</strong>
+          <code>publicSafeDestinations</code>(시민 문안 허용)와 <code>verifyBeforeUse</code>(조치사항 전용)로
+          나눠서 넘기니, 같은 케이스 재실행에서 위반이 0건이 됐습니다.
+          <em>안전 규칙은 모델의 판단에 맡길 게 아니라 입력 구조로 강제해야 한다</em>는 게 이 프로젝트에서
+          가장 크게 배운 것입니다.
+        </p>
+        <div class="evidence">
+          <span class="ev-label">Verified</span>
+          <span class="ev-text">프롬프트 강화 3회 → 위반 <b>3/4</b>회 · 입력 분리 후 → 위반 <b>0/6</b>회</span>
+        </div>
+      </article>
+
+      <article class="decision">
+        <div class="d-head">
+          <span class="d-idx">05</span>
+          <h3 class="d-title">공공데이터가 틀렸을 때 알아채기</h3>
+        </div>
+        <p class="d-body">
+          분산 가능 공간을 4개 공공데이터셋에서 모으는데, 원본 자체에 결함이 있었습니다.
+        </p>
+        <ul class="plain">
+          <li><strong>좌표 오류</strong> — 답십리근린공원은 주소가 동대문구인데 위경도가 강남 위도로 찍혀 있어,
+            COEX 반경 700m 안에 <strong>9km 떨어진 공원</strong>이 잡혔습니다.
+            같은 자치구 공원들의 중앙 좌표에서 5km 이상 벗어난 레코드를 버리는 검사를 넣어 걸러냈습니다.</li>
+          <li><strong>자기모순</strong> — 무더위쉼터 15건이 운영시간은 21시 종료인데 "야간 개방"으로 표기돼 있습니다.
+            어느 쪽도 단정하지 않고 "확인 필요"로 낮춥니다.</li>
+          <li><strong>미입력을 폐관으로 접지 않기</strong> — 개폐 필드가 전국 87% 비어 있습니다.
+            처음엔 이걸 <code>false</code>로 처리했는데, 34.6℃ 폭염 시험에서 모델이 지시를 충실히 따라
+            <strong>쉼터 4곳을 전부 버렸습니다.</strong> 폭염 대응이 자기 시나리오에서 무력화된 거죠.
+            "미상"을 별도 상태로 두고 개방 확인을 조치에 넣도록 바꿨습니다.</li>
+        </ul>
+        <div class="evidence">
+          <span class="ev-label">Result</span>
+          <span class="ev-text">분산 공간 커버리지 <b>27/32</b> → <b>32/32</b> 지점 · 좌표 이상 <b>4</b>건 제외</span>
+        </div>
+      </article>
+
+      <article class="decision">
+        <div class="d-head">
+          <span class="d-idx">06</span>
+          <h3 class="d-title">감사 근거가 될 기록이라면 숫자가 맞아야 한다</h3>
+        </div>
+        <p class="d-body">
+          대응 타임라인과 골든타임 KPI가 브라우저 메모리에만 있어서, 탭을 닫으면 사라졌습니다.
+          서버 저장을 붙이면서 이벤트 보관 상한(2000건)을 넘으면 앞부분을 자르게 했는데 —
+          자를 때 <strong>첫 경보만</strong> 남겼습니다.
+        </p>
+        <p class="d-body">
+          그랬더니 잘린 구간에 있던 진짜 첫 조치 대신 살아남은 나중 조치가 "첫 조치"로 계산돼,
+          <strong>골든타임이 30초에서 30,240초로 저장</strong>됐습니다. 1008배입니다.
+          사후 보고에 들어갈 숫자가 틀리면 이 기능은 있으나 마납니다.
+          기준점 세 개(첫 경보 · 첫 조치 · 첫 전파)를 함께 보존하도록 고쳤습니다.
+        </p>
+        <div class="ba">
+          <div class="ba-cell bad">
+            <span class="k">Bug</span>
+            <span class="v">골든타임 <span style="font-family:var(--mono)">30초 → 30,240초</span> (1008배)</span>
+          </div>
+          <span class="ba-arrow">→</span>
+          <div class="ba-cell good">
+            <span class="k">Fix</span>
+            <span class="v">KPI 기준점 3개 보존 후 <span style="font-family:var(--mono)">30초 / 60초</span> 정확</span>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ── 신뢰성 ───────────────────────────────────────── -->
+  <section class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Reliability</span>
+      <h2>커밋 전 코드 리뷰를 규칙으로 만든 이유</h2>
+      <p class="sec-sub">
+        혼자 만드는 프로젝트라 검토해 줄 사람이 없었습니다. 그래서 큰 작업 단위마다
+        전용 리뷰 에이전트에게 실측 기반 검증을 받고, <strong>보류가 나오면 고쳐서 다시 받는</strong> 절차를
+        규칙으로 박아 뒀습니다.
+      </p>
+    </div>
+
+    <p class="body-text" style="margin-bottom:22px">
+      결과적으로 두 기능에 <strong>15라운드</strong>가 걸렸습니다. 소모적으로 보이지만,
+      잡힌 것들이 전부 <em>실제 브라우저에서 끝까지 돌려봐야만 드러나는</em> 종류였습니다.
+      아래가 제가 놓쳤다가 리뷰에서 잡힌 것들입니다.
+    </p>
+
+    <div class="rounds">
+      <div class="round">
+        <span class="round-n">R1</span>
+        <div class="round-body">
+          <span class="round-t"><span class="sev crit">치명</span>양자화 오차를 무시한 경보</span>
+          <span class="round-d">5분 순유입 오차 폭(24명/분)이 신호(+10명/분)보다 컸습니다. 오차 안에서 빨간 경보가 떴습니다.</span>
+        </div>
+      </div>
+      <div class="round">
+        <span class="round-n">R3</span>
+        <div class="round-body">
+          <span class="round-t"><span class="sev crit">치명</span>접근 통제를 우회하는 라우트</span>
+          <span class="round-d">API 인증을 붙이면서, 같은 데이터를 주는 다른 경로 하나를 잠그지 않았습니다. 게이트는 하나만 빠져도 전체가 무의미해집니다.</span>
+        </div>
+      </div>
+      <div class="round">
+        <span class="round-n">R4</span>
+        <div class="round-body">
+          <span class="round-t"><span class="sev crit">치명</span>조건 안에 넣은 안전 규칙</span>
+          <span class="round-d">"없는 장소를 지어내지 마라"를 조건부 블록에 넣었더니, 제약이 가장 필요한 곳에서 무제약이 됐습니다. AI가 지하철역 출구로 인파를 유도했습니다.</span>
+        </div>
+      </div>
+      <div class="round">
+        <span class="round-n">R5</span>
+        <div class="round-body">
+          <span class="round-t"><span class="sev crit">치명</span>정렬 규칙이 만든 회귀</span>
+          <span class="round-d">"지정 대피장소 우선"으로 정렬했더니 면적을 아는 대형 공원이 밀려났습니다. 인사동에서 탑골공원이 통째로 빠지고 재난문자에 초등학교가 들어갔습니다.</span>
+        </div>
+      </div>
+      <div class="round">
+        <span class="round-n">R8</span>
+        <div class="round-body">
+          <span class="round-t"><span class="sev high">중대</span>축으로 분기해서 생긴 판정 구멍</span>
+          <span class="round-d">쉼터 개폐를 "주말이냐 야간이냐"로 분기했더니 평일 낮·주말 심야·새벽이 판정 밖으로 빠졌습니다. 새벽 2시 30분에 잠긴 구청으로 노약자를 보내는 재난문자가 생성됐습니다.</span>
+        </div>
+      </div>
+      <div class="round">
+        <span class="round-n">R11</span>
+        <div class="round-body">
+          <span class="round-t"><span class="sev crit">치명</span>"경미" 수정이 기능을 100% 죽임</span>
+          <span class="round-d">레벨 화이트리스트에 <code>ALERT_LEVELS</code>를 썼는데, 그건 전체 도메인이 아니라 경보 취급 부분집합이었습니다. 타입 검사도 제 테스트도 통과했고, 실브라우저 검증에서야 드러났습니다.</span>
+        </div>
+      </div>
+      <div class="round">
+        <span class="round-n">R14</span>
+        <div class="round-body">
+          <span class="round-t"><span class="sev crit">치명</span>자동 저장이 스스로 한도를 소진</span>
+          <span class="round-d">마지막 저장 시각을 응답에서 찍었는데, 새 저장이 이전 요청을 취소하면 그 콜백이 건너뛰어져 값이 영원히 0으로 남았습니다. 디바운스가 무력화돼 재생 1회에 POST 22건이 나갔습니다.</span>
+        </div>
+      </div>
+      <div class="round">
+        <span class="round-n">R15</span>
+        <div class="round-body">
+          <span class="round-t"><span class="sev high">중대</span>깨우는 주체가 없는 백오프</span>
+          <span class="round-d">재시도 간격 상수는 있는데 그 시각에 깨우는 타이머가 없어, 실패 후 180초를 방치해도 재시도가 0건이었습니다. 사용자가 보고서를 열어야만 복구됐습니다.</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="body-text" style="margin-top:24px">
+      이 과정에서 배운 건 <em>"내가 고친 것이 실제로 동작하는지는 끝까지 돌려봐야만 안다"</em>입니다.
+      R11은 타입 검사·단위 테스트·리뷰를 전부 통과한 변경이 엔드투엔드에서 100% 실패한 사례였고,
+      그 뒤로는 매 수정마다 헤드리스 브라우저로 실제 저장까지 확인했습니다.
+    </p>
+  </section>
+
+  <!-- ── 아키텍처 ─────────────────────────────────────── -->
+  <section class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Architecture</span>
+      <h2>서울에서 검증하고 전국으로 넓히는 구조</h2>
+    </div>
+
+    <p class="body-text">
+      경진대회 이후 실제 판매 가능한 제품으로 올리면서, 지역·데이터원이 바뀌어도 관제 로직은 그대로여야 한다고 봤습니다.
+      관제 로직(밀도 분류 · 유입 예측 · 위험도 산정 · AI 지시문)은
+      <strong>공급자 인터페이스의 정규화 타입에만 의존</strong>하고, 원본 API 스키마는 각 공급자 구현 안에 갇힙니다.
+    </p>
+    <p class="body-text">
+      공급자마다 제공하는 신호가 다르므로 <code>capabilities</code> 배열로 선언하고,
+      화면은 <strong>없는 신호를 숨기지 않고 "이 지역은 이 데이터가 없음"으로 표시</strong>합니다.
+      커버리지 공백을 감추면 관제사가 "데이터에 없음"과 "실제로 없음"을 구분할 수 없습니다.
+    </p>
+
+    <div class="table-scroll" style="margin-top:22px">
+      <table>
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>행안부 인파관리지원시스템</th>
+            <th>CrowdSense</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>밀집도 히트맵</td><td class="yes">있음</td><td class="yes">있음</td></tr>
+          <tr><td>임계 경보</td><td class="yes">담당자 문자</td><td class="yes">+ 도달 시각 예측(선제)</td></tr>
+          <tr><td>예측 근거</td><td class="no">—</td><td class="yes">대중교통 순유입 선행지표</td></tr>
+          <tr><td>위험 해석</td><td>밀도 단일 지표</td><td class="yes">도로·기상·인구구성 가중</td></tr>
+          <tr><td>대응 지시</td><td class="no">—</td><td class="yes">AI 생성 + 가이드라인 근거 인용</td></tr>
+          <tr><td>전파</td><td>한국어 문자</td><td class="yes">역할별 4종 × 4개 국어 + 음성</td></tr>
+          <tr><td>대응 기록·평가</td><td class="no">—</td><td class="yes">타임라인 + 골든타임 KPI</td></tr>
+          <tr><td>사후 보고</td><td class="no">—</td><td class="yes">보고서 자동 생성</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="body-text" style="margin-top:18px">
+      접근 통제도 판매를 전제로 설계했습니다. API 키는 <strong>해시로만</strong> 환경변수에 보관하고
+      (평문은 발급 시점에만 존재), 조회용 키와 운영용 키를 분리했으며,
+      데모 경로는 브라우저가 직접 붙여 위조할 수 없는 <code>Sec-Fetch-Site</code> 헤더로 출처를 가릅니다.
+    </p>
+  </section>
+
+  <!-- ── 스택 ─────────────────────────────────────────── -->
+  <section class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Stack</span>
+      <h2>기술 구성</h2>
+    </div>
+
+    <div class="stack">
+      <div class="stack-grp">
+        <h3>Frontend</h3>
+        <ul>
+          <li>Next.js 14 (App Router)</li>
+          <li>React 18 · TypeScript</li>
+          <li>Tailwind CSS</li>
+          <li>Google Maps JS API</li>
+          <li>자체 캔버스 히트맵 오버레이</li>
+        </ul>
+      </div>
+      <div class="stack-grp">
+        <h3>Backend · Data</h3>
+        <ul>
+          <li>Next.js Route Handlers</li>
+          <li>Vercel Blob (비공개 적재)</li>
+          <li>서울 실시간 도시데이터</li>
+          <li>공공데이터포털 표준데이터</li>
+          <li>행안부 재난안전데이터공유플랫폼</li>
+        </ul>
+      </div>
+      <div class="stack-grp">
+        <h3>AI · 전파</h3>
+        <ul>
+          <li>Anthropic Claude API</li>
+          <li>JSON 스키마 강제 구조화 출력</li>
+          <li>Web Speech API (TTS)</li>
+          <li>4개 국어 자동 번역</li>
+        </ul>
+      </div>
+      <div class="stack-grp">
+        <h3>운영</h3>
+        <ul>
+          <li>Vercel 배포</li>
+          <li>외부 크론 5분 주기 수집</li>
+          <li>API 키 해싱 · 스코프 분리</li>
+          <li>레이트 리밋 · 출처 게이트</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 자소서 소재 ──────────────────────────────────── -->
+  <section class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Takeaways</span>
+      <h2>이 프로젝트로 말할 수 있는 것</h2>
+      <p class="sec-sub">자기소개서·면접에서 그대로 꺼내 쓸 수 있는 형태로 정리했습니다.</p>
+    </div>
+
+    <div class="quotes">
+      <div class="quote">
+        <span class="q-tag">데이터를 의심하는 태도</span>
+        <p class="q-text">
+          공공데이터를 그대로 믿지 않고 <strong>오차 구조부터 확인</strong>했습니다.
+          유입 인원이 구간으로 제공된다는 사실을 확인하고 실측해 보니,
+          오차 폭이 제가 경보 기준으로 쓰던 신호와 같은 자릿수였습니다.
+          중앙값으로 눌러 쓰던 구현을 구간 그대로 다루도록 바꾸고,
+          부호가 결정되지 않는 구간에서는 "판정 불가"를 표시하도록 했습니다.
+          <strong>화면을 채우는 것보다 틀린 확신을 내보내지 않는 것이 중요하다</strong>고 판단했습니다.
+        </p>
+      </div>
+
+      <div class="quote">
+        <span class="q-tag">AI를 신뢰 경계 안에서 쓰는 법</span>
+        <p class="q-text">
+          LLM에 안전 규칙을 프롬프트로 세 라운드에 걸쳐 강화했지만 세 번 다 위반이 재현됐습니다.
+          문구를 더하는 대신 <strong>입력 자체를 두 목록으로 분리</strong>해
+          시민 문안에 쓸 수 있는 장소와 확인이 필요한 장소를 구조적으로 갈랐고,
+          재실행에서 위반이 0건이 됐습니다.
+          <strong>모델의 판단에 맡길 것과 코드로 강제할 것을 구분하는 기준</strong>을
+          이 과정에서 얻었습니다.
+        </p>
+      </div>
+
+      <div class="quote">
+        <span class="q-tag">검증 없이는 고쳤다고 말하지 않기</span>
+        <p class="q-text">
+          커밋 전 코드 리뷰를 규칙으로 두고 두 기능에 15라운드를 수행했습니다.
+          타입 검사와 단위 테스트를 모두 통과한 수정이 실제 환경에서는 기능을 완전히 중단시킨 사례를 겪은 뒤로,
+          <strong>모든 수정을 헤드리스 브라우저로 끝까지 실행해 서버에 데이터가 남는지까지 확인</strong>하는 절차를 만들었습니다.
+          "동작한다"를 주장이 아니라 측정으로 말하는 습관이 생겼습니다.
+        </p>
+      </div>
+
+      <div class="quote">
+        <span class="q-tag">도메인을 이해하고 만드는 것</span>
+        <p class="q-text">
+          인파 관제에서는 <strong>"어디로 빼낼 것인가"</strong>가 핵심인데,
+          지하 공간·지하철역 출구·좁은 계단은 절대 목적지가 될 수 없습니다.
+          가이드라인을 읽고 이 제약을 시스템에 못 박았고,
+          어린이공원처럼 이름만 공원인 곳, 야간에 문이 잠기는 학교 운동장,
+          궁궐처럼 폐장 시각이 있는 시설을 각각 다른 규칙으로 걸러냈습니다.
+          <strong>기술적으로 맞는 답과 현장에서 실행 가능한 답이 다르다</strong>는 걸 배웠습니다.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 현재 ─────────────────────────────────────────── -->
+  <section class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Status</span>
+      <h2>지금 상태와 다음</h2>
+    </div>
+
+    <div class="status">
+      <div class="status-row">
+        <span class="status-k">배포</span>
+        <span class="status-v">Vercel 상시 운영 중 · 서울 32개 지점 실데이터 연동</span>
+      </div>
+      <div class="status-row">
+        <span class="status-k">수집</span>
+        <span class="status-v">외부 크론이 5분 주기로 관측 스냅샷 적재 — 예측 정확도 백테스트용 데이터 축적 중</span>
+      </div>
+      <div class="status-row">
+        <span class="status-k">검증</span>
+        <span class="status-v">선행 시간·적중률 평가는 데이터 축적 후 진행 예정 (결과 미확보 상태)</span>
+      </div>
+      <div class="status-row">
+        <span class="status-k">진행</span>
+        <span class="status-v">기관별 테넌시·로그인 구현 중 — 통신사·지자체 파일럿을 전제로 한 계정 체계</span>
+      </div>
+      <div class="status-row">
+        <span class="status-k">한계</span>
+        <span class="status-v">현재는 관제 화면이 열려 있어야 감시가 동작합니다. 서버 측 무인 감시 루프가 다음 과제입니다</span>
+      </div>
+    </div>
+
+    <p class="body-text" style="margin-top:22px">
+      정확도 수치는 아직 없습니다. 데이터가 쌓이는 중이고, <strong>없는 결과를 있다고 쓰지 않는 것</strong>이
+      이 프로젝트 내내 지켜 온 기준이라 여기서도 같게 적었습니다.
+    </p>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  CrowdSense · 기획 · 설계 · 개발 · 배포 1인 수행 · 2026<br>
+  제4회 재난안전데이터 활용 창업경진대회 최우수상 (행정안전부 장관상)
+</footer>
