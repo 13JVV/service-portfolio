@@ -5,8 +5,14 @@
   var charge = 0, charging = false, revealed = false, last = performance.now();
   function start() { charging = true; }
   function stop() { charging = false; }
-  core.addEventListener('pointerenter', start);
-  core.addEventListener('pointerleave', stop);
+  document.addEventListener('pointermove', function (event) {
+    var rect = core.getBoundingClientRect();
+    var dx = event.clientX - (rect.left + rect.width / 2);
+    var dy = event.clientY - (rect.top + rect.height / 2);
+    var radius = Math.min(rect.width, rect.height) / 2;
+    charging = Math.sqrt(dx * dx + dy * dy) <= radius;
+  }, true);
+  window.addEventListener('blur', stop);
   core.addEventListener('focus', start);
   core.addEventListener('blur', stop);
   function tick(now) {
