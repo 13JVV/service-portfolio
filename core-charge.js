@@ -20,6 +20,10 @@
     last = now;
     charge = Math.max(0, Math.min(1, charge + (charging ? 1 : -1) * delta * .46));
     core.style.setProperty('--charge', charge.toFixed(3));
+    var red = Math.round(247 * (1 - charge));
+    var green = Math.round(136 * (1 - charge));
+    var blue = Math.round(75 * (1 - charge));
+    core.style.setProperty('--core-text', 'rgb(' + red + ' ' + green + ' ' + blue + ')');
     core.classList.toggle('charged', charge >= .999);
     if (charge >= .999 && !revealed) {
       revealed = true;

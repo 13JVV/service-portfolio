@@ -33,6 +33,7 @@ nav button{font-size:18px!important}
 .floating-label{display:none!important}
 .core{border:0;padding:0;color:inherit;cursor:pointer;background:transparent;text-align:center}
 .core-fill{position:absolute;inset:0;border-radius:50%;background:#f7884b;transform:scale(var(--charge,0));transform-origin:center;transition:transform .06s linear;box-shadow:0 0 48px #f7884b88;z-index:0}
+.core-center{color:var(--core-text,#f7884b);transition:color .06s linear}
 .core .core-ring,.core .core-center,.core .core-caption{z-index:1}
 .core.charged .core-center{color:#000;text-shadow:none}
 .core.charged .core-caption{color:#000}
