@@ -30,6 +30,7 @@ nav button{font-size:18px!important}
 @keyframes holo-scan{0%{opacity:0;transform:translateY(100%)}45%{opacity:1}100%{opacity:.38;transform:translateY(-100%)}}
 @keyframes holo-flicker{0%,14%,27%,39%{opacity:0}20%,34%,55%,100%{opacity:1}}
 @media(max-width:700px){nav button{font-size:13px!important}#motion span{font-size:11px!important}.floating-label{font-size:15px!important}.floating-foot{font-size:10px!important}.node .base-label{font-size:22px!important}}
+#about-dialog .close:focus-visible,#project-dialog .close:focus-visible{outline:0;outline-offset:0;box-shadow:none;color:var(--orange)}
 .floating-label{display:none!important}
 .core{border:0;padding:0;color:inherit;cursor:pointer;background:transparent;text-align:center}
 .core-fill{position:absolute;inset:0;border-radius:50%;background:#f7884b;transform:scale(var(--charge,0));transform-origin:center;transition:transform .06s linear;box-shadow:0 0 48px #f7884b88;z-index:0}
