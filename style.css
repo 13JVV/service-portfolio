@@ -30,6 +30,16 @@ nav button{font-size:18px!important}
 @keyframes holo-scan{0%{opacity:0;transform:translateY(100%)}45%{opacity:1}100%{opacity:.38;transform:translateY(-100%)}}
 @keyframes holo-flicker{0%,14%,27%,39%{opacity:0}20%,34%,55%,100%{opacity:1}}
 @media(max-width:700px){nav button{font-size:13px!important}#motion span{font-size:11px!important}.floating-label{font-size:15px!important}.floating-foot{font-size:10px!important}.node .base-label{font-size:22px!important}}
+.floating-label{display:none!important}
+.core{border:0;padding:0;color:inherit;cursor:pointer;background:transparent;text-align:center}
+.core-fill{position:absolute;inset:0;border-radius:50%;background:var(--orange);transform:scale(var(--charge,0));transform-origin:center;transition:transform .06s linear;box-shadow:0 0 48px #ff651f88;z-index:0}
+.core .core-ring,.core .core-center,.core .core-caption{z-index:1}
+.core.charged .core-center{color:#000;text-shadow:none}
+.core.charged .core-caption{color:#000}
+#about-dialog[open]{animation:holo-rise .72s cubic-bezier(.16,.84,.22,1) both;border-color:#ff9f6399;box-shadow:0 0 80px #ff651f26,0 0 0 1px #ffb87844}
+#about-dialog:before{content:'';position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 3px,#ffb77a10 4px,#ffb77a03 5px);mix-blend-mode:screen;animation:holo-scan .72s steps(8,end) both}
+#about-dialog h2,#about-dialog p,#about-dialog .about-process{position:relative}
+@media(max-width:700px){.core-caption{font-size:8px;letter-spacing:1.2px}}
 nav button{font-size:15px;letter-spacing:1.15px}
 #motion span{font-size:13px}
 .floating-label{font-size:16px;letter-spacing:1.6px}
