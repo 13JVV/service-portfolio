@@ -19,4 +19,16 @@
       }, 220);
     }, true);
   });
+  document.addEventListener('pointermove', function (event) {
+    var hit = document.elementFromPoint(event.clientX, event.clientY);
+    var node = hit && hit.closest ? hit.closest('.node') : null;
+    clearTimeout(timer);
+    if (node) {
+      if (typeof activate === 'function') activate(Number(node.dataset.index));
+      return;
+    }
+    timer = setTimeout(function () {
+      if (typeof activate === 'function') activate(-1);
+    }, 90);
+  }, true);
 })();
