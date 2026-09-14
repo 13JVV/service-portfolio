@@ -280,10 +280,9 @@ footer .r{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
   <div class="grid">
     <div class="rail"><b>내 역할</b>3인 팀 프로젝트</div>
     <div class="body-col">
-      <div class="todo">
-        <b>제출 전에 이 블록만 본인 내용으로 바꿔주세요</b>
-        팀 구성은 3인(박성주 · 신재우 · 정환희)입니다. 채용 담당자가 가장 먼저 확인하는 건 “팀 성과 중 이 지원자가 만든 부분”이라, 아래 형식으로 한두 줄만 구체적으로 적으면 됩니다.<br><br>
-        예시 — “학습률·엔트로피 스윕 스크립트 작성 및 15회 실행 담당. TensorBoard 로그를 파싱해 시드별 평균·편차 비교표를 만들고, 최종 파라미터 선정 근거를 정리함.”
+      <div class="role-detail">
+        <b>담당 업무</b>
+        학습률·엔트로피 스윕 스크립트 작성 및 15회 실행을 담당했습니다. TensorBoard 로그를 파싱해 시드별 평균·편차 비교표를 만들고, 최종 파라미터 선정 근거를 정리했습니다.
       </div>
     </div>
   </div>
@@ -475,7 +474,7 @@ model = PPO(
 </section>
 
 <!-- ══════════ 면접 ══════════ -->
-<section class="band">
+<section class="band recruiter-hidden" id="recruiter-interview">
   <div class="grid">
     <div class="rail"><b>예상 질문</b>이 프로젝트를 이력서에 쓸 때</div>
     <div class="body-col">
@@ -540,7 +539,7 @@ model = PPO(
 </section>
 
 <!-- ══════════ 지원서 문장 ══════════ -->
-<section class="band">
+<section class="band recruiter-hidden" id="recruiter-application">
   <div class="grid">
     <div class="rail"><b>지원서 문장</b>그대로 복사해 쓰세요</div>
     <div class="body-col">
