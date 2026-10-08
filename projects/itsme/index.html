@@ -91,17 +91,27 @@
   .pill:hover{border-color:var(--coral);color:var(--coral)}
   .pill .dot{width:6px;height:6px;border-radius:50%;background:var(--coral)}
 
-  /* ── 명함 목업 (9:5, 실제 명함 비율) ── */
+  /* ── 1.5.0 세로 명함의 앞면·뒷면을 재구성한 도식 ── */
   .cardmock{
-    aspect-ratio:9/5;border-radius:12px;padding:20px 22px;position:relative;overflow:hidden;
+    aspect-ratio:5/8;border-radius:12px;padding:18px 16px;position:relative;overflow:hidden;
     background:linear-gradient(135deg,#B76E79 0%,#D79A8C 48%,#E8C4A2 100%);
-    color:#fff;box-shadow:0 14px 34px -18px rgba(22,26,40,.55);
+    color:#3A252B;box-shadow:0 14px 34px -18px rgba(22,26,40,.55);
     display:flex;flex-direction:column;justify-content:space-between;
   }
   .cardmock .brand{font-family:"Jua",sans-serif;font-size:15px;opacity:.9;letter-spacing:0}
   .cardmock .nm{font-size:26px;font-weight:900;letter-spacing:-0.04em;line-height:1.1;margin-top:2px}
   .cardmock .rl{font-size:12.5px;opacity:.92;margin-top:5px;line-height:1.5}
-  .cardmock .qr{position:absolute;right:20px;bottom:18px;width:54px;height:54px;background:rgba(255,255,255,.94);border-radius:6px;padding:5px}
+  .cardmock .qr{position:static;width:min(76px,100%);aspect-ratio:1;background:rgba(255,255,255,.94);border-radius:6px;padding:5px;align-self:center;margin:auto 0}
+  .card-study{margin:0;max-width:360px}
+  .card-study-grid{display:grid;grid-template-columns:1fr .76fr;gap:14px;align-items:center}
+  .card-face{min-width:0}
+  .card-face-label{display:block;font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:9px}
+  .cardmock .brand{font-size:13px}
+  .cardmock .rl{font-size:11px;overflow-wrap:anywhere}
+  .cardmock .card-hint{font-size:10px;line-height:1.6;margin-top:18px}
+  .cardmock-back .brand{font-size:11px}
+  .cardmock-back .qr-caption{font-size:10px;text-align:center}
+  @media(max-width:420px){.card-study-grid{gap:10px}.cardmock{padding:15px 12px}.cardmock .nm{font-size:24px}}
   .cardcap{margin-top:12px;font-size:12px;color:var(--muted);line-height:1.6}
   .cardcap b{color:var(--ink-soft);font-weight:700}
 
@@ -304,39 +314,46 @@
         <ol class="case-decision-track">
           <li class="case-decision-step">
             <span class="case-decision-label">01 / 문제</span>
-            <strong>교환 이후의 단절</strong>
-            <p>만남 맥락과 연락처 변경을 이어서 관리해야 함</p>
+            <strong>찾기 어려운 핵심 동선</strong>
+            <p>기능이 많아 어디부터 눌러야 할지 어렵다는 피드백</p>
           </li>
           <li class="case-decision-step">
             <span class="case-decision-label">02 / 선택</span>
-            <strong>관계 관리에 초점</strong>
-            <p>첫 명함·공유를 변경 갱신과 만남 브리핑으로 연결</p>
+            <strong>세로 명함 · 네 개 탭</strong>
+            <p>내 명함·지갑·스캔·설정으로 구성하고, 탭하면 뒷면 QR</p>
           </li>
           <li class="case-decision-step">
             <span class="case-decision-label">03 / 확인</span>
-            <strong>출시·기능 검증</strong>
-            <p>심사 결함 수정과 명함 갱신·푸시의 E2E 확인</p>
+            <strong>버전별 확인 범위</strong>
+            <p>1.4.2 공개 · iOS 1.5.0 심사 대기, 새 구성의 사용성은 후속 검증</p>
           </li>
         </ol>
         <p class="case-decision-boundary">앱 공개·기능 동작과 실제 관계 유지 효과는 별도로 검증해야 합니다.</p>
         <figcaption>본문을 바탕으로 재구성한 의사결정 흐름입니다. 효과를 측정한 도표가 아닙니다.</figcaption>
       </figure>
-      <p class="thesis">첫 명함을 만들고 건넨 뒤, 만남 맥락을 기억하고 바뀐 연락처를 확인하는 <mark>관계 관리 앱</mark>입니다. 기획·개발·디자인·배포를 단독으로 맡아 심사 반려와 가족·지인 테스트의 결함을 수정했고, <mark>App Store 1.4.2를 공개</mark>했습니다.</p>
+      <p class="thesis">첫 명함을 만들고 건넨 뒤, 만남 맥락을 기억하고 바뀐 연락처를 확인하는 <mark>관계 관리 앱</mark>입니다. 기획·개발·디자인·배포를 단독으로 맡았습니다. <mark>App Store 1.4.2 공개</mark> 이후, 세로 명함과 네 개 탭으로 화면을 다시 구성한 <mark>iOS 1.5.0은 심사 대기 중</mark>입니다.</p>
       <div class="links">
         <a class="pill" href="https://apps.apple.com/kr/app/id6769245736"><span class="dot"></span>App Store — iOS 1.4.2 공개</a>
+        <span class="pill"><span class="dot"></span>iOS 1.5.0 — 심사 대기</span>
         <a class="pill" href="https://persona-772ab.web.app"><span class="dot"></span>웹 명함 페이지</a>
         <a class="pill" href="https://play.google.com/store/search?q=com.jaewoo.itsme&amp;c=apps" target="_blank" rel="noopener"><span class="dot"></span>Google Play 검색 — Android 1.0.20</a>
       </div>
     </div>
     <div>
-      <div class="cardmock">
-        <div>
-          <div class="brand">It's me</div>
-          <div class="nm">신재우</div>
-          <div class="rl">산업경영공학 · 앱 개발<br>sjwtlswodn@naver.com</div>
-        </div>
-        <div class="qr" aria-hidden="true">
-          <svg viewBox="0 0 44 44" width="100%" height="100%">
+      <figure class="card-study" aria-label="1.5.0 세로 명함 앞면과 탭 후 뒷면 QR의 재구성 예시">
+        <div class="card-study-grid">
+          <div class="card-face">
+            <span class="card-face-label">앞면 · 세로형 기본</span>
+            <div class="cardmock" data-orientation="portrait">
+              <div><div class="brand">It's me</div><div class="nm">신재우</div><div class="rl">산업경영공학 · 앱 개발</div></div>
+              <div class="card-hint">첫 인사를<br>다음 만남으로.<br><br>명함을 탭하면 QR →</div>
+            </div>
+          </div>
+          <div class="card-face">
+            <span class="card-face-label">탭 → 뒷면</span>
+            <div class="cardmock cardmock-back" data-orientation="portrait">
+              <div class="brand">CONNECT</div>
+              <div class="qr" aria-hidden="true"><svg viewBox="0 0 44 44" width="100%" height="100%">
             <rect x="0" y="0" width="44" height="44" fill="none"></rect>
             <g fill="#3A2A2C">
               <path d="M0 0h14v14H0V0zm3 3v8h8V3H3z"></path>
@@ -357,10 +374,13 @@
               <rect x="35" y="31" width="3" height="3"></rect><rect x="39" y="35" width="3" height="3"></rect>
               <rect x="35" y="40" width="3" height="3"></rect><rect x="40" y="27" width="3" height="3"></rect>
             </g>
-          </svg>
+          </svg></div>
+              <div class="qr-caption">QR 예시</div>
+            </div>
+          </div>
         </div>
-      </div>
-      <p class="cardcap">명함 형태를 재구성한 예시(<b>가로 9 : 세로 5</b>, 국내 명함 규격). 스킨 11종 · 레이아웃 3종 · 서체/글자크기 6단계를 사용자가 조합합니다.</p>
+        <figcaption class="cardcap"><b>1.5.0 설계 재구성.</b> 휴대폰에서 보기 좋은 세로형이 기본이고 가로형도 선택할 수 있습니다. 명함을 누르면 뒷면 QR이 보입니다. 실제 앱 캡처·스캔용 QR은 아닙니다.</figcaption>
+      </figure>
     </div>
   </div>
 
@@ -383,6 +403,7 @@
       <p class="lead">명함을 처음 갖게 되는 사람 — 대학생·취준생·1년차 — 에게는 명함이 <b>수집 대상</b>이 아니라 <b>첫인상</b>입니다. 리멤버가 잘하는 "명함을 스캔해 쌓아두는 일" 대신, <b>예쁜 첫 명함을 만들어 건네고 그 인연을 이어가는 일</b>에 제품을 맞췄습니다.</p>
       <p>리멤버·HiHello·Blinq·Popl 4종을 뜯어보고 나서 포지셔닝을 <b>"예쁜 첫 명함 → AI 관계 비서"</b>로 확정했습니다. 잇츠미의 설계는 <em>교환 이후</em>에 초점을 맞췄습니다. 언제 어디서 만났는지, 얼마나 연락이 뜸해졌는지, 다시 만나기 전 무엇을 기억해야 하는지를 기록과 브리핑으로 연결했습니다.</p>
 
+      <p class="note">아래는 1.4.2까지의 구현·운영 범위입니다. 1.5.0에서는 세로 명함을 기본으로 하고 메인 탭을 내 명함·지갑·스캔·설정 네 개로 다시 구성했습니다.</p>
       <div class="feat">
         <div>
           <h4>만들고 건네기</h4>
@@ -432,6 +453,9 @@
         <div><h4>P1 · 다시 찾기</h4><div class="sub">TRUST &amp; RETENTION</div><ul><li>지갑·이벤트 그룹핑·검색</li><li>종이 명함 OCR과 사용자 확인</li><li>변경된 명함 자동 최신화</li></ul></div>
         <div><h4>P2 · 관계 유지</h4><div class="sub">AFTER THE MEETING</div><ul><li>만남 브리핑·안부문자 초안</li><li>관계 온도·만남 지도·조회 분석</li><li>위젯·Wallet·내보내기</li></ul></div>
       </div>
+      <h3>1.5.0: 휴대폰에서 명함을 읽고 건네는 동선</h3>
+      <p>화면을 처음부터 다시 구성하면서 메인 탭을 <b>내 명함 · 지갑 · 스캔 · 설정</b> 네 개로 줄였습니다. 명함은 휴대폰에서 보기 좋은 <b>세로형을 기본</b>으로 하고, 원하면 가로형을 고를 수 있게 했습니다. 명함을 누르면 뒷면 QR이 보이도록 앞면의 소개와 교환 동작을 나눴습니다.</p>
+      <p class="note">iOS 1.5.0은 현재 심사 대기 중입니다. 화면 구성을 바꾼 사실과 실제 사용성 개선 효과를 구분하며, 효과 수치는 아직 제시하지 않습니다.</p>
       <h3>심사 반려도 기획 문제로 다시 정의했습니다</h3>
       <p>App Store 심사에서 발생한 3건을 코드·권한 고지·미완성 기능 노출로 분류했습니다. 구글 로그인 크래시는 플로우를 수정하고, 카메라 권한은 사용 맥락에 맞는 문구로 바꾸고, 동작하지 않던 NFC는 마감 안에 억지로 구현하지 않고 제거했습니다. 기능을 더하는 것보다 <b>사용자에게 보이는 약속과 실제 동작을 일치시키는 것</b>을 우선한 판단입니다.</p>
     </div>
@@ -618,7 +642,7 @@
   <section>
     <div class="rail">
       <div class="kicker">07 / Timeline</div>
-      <h2>6개월의 진행</h2>
+      <h2>출시와 재설계의 기록</h2>
       <p>커밋 128개로 남은 기록</p>
     </div>
     <div class="body-col">
@@ -628,8 +652,9 @@
         <li><div class="when">2026.06–07</div><div class="what"><b>경쟁 앱 분석 후 방향 재설정</b><span>리멤버·HiHello·Blinq·Popl을 뜯어보고 "관계 유지"로 포지셔닝 확정. 앱 이름을 <b>Persona → It's me(잇츠미)</b>로 바꾸고 UI를 전면 리뉴얼하면서, 사용자에게 보이는 옛 이름 노출을 0건까지 정리.</span></div></li>
         <li><div class="when">2026.07</div><div class="what"><b>차별화 기능 5종 + 4종 구현</b><span>자동 최신화 · 조회 분석 · AI 팔로업 · 이벤트 모드 · 내보내기, 이어서 살아있는 명함 · AI 만남 브리핑 · 만남 지도 · 관계 온도. FCM 푸시 E2E까지 검증.</span></div></li>
         <li><div class="when">2026.07–08</div><div class="what"><b>Android 이식 &amp; Google Play</b><span>패키지 <code>com.jaewoo.itsme</code>로 안드로이드 빌드, 릴리즈 키스토어·소셜 로그인 키 해시 등록, 스토어 등록정보와 그래픽 애셋 제작. 출시 절차를 런북 문서로 남김.</span></div></li>
-        <li><div class="when">2026.08</div><div class="what"><b>실사용자 피드백 반영 · 심사 반려 대응</b><span>App Store 반려 3건 해결, 가족·지인 테스트에서 나온 버그 수정, 정보 밀도를 낮추는 UI 재설계(아코디언·3탭 분리), 컬러를 코랄로 통일.</span></div></li>
-        <li><div class="when">2026.09</div><div class="what"><b>현재</b><span>iOS 1.4.2(build 14) / Android 1.0.20(versionCode 22) 운영 중. 다국어(영어)와 배포 국가 확대가 다음 과제.</span></div></li>
+        <li><div class="when">2026.08</div><div class="what"><b>실사용자 피드백 반영 · 심사 반려 대응</b><span>App Store 반려 3건 해결, 가족·지인 테스트에서 나온 버그 수정, 정보 밀도를 낮추는 당시 UI 재설계(아코디언·명함 상세 3탭 분리), 컬러를 코랄로 통일.</span></div></li>
+        <li><div class="when">2026.09</div><div class="what"><b>1.4.2까지의 운영 기록</b><span>iOS 1.4.2(build 14) / Android 1.0.20(versionCode 22). 다국어(영어)와 배포 국가 확대를 후속 과제로 정리.</span></div></li>
+        <li><div class="when">2026.10</div><div class="what"><b>1.5.0 재설계 · iOS 심사 대기</b><span>세로 명함 기본·가로 선택, 내 명함·지갑·스캔·설정 네 개 탭, 명함 탭 시 뒷면 QR. 현재 공개 iOS 버전은 1.4.2이며 1.5.0 출시와 구분.</span></div></li>
       </ol>
     </div>
   </section>
@@ -663,17 +688,17 @@
   <section>
     <div class="rail">
       <div class="kicker">09 / Outcome · Reflection</div>
-      <h2>출시로 확인한 것과 남은 검증</h2>
+      <h2>공개 버전과 다음 버전의 검증 범위</h2>
       <p>배포·기능 검증과 사용자 성과를 구분합니다</p>
     </div>
     <div class="body-col">
       <p class="lead"><b>App Store 1.4.2 공개</b>, 심사 반려 3건 수정, 실시간 명함 갱신·푸시의 E2E 검증이 이 기록의 결과입니다. 가족·지인 테스트는 개발 기기에서 놓친 권한과 화면 결함을 찾는 데 사용했습니다.</p>
-      <p><b>128 커밋 · 14,121줄</b>은 구현 범위를 설명합니다. 상단의 9:5 명함 프리뷰는 앱 화면을 재구성한 예시이며, 웹 명함은 앱이 없는 상대도 링크로 확인하는 결과물입니다.</p>
+      <p><b>128 커밋 · 14,121줄</b>은 구현 범위를 설명합니다. 상단의 세로 명함 앞면·뒷면 도식은 1.5.0 설계를 재구성한 예시이며, 웹 명함은 앱이 없는 상대도 링크로 확인하는 결과물입니다.</p>
       <p class="note">Google Play는 공개 앱 상세 URL이 확인되지 않아 상단에 패키지명 검색 링크를 연결했습니다. Android 1.0.20의 빌드·심사·배포 과정은 타임라인에 기록했습니다.</p>
       <div class="quote">
         <div class="qh">운영 중 반영한 피드백</div>
         <blockquote>“기능이 많은데 어디부터 눌러야 할지 모르겠다”는 피드백을 정보 구조의 문제로 해석했습니다.</blockquote>
-        <ul><li>편집·설정 화면을 아코디언으로 나누고, 명함 상세를 3탭으로 분리해 정보 밀도를 낮췄습니다.</li><li>가족·지인 테스트에서 나온 사진 권한 저장 실패, 카드 1장 정렬, 다크모드 가독성 문제를 한 릴리즈에 묶어 반영했습니다.</li><li>다음 버전은 영어 지원과 배포 국가 확대를 준비하고 있습니다.</li></ul>
+        <ul><li>2026.08에는 편집·설정 화면의 아코디언과 명함 상세 3탭 분리를 적용했습니다. 1.5.0은 메인 탭을 내 명함·지갑·스캔·설정 네 개로 다시 구성한 버전입니다.</li><li>가족·지인 테스트에서 나온 사진 권한 저장 실패, 카드 1장 정렬, 다크모드 가독성 문제를 한 릴리즈에 묶어 반영했습니다.</li><li>1.5.0의 새 화면과 세로 기본 명함은 iOS 심사 대기 중이며, 공개 후 사용 흐름을 확인해야 합니다.</li></ul>
       </div>
       <p>사용자 수·재방문율·관계 유지 효과는 아직 이 기록에서 수치로 제시하지 않습니다. 커밋 수와 코드 줄 수는 제품의 사용 효과를 뜻하지 않습니다.</p>
     </div>
@@ -684,7 +709,7 @@
     <span>산업경영공학 4학년 · It's me(잇츠미) 기획/개발/배포</span>
     <span class="mono">sjwtlswodn@naver.com</span>
     <span><a href="https://apps.apple.com/kr/app/id6769245736">App Store</a> · <a href="https://persona-772ab.web.app">persona-772ab.web.app</a></span>
-    <span class="mono">2026.09.11 기준</span>
+    <span class="mono">상태 갱신 2026.10.08 · 구현 수치는 2026.09 기록</span>
   </footer>
 </div>
 <script src="../../recruiter-clean.js"></script>

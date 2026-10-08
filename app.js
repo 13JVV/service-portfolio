@@ -2,7 +2,7 @@ const coordinates=[[830,100],[1060,535],[340,700],[70,260],[490,45]];
 const names=['CrowdSense','It’s me','반갑꼬리','AI subscription'];
 const artLibrary=[
 '<path d="M0 20H200M0 55H200M0 90H200M30 0V110M80 0V110M140 0V110M180 0V110" opacity=".25"/><circle cx="80" cy="55" r="29"/><circle cx="80" cy="55" r="17"/><path d="M80 10V100M35 55H125"/><circle cx="145" cy="24" r="6"/><circle cx="32" cy="88" r="4"/>',
-'<rect x="40" y="6" width="110" height="85" rx="2"/><rect x="55" y="18" width="110" height="85" rx="2"/><circle cx="84" cy="48" r="12"/><path d="M108 39H147M108 48H135M70 76H147M70 84H126"/>',
+'<rect x="44" y="6" width="60" height="96" rx="3"/><rect x="118" y="14" width="55" height="88" rx="3"/><circle cx="74" cy="35" r="10"/><path d="M57 59H91M57 69H84M57 86H91"/><rect x="132" y="43" width="27" height="27"/><path d="M138 49H144V55H138ZM148 60H153V65H148Z"/>',
 '<path d="M22 76Q40 20 73 57T130 50T187 72" stroke-dasharray="3 5"/><path d="M89 24a20 20 0 0 1 40 0c0 18-20 40-20 40S89 42 89 24Z"/><circle cx="109" cy="24" r="6"/><ellipse cx="108" cy="85" rx="47" ry="10"/>',
 '<path d="M40 80L50 26L99 7L163 39L149 88Z"/><path d="M40 80L99 57L163 39M50 26L99 57L149 88M99 7V57"/><circle cx="99" cy="57" r="14"/><circle cx="50" cy="26" r="4"/><circle cx="149" cy="88" r="4"/>',
 '<path d="M20 10V94H190"/><path d="M45 90V55H63V90M83 90V36H101V90M121 90V14H139V90M159 90V25H177V90"/><path d="M26 52L79 32L128 8L186 15" stroke-dasharray="2 4"/>',
