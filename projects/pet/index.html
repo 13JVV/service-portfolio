@@ -1,3 +1,8 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>반갑꼬리 개발 기록</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -302,28 +307,140 @@
     .row { flex-direction: column; gap: 3px; }
     .row-k { flex: none; }
   }
+
+  /* 제목 다음에 읽는 의사결정 흐름: 이 figure 안에서만 적용 */
+  .case-decision-figure {
+    margin: 0 0 22px;
+    padding: 16px;
+    border: 1px solid var(--line-firm);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--ink);
+  }
+  .case-decision-figure .case-decision-track {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .case-decision-figure .case-decision-step {
+    position: relative;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+  }
+  .case-decision-figure .case-decision-step + .case-decision-step::before {
+    content: "";
+    position: absolute;
+    left: -13px;
+    top: 31px;
+    width: 6px;
+    height: 6px;
+    border-top: 1px solid var(--accent-deep);
+    border-right: 1px solid var(--accent-deep);
+    transform: rotate(45deg);
+  }
+  .case-decision-figure .case-decision-label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--accent-deep);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .08em;
+  }
+  .case-decision-figure .case-decision-step strong {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    word-break: keep-all;
+  }
+  .case-decision-figure .case-decision-step p {
+    margin: 0;
+    color: var(--ink);
+    font-size: 12px;
+    line-height: 1.65;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+  .case-decision-figure .case-decision-boundary {
+    margin: 14px 0 0;
+    padding-top: 11px;
+    border-top: 1px solid var(--line-firm);
+    color: var(--ink);
+    font-size: 11.5px;
+    line-height: 1.6;
+  }
+  .case-decision-figure figcaption {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 10.5px;
+    line-height: 1.6;
+  }
+  @media (max-width: 620px) {
+    .case-decision-figure .case-decision-track {
+      grid-template-columns: 1fr;
+      gap: 22px;
+    }
+    .case-decision-figure .case-decision-step + .case-decision-step::before {
+      left: 3px;
+      top: -15px;
+      transform: rotate(135deg);
+    }
+    .case-decision-figure .case-decision-label { margin-bottom: 3px; }
+    .case-decision-figure .case-decision-step strong { margin-bottom: 3px; }
+  }
+
 </style>
+<link rel="stylesheet" href="../../project-navigation.css">
+</head>
+<body>
+<div class="portfolio-return" role="navigation" aria-label="포트폴리오"><a href="../../#projects">← 프로젝트 목록</a></div>
 
 <div class="page">
 
   <p class="eyebrow">2026 관광데이터 활용 공모전 · 지정과제 6</p>
   <h1>반갑꼬리</h1>
+  <figure class="case-decision-figure" aria-label="반갑꼬리 의사결정 흐름">
+    <ol class="case-decision-track">
+      <li class="case-decision-step">
+        <span class="case-decision-label">01 / 문제</span>
+        <strong>동반 조건 불명확</strong>
+        <p>몸무게·품종·이용 구역의 조건이 문장마다 다름</p>
+      </li>
+      <li class="case-decision-step">
+        <span class="case-decision-label">02 / 선택</span>
+        <strong>조건을 규칙으로</strong>
+        <p>시설 조건을 구조화해 반려동물 정보와 대조</p>
+      </li>
+      <li class="case-decision-step">
+        <span class="case-decision-label">03 / 검토</span>
+        <strong>확인 필요를 구분</strong>
+        <p>모호함·조건 없음은 ‘가능’으로 단정하지 않음</p>
+      </li>
+    </ol>
+    <p class="case-decision-boundary">실기기·API 연결 확인과 현장 입장 가능 여부는 별개이며, 모호한 조건은 방문 전 확인이 필요합니다.</p>
+    <figcaption>본문을 바탕으로 재구성한 의사결정 흐름입니다. 효과를 측정한 도표가 아닙니다.</figcaption>
+  </figure>
   <p class="lede">
     "반려동물 동반 가능"이라고 적혀 있어도 막상 가면 다릅니다. 10kg까지만, 소형견만, 실외 좌석만 —
     조건은 제각각인데 어디에도 정리돼 있지 않습니다. <strong>우리 아이의 몸무게와 품종을 기준으로
-    그 시설에 들어갈 수 있는지 미리 알려주는 앱</strong>을 만들었습니다.
+    시설의 동반 조건을 근거와 함께 확인하는 앱</strong>을 만들었습니다.
   </p>
 
   <dl class="meta">
     <div><dt>역할</dt><dd>프론트엔드 · 기능/DB 설계</dd></div>
     <div><dt>팀</dt><dd>2인 (백엔드 1)</dd></div>
     <div><dt>기간</dt><dd>2026.07 – 진행 중</dd></div>
-    <div><dt>배포</dt><dd>App Store 심사 준비</dd></div>
+    <div><dt>배포</dt><dd><a href="https://apps.apple.com/kr/app/%EB%B0%98%EA%B0%91%EA%BC%AC%EB%A6%AC/id6810158091" target="_blank" rel="noopener">App Store 1.1.4 공개 ↗</a></dd></div>
   </dl>
 
   <section>
     <div class="figures">
-      <div class="fig"><b>48,786</b><span>관광공사 시설 데이터</span></div>
+      <div class="fig"><b>48,786</b><span>분석한 관광공사 시설 데이터</span></div>
       <div class="fig"><b>43/44</b><span>라이브 API 연동</span></div>
       <div class="fig"><b>26</b><span>화면</span></div>
       <div class="fig"><b>20,218</b><span>TypeScript 줄</span></div>
@@ -334,9 +451,9 @@
     <h2>Problem</h2>
     <p class="h2sub">데이터는 있는데, 답이 안 나온다</p>
     <p>
-      한국관광공사 반려동물 동반여행 데이터에는 4만 8천여 곳이 있습니다. 그런데 그중
-      <strong>동반 조건이 정리된 곳은 1.3%뿐</strong>입니다. 나머지는 "일부 구역 동반가능",
-      "10kg 미만 소형견에 한함" 같은 자연어 문장이거나 아예 비어 있습니다.
+      한국관광공사 반려동물 동반여행 데이터에는 4만 8천여 곳이 있습니다. 그런데 이 프로젝트의 DB 분류에서
+      <strong>조건을 파싱한 곳은 626건, 약 1.3%</strong>였습니다. "일부 구역 동반가능",
+      "10kg 미만 소형견에 한함" 같은 문장을 규칙으로 바꾸되, 모호하거나 조건이 없는 데이터는 구분해야 했습니다.
     </p>
     <p>
       그래서 이 앱의 핵심은 지도가 아니라 <strong>판별</strong>입니다. 자연어 조건을 파싱해
@@ -346,8 +463,31 @@
     <p class="note">
       DB 실측 기준 <code>PARSED</code> 626건(1.28%) · <code>AMBIGUOUS</code> 468건(0.96%) ·
       <code>NO_CONDITION</code> 47,692건(97.76%). 조건이 없는 97%를 "가능"으로 단정하지 않는 것이
-      이 서비스의 설계 전제입니다.
+      이 서비스의 설계 전제입니다. 분류 비율은 데이터의 상태를 나타내며, 판별 정확도나 실제 입장 가능 비율이 아닙니다.
     </p>
+  </section>
+
+  <section>
+    <h2>Planning</h2>
+    <p class="h2sub">지도보다 먼저 ‘조건을 믿을 수 있는가’를 정했습니다</p>
+    <p>팀 2인 프로젝트에서 핵심 기능을 <strong>자연어 조건 파싱</strong>으로 좁혔습니다. 검색·리뷰·게임 요소를 모두 동시에 키우기보다, “우리 강아지가 실제로 들어갈 수 있는가”에 답하는 데이터 흐름을 P0로 두고 탐색 화면과 부가 기능은 그 결과를 설명하는 범위에서 확장했습니다.</p>
+    <div class="rows">
+      <div class="row"><div class="row-k">P0 · 판별</div><div class="row-v">시설 원문 → 조건 파싱 → 반려동물 몸무게·품종 대조 → 가능 / 조건부 / 어려움과 근거 표시</div></div>
+      <div class="row"><div class="row-k">P1 · 탐색</div><div class="row-v">지역·지도·코스·리뷰를 붙이되, 파싱되지 않은 조건은 “확인 필요”로 남겨 과장하지 않기</div></div>
+      <div class="row"><div class="row-k">결정 방식</div><div class="row-v">시설상세 카드에 파싱 키워드를 전부 노출할지 팀원과 의견이 갈렸을 때, 두 버전을 직접 구현해 비교한 뒤 상세페이지로 옮기는 팀원 판단을 채택</div></div>
+    </div>
+    <p class="note">말로 설득하는 대신 두 안을 실제 화면으로 만들어 정보 밀도와 사용 흐름을 비교했습니다. 팀원의 판단이 더 나았다는 걸 인정하고 기획을 수정한 협업 사례입니다.</p>
+  </section>
+
+  <section>
+    <h2>AI Agent Development</h2>
+    <p class="h2sub">자연어를 규칙으로 바꾸는 과정을 쪼개서 지시했습니다</p>
+    <p>Claude Code와 Codex에는 파싱 로직과 화면 연동을 한 번에 만들라고 하지 않고, <strong>원문 정규화 → 키워드 추출 → 구조화된 조건 저장 → 반려동물 프로필과 판정 → 설명 문구 생성</strong> 순서로 나눠 지시했습니다. 각 단계에서 예시 문장과 예외 케이스를 먼저 확인하게 하고, 실제 관광 데이터로 결과를 다시 대조했습니다.</p>
+    <div class="rows">
+      <div class="row"><div class="row-k">Prompt</div><div class="row-v">“10kg 미만·소형견·실외만·리드줄 필수처럼 서로 다른 표현을 같은 조건 필드로 정규화하고, 근거 원문을 함께 보존하라.”</div></div>
+      <div class="row"><div class="row-k">반복 작업</div><div class="row-v">파싱 fixture 생성, TypeScript 타입·API 응답 계약 정리, 48,786건 상태 분류 결과의 누락·중복 검사</div></div>
+      <div class="row"><div class="row-k">직접 판단</div><div class="row-v">조건이 없다고 “가능”으로 단정하지 않기, 애매한 문장은 사용자 확인으로 보내기, 팀원이 제안한 카드 정보 구조를 비교 후 채택하기</div></div>
+    </div>
   </section>
 
   <section>
@@ -364,7 +504,7 @@
 
   <section>
     <h2>Decisions</h2>
-    <p class="h2sub">기록해둘 만한 판단들</p>
+    <p class="h2sub">실데이터와 실기기에서 막힌 흐름을 고친 과정</p>
 
     <div class="case">
       <p class="case-tag">Resilience</p>
@@ -430,10 +570,10 @@
       </div>
       <div class="step">
         <div class="step-k">근거</div>
-        <p class="step-v">강제하면 <strong>앱 심사자가 그 기능을 아예 못 씁니다.</strong> 미국에 있는
-        심사자가 강릉 카페 반경 안에 있을 리 없고, 공모전 심사위원도 마찬가지입니다. 동작하지 않는
-        것으로 보이면 리젝 사유가 됩니다. 반경 1km도 GPS가 실내에서 수백 m씩 튀는 걸 감안한 값입니다 —
-        부정 방지가 아니라 집에서 찍은 것과 구분하는 게 목적입니다.</p>
+        <p class="step-v">반경 밖이거나 위치 권한을 거부해도
+        <strong>기록 기능을 사용할 수 있도록 현장 배지와 분리</strong>했습니다. 현장에 없는 심사자도
+        기능을 확인할 수 있습니다. 반경 1km는 실내 GPS 오차를 고려한 기준이며,
+        현장 배지가 실제 방문이나 부정 방지를 보장하지는 않습니다.</p>
       </div>
     </div>
 
@@ -498,7 +638,7 @@
         <div class="step-k">근거</div>
         <p class="step-v">관광공사에서 온 실제 시설은 목 데이터에 없으니 조회가 항상 실패하고,
         판별 기록이 있어도 "판별한 적 없음" 분기로 빠졌습니다. <strong>데모용 목 시설로 테스트할 때는
-        전혀 드러나지 않습니다.</strong> 실기기에 실데이터를 물려보지 않았으면 심사에서 발견됐을 결함입니다.</p>
+        전혀 드러나지 않습니다.</strong> 실제 시설 ID로 판별부터 출입증까지 이어지는 경로를 확인해야 찾을 수 있는 결함이었습니다.</p>
       </div>
     </div>
   </section>
@@ -517,14 +657,16 @@
   </section>
 
   <section>
-    <h2>Status</h2>
-    <p class="h2sub">현재 상태</p>
+    <h2>Outcome · Reflection</h2>
+    <p class="h2sub">공개된 앱, 검증이 남은 판별</p>
     <div class="rows">
       <div class="row"><div class="row-k">앱</div><div class="row-v"><span class="state done">완료</span> 판별 · 탐색 · 출입증 · 코스 · 리뷰 · 거부 경고 · 여권 도장 · 푸시</div></div>
-      <div class="row"><div class="row-k">배포</div><div class="row-v"><span class="state done">완료</span> TestFlight 내부 테스트 — 빌드 13</div></div>
-      <div class="row"><div class="row-k">심사</div><div class="row-v"><span class="state wait">대기</span> 스크린샷 후 제출</div></div>
+      <div class="row"><div class="row-k">배포</div><div class="row-v"><span class="state done">공개</span> <a href="https://apps.apple.com/kr/app/%EB%B0%98%EA%B0%91%EA%BC%AC%EB%A6%AC/id6810158091" target="_blank" rel="noopener">App Store 1.1.4 ↗</a></div></div>
+      <div class="row"><div class="row-k">개발 검증</div><div class="row-v">TestFlight 내부 테스트와 실기기·실데이터 연결 과정에서 발견한 결함을 수정</div></div>
       <div class="row"><div class="row-k">게임 요소</div><div class="row-v"><span class="state wait">진행</span> 도장·뱃지 1차 완료, 레벨·경험치 연동 예정</div></div>
     </div>
+    <p class="note">출시는 앱의 공개 상태입니다. 시설 조건 판별의 정확도, 현장 입장 성공률, 이용자 만족도는 아직 이 기록에서 수치로 제시하지 않습니다. 조건이 모호하거나 없는 시설은 방문 전 직접 확인이 필요합니다.</p>
+    <p><strong>회고.</strong> 실제 시설 ID로 판별부터 출입증까지 확인하면서, 목 데이터만으로는 제품의 연결 흐름을 검증할 수 없다는 점을 배웠습니다. 다음 버전에서는 조건 원문의 품질을 높이고, 게임 요소와 공개 배포 이후의 피드백을 연결할 계획입니다.</p>
   </section>
 
   <footer>
@@ -533,3 +675,5 @@
   </footer>
 </div>
 <script src="../../recruiter-clean.js"></script>
+</body>
+</html>

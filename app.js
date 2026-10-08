@@ -1,6 +1,6 @@
-const coordinates=[[890,115],[1110,420],[815,690],[440,720],[80,510],[40,190],[420,70]];
-const names=['CrowdSense','It’s me','반갑꼬리','Campus safety','AI subscription','Process flow','LunarLander'];
-const arts=[
+const coordinates=[[830,100],[1060,535],[340,700],[70,260],[490,45]];
+const names=['CrowdSense','It’s me','반갑꼬리','AI subscription'];
+const artLibrary=[
 '<path d="M0 20H200M0 55H200M0 90H200M30 0V110M80 0V110M140 0V110M180 0V110" opacity=".25"/><circle cx="80" cy="55" r="29"/><circle cx="80" cy="55" r="17"/><path d="M80 10V100M35 55H125"/><circle cx="145" cy="24" r="6"/><circle cx="32" cy="88" r="4"/>',
 '<rect x="40" y="6" width="110" height="85" rx="2"/><rect x="55" y="18" width="110" height="85" rx="2"/><circle cx="84" cy="48" r="12"/><path d="M108 39H147M108 48H135M70 76H147M70 84H126"/>',
 '<path d="M22 76Q40 20 73 57T130 50T187 72" stroke-dasharray="3 5"/><path d="M89 24a20 20 0 0 1 40 0c0 18-20 40-20 40S89 42 89 24Z"/><circle cx="109" cy="24" r="6"/><ellipse cx="108" cy="85" rx="47" ry="10"/>',
@@ -9,20 +9,213 @@ const arts=[
 '<path d="M6 55H192"/><rect x="12" y="34" width="39" height="40"/><rect x="82" y="34" width="39" height="40"/><rect x="153" y="34" width="39" height="40"/><path d="M60 48L68 55L60 62M132 48L140 55L132 62"/><path d="M26 85H175" stroke-dasharray="4 7"/>',
 '<path d="M84 38H118L123 66H78ZM88 38V23H113V38M82 63L64 85H52M118 63L134 85H147M90 69L100 88L110 69"/><path d="M15 105L43 97L70 103H140L167 91L195 101"/><circle cx="165" cy="20" r="10"/>'
 ];
-const reduced=matchMedia('(prefers-reduced-motion: reduce)'),fine=matchMedia('(hover:hover) and (pointer:fine)');let paused=reduced.matches,active=-1,detail=-1,time=0,last=0,lastPaint=0;const nodeRoot=document.querySelector('#nodes'),floor=document.querySelector('#floor'),dialog=document.querySelector('#project-dialog');
-nodeRoot.innerHTML=projects.map((p,i)=>`<div class="node" style="left:${coordinates[i][0]}px;top:${coordinates[i][1]}px;--i:${i}" data-index="${i}"><button class="node-trigger" aria-label="${p.title} 영상 미리보기 및 상세 보기" aria-haspopup="dialog"><span class="node-base"><span class="base-status">${String(i+1).padStart(2,'0')} / ${i===0?'AWARD WINNING':'PROJECT FIELD'}</span><span class="base-art"><svg viewBox="0 0 210 110" aria-hidden="true">${arts[i]}</svg></span><span class="base-corner">+</span></span><span class="base-label"><small>${String(i+1).padStart(2,'0')}</small>${names[i]}</span><span class="beam"></span><span class="hologram"><span class="holo-top"><b>${names[i].toUpperCase()}</b><b>● MOTION STUDY</b></span><span class="hologram-screen"><canvas width="960" height="540" data-scene="${p.id}" aria-hidden="true"></canvas></span><span class="holo-bottom">ENTER THIS WORLD ↗</span></span></button></div>`).join('');
-const connections=document.querySelector('.connections');connections.innerHTML=coordinates.map(([x,y],i)=>{const endX=x+123,endY=y+74,path=`M700 445 L${700+(endX-700)*.5} ${445+(endY-445)*.17} L${endX} ${endY}`;return `<path class="track" d="${path}"/><path class="pulse" style="animation-delay:-${i*1.1}s" d="${path}"/><circle cx="${endX}" cy="${endY}" r="3"/>`}).join('');
-const floating=document.createElement('div');floating.id='floating-holo';floating.setAttribute('aria-hidden','true');floating.innerHTML='<div class=projection-light></div><div class=floating-face><div class=floating-label></div><canvas width=960 height=540></canvas><div class=floating-foot>PROJECT MOTION STUDY <span>CLICK TO ENTER ↗</span></div></div>';document.querySelector('#universe').append(floating);const floatingContext=floating.querySelector('canvas').getContext('2d');
-const nodes=[...document.querySelectorAll('.node')],canvases=[...document.querySelectorAll('[data-scene]')].map(el=>({el,c:el.getContext('2d')}));
-function activate(i){if(i===active)return;active=i;floating.classList.toggle('shown',i>=0);if(i>=0){const r=nodes[i].querySelector('.node-base').getBoundingClientRect();const w=innerWidth<700?235:365;floating.style.width=w+'px';floating.style.left=Math.max(16,Math.min(innerWidth-w-16,r.x+r.width/2-w/2))+'px';floating.style.top=Math.max(innerWidth<700?295:200,r.y-(innerWidth<700?110:155))+'px';floating.querySelector('.floating-label').textContent=names[i].toUpperCase()+' / MOTION STUDY';scenes[projects[i].id](floatingContext,time)}nodes.forEach((n,k)=>n.classList.toggle('is-active',k===i));const p=projects[i];document.querySelector('.caption-index').textContent=p?p.channel:'00 / EXPLORE THE FIELD';document.querySelector('.caption-title').textContent=p?p.title:'하나의 질문이, 하나의 세계로.';document.querySelector('.caption-help').innerHTML=p?'클릭해서 기획의 과정으로 들어가기 <b>↗</b>':(fine.matches?'패널 위에 마우스를 올려보세요':'패널을 터치하면 영상이 떠오릅니다')+' <b>↗</b>';if(i>=0)scenes[p.id](canvases[i].c,time)}
-nodes.forEach((node,i)=>{const trigger=node.querySelector('button');node.addEventListener('pointerenter',()=>{if(fine.matches)activate(i)});node.addEventListener('pointerleave',e=>{if(!fine.matches)return;const x=e.clientX,y=e.clientY;window.setTimeout(()=>{const hit=document.elementFromPoint(x,y);if(!hit?.closest('.node'))activate(-1)},120)});trigger.addEventListener('focus',()=>activate(i));trigger.addEventListener('blur',()=>{if(!dialog.open)activate(-1)});trigger.addEventListener('click',e=>{if(!fine.matches&&node.dataset.armed!=='true'){e.preventDefault();nodes.forEach(n=>delete n.dataset.armed);node.dataset.armed='true';activate(i);document.querySelector('.caption-help').textContent='한 번 더 터치하면 자세히 볼 수 있습니다';return}openProject(i)})});
-function fit(){document.documentElement.style.setProperty('--world-scale',Math.min(innerWidth<700?innerWidth/1550:innerWidth/1550,(innerHeight-170)/750,1.16))}fit();addEventListener('resize',fit);
-const scene=document.querySelector('#spatial-scene');let tx=0,ty=0,cx=0,cy=0;document.querySelector('#universe').addEventListener('pointermove',e=>{if(!fine.matches||paused||active>=0)return;tx=(e.clientX/innerWidth-.5)*18;ty=(e.clientY/innerHeight-.5)*10});document.querySelector('#universe').addEventListener('pointerleave',()=>{tx=ty=0});
-const motion=document.querySelector('#motion');function syncMotion(){document.body.classList.toggle('paused',paused);motion.setAttribute('aria-pressed',String(paused));motion.setAttribute('aria-label',paused?'애니메이션 재생':'애니메이션 일시정지');motion.querySelector('span').textContent=paused?'MOTION OFF':'MOTION ON'}syncMotion();motion.addEventListener('click',()=>{paused=!paused;syncMotion()});reduced.addEventListener('change',e=>{paused=e.matches;syncMotion()});
-const detailCanvas=document.querySelector('#detail-canvas'),detailContext=detailCanvas.getContext('2d');let previousFocus;
-function populateDetail(i){detail=(i+projects.length)%projects.length;const p=projects[detail];document.querySelector('#detail-channel').textContent=p.channel;document.querySelector('#detail-status').textContent=p.status;document.querySelector('#detail-title').textContent=p.title;document.querySelector('#detail-question').textContent=p.problem;document.querySelector('#detail-description').innerHTML=p.description;document.querySelector('#detail-metric').innerHTML=`<strong>${p.metric}</strong>${p.metricText}`;document.querySelector('#detail-tags').innerHTML=p.tags.map(s=>`<span>${s}</span>`).join('');document.querySelector('#detail-link').href=`./projects/${p.id}/`;document.querySelector('#detail-count').textContent=`${String(detail+1).padStart(2,'0')} / 07`;dialog.setAttribute('aria-labelledby','detail-title');scenes[p.id](detailContext,time);dialog.scrollTop=0}
-function openProject(i){previousFocus=document.activeElement;populateDetail(i);if(!dialog.open)dialog.showModal()}
-document.querySelector('#prev-project').addEventListener('click',()=>populateDetail(detail-1));document.querySelector('#next-project').addEventListener('click',()=>populateDetail(detail+1));document.querySelectorAll('dialog .close').forEach(b=>b.addEventListener('click',()=>b.closest('dialog').close()));dialog.addEventListener('close',()=>{detail=-1;previousFocus?.focus()});
-const about=document.querySelector('#about-dialog');document.querySelector('#about-button').addEventListener('click',()=>about.showModal());
-const indexPanel=document.querySelector('#index-panel');document.querySelector('#index-list').innerHTML=projects.map((p,i)=>`<button class="index-row" data-index="${i}" aria-haspopup="dialog"><small>0${i+1}</small><strong>${p.title}</strong><em>${p.type==='service'?'SERVICE PLANNING':'DATA & EXPERIMENT'}</em><span>↗</span></button>`).join('');document.querySelectorAll('.index-row').forEach(b=>b.addEventListener('click',()=>openProject(Number(b.dataset.index))));function setView(index){indexPanel.hidden=!index;document.querySelector('#spatial-view').classList.toggle('selected',!index);document.querySelector('#index-view').classList.toggle('selected',index);document.querySelector('#spatial-view').setAttribute('aria-pressed',String(!index));document.querySelector('#index-view').setAttribute('aria-pressed',String(index));scene.inert=index;document.querySelector('.hover-caption').hidden=index;activate(-1)}document.querySelector('#spatial-view').addEventListener('click',()=>setView(false));document.querySelector('#index-view').addEventListener('click',()=>setView(true));document.querySelector('#world-button').addEventListener('click',()=>setView(false));
-function frame(now){const dt=Math.min((now-last)/1000,.05);last=now;if(!paused&&!document.hidden)time+=dt;if(now-lastPaint>33){if(!paused&&!document.hidden){if(detail>=0)scenes[projects[detail].id](detailContext,time);else if(active>=0&&indexPanel.hidden)scenes[projects[active].id](floatingContext,time);if(active<0){cx+=(tx-cx)*.07;cy+=(ty-cy)*.07;scene.style.setProperty('--camera-x',`${cx}px`);scene.style.setProperty('--camera-y',`${cy}px`)}}lastPaint=now}requestAnimationFrame(frame)}canvases.forEach((o,i)=>scenes[projects[i].id](o.c,0));requestAnimationFrame(frame);document.body.classList.add('world-enter');activate(-1);
+const arts=[artLibrary[0],artLibrary[1],artLibrary[2],artLibrary[4]];
+// Keep navigation native; previews are optional and animation work is demand-driven.
+const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+const fine = matchMedia('(hover:hover) and (pointer:fine)');
+let storedMotion=null;
+try { storedMotion=localStorage.getItem('portfolio-motion'); } catch { /* Storage can be unavailable in private/embedded contexts. */ }
+let userPaused=storedMotion==='paused';
+let paused = reduced.matches||userPaused, active = -2, detail = -1, time = 0;
+let frameId = 0, last = 0, lastPaint = 0, hoverTimer = 0;
+let tx = 0, ty = 0, cx = 0, cy = 0, previousFocus = null;
+const universe = document.querySelector('#universe');
+const nodeRoot = document.querySelector('#nodes');
+const scene = document.querySelector('#spatial-scene');
+const dialog = document.querySelector('#project-dialog');
+const about = document.querySelector('#about-dialog');
+const indexPanel = document.querySelector('#index-panel');
+const motion = document.querySelector('#motion');
+const detailContext = document.querySelector('#detail-canvas').getContext('2d');
+const captionIndex = document.querySelector('.caption-index');
+const captionTitle = document.querySelector('.caption-title');
+const captionHelp = document.querySelector('.caption-help');
+const projectURL = p => `./projects/${p.id}/`;
+nodeRoot.innerHTML = projects.map((p, i) => `<div class="node" style="left:${coordinates[i][0]}px;top:${coordinates[i][1]}px;--i:${i}" data-index="${i}"><a class="node-trigger" href="${projectURL(p)}" aria-label="${p.title} 프로젝트 기록 읽기"><span class="node-base"><span class="base-status">${String(i+1).padStart(2,'0')} / ${i===0?'AWARD WINNING':'PROJECT FIELD'}</span><span class="base-art"><svg viewBox="0 0 210 110" aria-hidden="true">${arts[i]}</svg></span><span class="base-corner">↗</span></span><span class="base-label"><small>${String(i+1).padStart(2,'0')}</small>${names[i]}</span></a></div>`).join('');
+// ETC groups the three earlier studies behind one secondary link.
+nodeRoot.insertAdjacentHTML('beforeend', `<div class="node node-collection" style="left:${coordinates[4][0]}px;top:${coordinates[4][1]}px;--i:4"><a class="node-trigger" href="./projects/etc/" data-collection="etc" aria-label="ETC: 캠퍼스 안전, 생산 공정, 강화학습 요약 읽기"><span class="node-base"><span class="base-status">ETC / 03 SHORT STUDIES</span><span class="base-art"><svg viewBox="0 0 210 110" aria-hidden="true"><rect x="15" y="25" width="50" height="60"/><rect x="80" y="25" width="50" height="60"/><rect x="145" y="25" width="50" height="60"/><path d="M25 43H55M90 43H120M155 43H185M25 57H47M90 57H112M155 57H177"/></svg></span><span class="base-corner">↗</span></span><span class="base-label"><small>ETC</small>Data &amp; Models</span></a></div>`);
+document.querySelector('.connections').innerHTML = coordinates.map(([x,y],i) => {
+  const endX=x+(i===4?95:123),endY=y+(i===4?59:74),path=`M700 445 L${700+(endX-700)*.5} ${445+(endY-445)*.17} L${endX} ${endY}`;
+  return `<path class="track" d="${path}"/><path class="pulse" style="animation-delay:-${i*1.1}s" d="${path}"/><circle cx="${endX}" cy="${endY}" r="3"/>`;
+}).join('');
+const floating = document.createElement('div');
+floating.id='floating-holo';
+floating.setAttribute('aria-hidden','true');
+floating.innerHTML='<div class="projection-light"></div><div class="floating-face"><canvas width="960" height="540"></canvas><div class="floating-foot">PROJECT PREVIEW <span>CLICK TO READ ↗</span></div></div>';
+document.querySelector('#universe').append(floating);
+const floatingContext=floating.querySelector('canvas').getContext('2d');
+const nodes=[...document.querySelectorAll('.node:not(.node-collection)')];
+function positionPreview(i) {
+  const r=nodes[i].querySelector('.node-base').getBoundingClientRect();
+  const w=innerWidth<700?235:365;
+  floating.style.width=w+'px';
+  floating.style.left=Math.max(16,Math.min(innerWidth-w-16,r.x+r.width/2-w/2))+'px';
+  floating.style.top=Math.max(innerWidth<700?295:200,r.y-(innerWidth<700?110:155))+'px';
+}
+function activate(i) {
+  if(i===active) return;
+  active=i;
+  floating.classList.toggle('shown',i>=0);
+  nodes.forEach((n,k)=>n.classList.toggle('is-active',k===i));
+  const p=projects[i];
+  captionIndex.textContent=p?p.channel:'00 / EXPLORE THE FIELD';
+  captionTitle.textContent=p?p.title:'하나의 질문이, 하나의 세계로.';
+  captionHelp.textContent=p?'선택하면 프로젝트 기록으로 바로 이동합니다 ↗':(fine.matches?'패널 위에 마우스를 올려 미리보기':'패널을 터치하면 프로젝트 기록으로 이동합니다');
+  if(p) { positionPreview(i); scenes[p.id](floatingContext,time); }
+  syncFrame();
+}
+nodes.forEach((node,i)=>{
+  const trigger=node.querySelector('a');
+  node.addEventListener('pointerenter',()=>{
+    if(!fine.matches) return;
+    clearTimeout(hoverTimer); activate(i);
+  });
+  node.addEventListener('pointerleave',()=>{
+    if(!fine.matches) return;
+    clearTimeout(hoverTimer);
+    hoverTimer=setTimeout(()=>{
+      if(!node.contains(document.activeElement)) activate(-1);
+    },120);
+  });
+  trigger.addEventListener('focus',()=>{clearTimeout(hoverTimer);activate(i)});
+  trigger.addEventListener('blur',()=>{clearTimeout(hoverTimer);activate(-1)});
+});
+const collectionLink=document.querySelector('.node-collection .node-trigger');
+collectionLink.addEventListener('focus',()=>{clearTimeout(hoverTimer);activate(-1)});
+collectionLink.addEventListener('pointerenter',()=>{if(fine.matches){clearTimeout(hoverTimer);activate(-1)}});
+function fit() {
+  document.documentElement.style.setProperty('--world-scale',Math.min(innerWidth/1550,(Math.max(innerHeight,700)-170)/750,1.16));
+  if(active>=0) positionPreview(active);
+}
+fit(); addEventListener('resize',fit);
+document.querySelector('#universe').addEventListener('pointermove',e=>{
+  if(!fine.matches||paused||active>=0||!indexPanel.hidden||dialog.open||about.open) return;
+  tx=(e.clientX/innerWidth-.5)*18; ty=(e.clientY/innerHeight-.5)*10; syncFrame();
+},{passive:true});
+document.querySelector('#universe').addEventListener('pointerleave',()=>{tx=ty=0;syncFrame()});
+function cameraMoving() { return Math.abs(tx-cx)>.02||Math.abs(ty-cy)>.02; }
+function needsFrame() {
+  return !paused&&!document.hidden&&!about.open&&(detail>=0||(indexPanel.hidden&&(active>=0||cameraMoving())));
+}
+function syncFrame() {
+  if(needsFrame()) {
+    if(!frameId) { last=0; frameId=requestAnimationFrame(frame); }
+  } else if(frameId) { cancelAnimationFrame(frameId);frameId=0;last=0; }
+}
+function frame(now) {
+  frameId=0;
+  if(!needsFrame()) return;
+  time+=last?Math.min((now-last)/1000,.05):0; last=now;
+  if(now-lastPaint>=1000/30) {
+    if(detail>=0) scenes[projects[detail].id](detailContext,time);
+    else if(active>=0) scenes[projects[active].id](floatingContext,time);
+    else if(cameraMoving()) {
+      cx+=(tx-cx)*.2; cy+=(ty-cy)*.2;
+      if(!cameraMoving()) {cx=tx;cy=ty;}
+      scene.style.setProperty('--camera-x',`${cx}px`);
+      scene.style.setProperty('--camera-y',`${cy}px`);
+    }
+    lastPaint=now;
+  }
+  if(needsFrame()) frameId=requestAnimationFrame(frame);
+}
+function syncMotion() {
+  document.body.classList.toggle('paused',paused);
+  motion.setAttribute('aria-pressed',String(paused));
+  motion.setAttribute('aria-label',paused?'애니메이션 재생':'애니메이션 일시정지');
+  motion.querySelector('span').textContent=paused?'MOTION OFF':'MOTION ON';
+  syncFrame();
+}
+motion.addEventListener('click',()=>{paused=!paused;userPaused=paused;try {localStorage.setItem('portfolio-motion',paused?'paused':'playing')} catch {} syncMotion()});
+reduced.addEventListener('change',e=>{paused=e.matches||userPaused;syncMotion()});
+document.addEventListener('visibilitychange',()=>{
+  document.body.classList.toggle('page-hidden',document.hidden); syncFrame();
+});
+function populateDetail(i) {
+  detail=(i+projects.length)%projects.length;
+  const p=projects[detail];
+  document.querySelector('#detail-channel').textContent=p.channel;
+  document.querySelector('#detail-status').textContent=p.status;
+  document.querySelector('#detail-title').textContent=p.title;
+  document.querySelector('#detail-question').textContent=p.problem;
+  document.querySelector('#detail-description').innerHTML=p.description;
+  document.querySelector('#detail-metric').innerHTML=`<strong>${p.metric}</strong>${p.metricText}`;
+  document.querySelector('#detail-tags').innerHTML=p.tags.map(s=>`<span>${s}</span>`).join('');
+  document.querySelector('#detail-link').href=projectURL(p);
+  document.querySelector('#detail-count').textContent=`${String(detail+1).padStart(2,'0')} / ${String(projects.length).padStart(2,'0')}`;
+  scenes[p.id](detailContext,time); dialog.scrollTop=0;
+}
+// Hash entries let Back dismiss previews and Forward restore them.
+function navigate(hash,replace=false) {
+  if(location.hash===hash) return;
+  const overlay=hash.startsWith('#preview/')||hash==='#about';
+  const state=overlay?{portfolioOverlay:true,returnHash:history.state?.returnHash??location.hash}:null;
+  history[replace?'replaceState':'pushState'](state,'',hash||location.pathname+location.search);
+  renderRoute();
+}
+function closeOverlay() {
+  if(history.state?.portfolioOverlay) history.back();
+  else {history.replaceState(null,'',location.pathname+location.search);renderRoute();}
+}
+// overflow:hidden can retain focus-driven scroll in the spatial wrapper.
+// Only the project list should scroll; never reset the page or list position here.
+function resetWorldScroll() {
+  universe.scrollTop=0;
+  universe.scrollLeft=0;
+}
+function setView(index) {
+  indexPanel.hidden=!index;
+  document.querySelector('#spatial-view').classList.toggle('selected',!index);
+  document.querySelector('#index-view').classList.toggle('selected',index);
+  document.querySelector('#spatial-view').setAttribute('aria-pressed',String(!index));
+  document.querySelector('#index-view').setAttribute('aria-pressed',String(index));
+  scene.inert=index;
+  document.body.classList.toggle('list-view',index);
+  document.querySelector('.hover-caption').hidden=index;
+  clearTimeout(hoverTimer);activate(-1);syncFrame();
+}
+function renderRoute() {
+  const hash=location.hash;
+  const i=hash.startsWith('#preview/')?projects.findIndex(p=>hash==='#preview/'+p.id):-1;
+  const showAbout=hash==='#about';
+  if(i<0&&dialog.open) dialog.close();
+  if(!showAbout&&about.open) about.close();
+  if(i>=0) {
+    if(!dialog.open) {previousFocus=document.activeElement;clearTimeout(hoverTimer);activate(-1);}
+    populateDetail(i);
+    if(!dialog.open) dialog.showModal();
+  } else detail=-1;
+  if(showAbout&&!about.open) {previousFocus=document.activeElement;activate(-1);about.showModal();}
+  if(i<0&&!showAbout) {
+    setView(hash==='#projects');
+    if(previousFocus?.isConnected) {previousFocus.focus({preventScroll:true});previousFocus=null;}
+  }
+  document.body.classList.toggle('overlay-open',i>=0||showAbout);
+  resetWorldScroll();
+  syncFrame();
+}
+const featured=['crowdsense','itsme','pet','subscription'];
+const ordered=[...featured,...projects.map(p=>p.id).filter(id=>!featured.includes(id))];
+document.querySelector('#index-list').innerHTML=ordered.map(id=>{
+  const i=projects.findIndex(p=>p.id===id),p=projects[i];
+  return `<div class="index-item"><a class="index-row" href="${projectURL(p)}"><small>${String(i+1).padStart(2,'0')}</small><strong>${p.title}</strong><em>${featured.includes(id)?'SELECTED CASE STUDY':'DATA & EXPERIMENT'}</em><span aria-hidden="true">↗</span></a><button class="preview-button" data-index="${i}" aria-label="${p.title} 요약 보기" aria-haspopup="dialog">요약 보기</button></div>`;
+}).join('');
+document.querySelector('#index-list').insertAdjacentHTML('beforeend','<div class="index-item index-collection"><a class="index-row" data-collection="etc" href="./projects/etc/"><small>ETC</small><strong>데이터·모델링 실험</strong><em>03 SHORT STUDIES</em><span aria-hidden="true">↗</span></a></div>');
+document.querySelectorAll('.preview-button').forEach(b=>b.addEventListener('click',()=>navigate('#preview/'+projects[Number(b.dataset.index)].id)));
+document.querySelector('#prev-project').addEventListener('click',()=>navigate('#preview/'+projects[(detail-1+projects.length)%projects.length].id,true));
+document.querySelector('#next-project').addEventListener('click',()=>navigate('#preview/'+projects[(detail+1)%projects.length].id,true));
+document.querySelectorAll('dialog .close').forEach(b=>b.addEventListener('click',closeOverlay));
+[dialog,about].forEach(d=>d.addEventListener('cancel',e=>{e.preventDefault();closeOverlay()}));
+document.querySelector('#about-button').addEventListener('click',()=>navigate('#about'));
+document.querySelector('#core-button').addEventListener('click',()=>navigate('#about'));
+document.querySelector('.skip-link').addEventListener('click',e=>{e.preventDefault();navigate('#projects');indexPanel.focus({preventScroll:true});resetWorldScroll()});
+document.querySelector('#spatial-view').addEventListener('click',()=>navigate(''));
+document.querySelector('#index-view').addEventListener('click',()=>navigate('#projects'));
+document.querySelector('#world-button').addEventListener('click',()=>navigate('#projects'));
+addEventListener('hashchange',renderRoute);
+addEventListener('popstate',renderRoute);
+addEventListener('pageshow',()=>{clearTimeout(hoverTimer);activate(-1);renderRoute()});
+addEventListener('pagehide',()=>{clearTimeout(hoverTimer);if(frameId)cancelAnimationFrame(frameId);frameId=0;last=0;});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&!dialog.open&&!about.open) {clearTimeout(hoverTimer);activate(-1);}});
+dialog.setAttribute('aria-labelledby','detail-title');
+syncMotion(); renderRoute(); document.body.classList.add('world-enter');

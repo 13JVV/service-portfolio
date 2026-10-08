@@ -3,8 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-</head>
-<body style="margin:0">
 <title>It's me 개발 기록</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -197,7 +195,98 @@
     ol.tl li{grid-template-columns:74px 1fr;gap:12px}
   }
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+  /* 제목 다음에 읽는 의사결정 흐름: 이 figure 안에서만 적용 */
+  .case-decision-figure {
+    margin: 0 0 22px;
+    padding: 16px;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    background: var(--card-2);
+    color: var(--ink);
+  }
+  .case-decision-figure .case-decision-track {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .case-decision-figure .case-decision-step {
+    position: relative;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+  }
+  .case-decision-figure .case-decision-step + .case-decision-step::before {
+    content: "";
+    position: absolute;
+    left: -13px;
+    top: 31px;
+    width: 6px;
+    height: 6px;
+    border-top: 1px solid var(--coral);
+    border-right: 1px solid var(--coral);
+    transform: rotate(45deg);
+  }
+  .case-decision-figure .case-decision-label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--coral);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .08em;
+  }
+  .case-decision-figure .case-decision-step strong {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    word-break: keep-all;
+  }
+  .case-decision-figure .case-decision-step p {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 12px;
+    line-height: 1.65;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+  .case-decision-figure .case-decision-boundary {
+    margin: 14px 0 0;
+    padding-top: 11px;
+    border-top: 1px solid var(--rule);
+    color: var(--ink-soft);
+    font-size: 11.5px;
+    line-height: 1.6;
+  }
+  .case-decision-figure figcaption {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 10.5px;
+    line-height: 1.6;
+  }
+  @media (max-width: 620px) {
+    .case-decision-figure .case-decision-track {
+      grid-template-columns: 1fr;
+      gap: 22px;
+    }
+    .case-decision-figure .case-decision-step + .case-decision-step::before {
+      left: 3px;
+      top: -15px;
+      transform: rotate(135deg);
+    }
+    .case-decision-figure .case-decision-label { margin-bottom: 3px; }
+    .case-decision-figure .case-decision-step strong { margin-bottom: 3px; }
+  }
+
 </style>
+<link rel="stylesheet" href="../../project-navigation.css">
+</head>
+<body style="margin:0">
+<div class="portfolio-return" role="navigation" aria-label="포트폴리오"><a href="../../#projects">← 프로젝트 목록</a></div>
 
 <div class="wrap">
 
@@ -210,12 +299,33 @@
 
   <div class="hero">
     <div>
-      <h1>종이 명함 한 장을<br><span class="en">iOS · Android</span> 앱으로 옮기고,<br>직접 운영하고 있습니다</h1>
-      <p class="thesis">기획부터 App Store·Google Play 배포, 심사 반려 대응, 실사용자 버그 수정까지 <mark>혼자 끝까지 굴려본 프로덕트</mark>입니다. 명함을 만들고 QR로 건네는 데서 끝내지 않고, <mark>만난 다음의 관계 관리</mark>까지를 제품의 범위로 잡았습니다.</p>
+      <h1>처음 건넨 명함이<br>다음 만남으로 이어지도록</h1>
+      <figure class="case-decision-figure" aria-label="It's me 의사결정 흐름">
+        <ol class="case-decision-track">
+          <li class="case-decision-step">
+            <span class="case-decision-label">01 / 문제</span>
+            <strong>교환 이후의 단절</strong>
+            <p>만남 맥락과 연락처 변경을 이어서 관리해야 함</p>
+          </li>
+          <li class="case-decision-step">
+            <span class="case-decision-label">02 / 선택</span>
+            <strong>관계 관리에 초점</strong>
+            <p>첫 명함·공유를 변경 갱신과 만남 브리핑으로 연결</p>
+          </li>
+          <li class="case-decision-step">
+            <span class="case-decision-label">03 / 확인</span>
+            <strong>출시·기능 검증</strong>
+            <p>심사 결함 수정과 명함 갱신·푸시의 E2E 확인</p>
+          </li>
+        </ol>
+        <p class="case-decision-boundary">앱 공개·기능 동작과 실제 관계 유지 효과는 별도로 검증해야 합니다.</p>
+        <figcaption>본문을 바탕으로 재구성한 의사결정 흐름입니다. 효과를 측정한 도표가 아닙니다.</figcaption>
+      </figure>
+      <p class="thesis">첫 명함을 만들고 건넨 뒤, 만남 맥락을 기억하고 바뀐 연락처를 확인하는 <mark>관계 관리 앱</mark>입니다. 기획·개발·디자인·배포를 단독으로 맡아 심사 반려와 가족·지인 테스트의 결함을 수정했고, <mark>App Store 1.4.2를 공개</mark>했습니다.</p>
       <div class="links">
-        <a class="pill" href="https://apps.apple.com/kr/app/id6769245736"><span class="dot"></span>App Store — iOS 1.4.2</a>
+        <a class="pill" href="https://apps.apple.com/kr/app/id6769245736"><span class="dot"></span>App Store — iOS 1.4.2 공개</a>
         <a class="pill" href="https://persona-772ab.web.app"><span class="dot"></span>웹 명함 페이지</a>
-        <span class="pill"><span class="dot"></span>Google Play — Android 1.0.20</span>
+        <a class="pill" href="https://play.google.com/store/search?q=com.jaewoo.itsme&amp;c=apps" target="_blank" rel="noopener"><span class="dot"></span>Google Play 검색 — Android 1.0.20</a>
       </div>
     </div>
     <div>
@@ -250,7 +360,7 @@
           </svg>
         </div>
       </div>
-      <p class="cardcap">앱에서 실제로 만들어지는 명함 형태(<b>가로 9 : 세로 5</b>, 국내 명함 규격). 스킨 11종 · 레이아웃 3종 · 서체/글자크기 6단계를 사용자가 조합합니다.</p>
+      <p class="cardcap">명함 형태를 재구성한 예시(<b>가로 9 : 세로 5</b>, 국내 명함 규격). 스킨 11종 · 레이아웃 3종 · 서체/글자크기 6단계를 사용자가 조합합니다.</p>
     </div>
   </div>
 
@@ -271,7 +381,7 @@
     </div>
     <div class="body-col">
       <p class="lead">명함을 처음 갖게 되는 사람 — 대학생·취준생·1년차 — 에게는 명함이 <b>수집 대상</b>이 아니라 <b>첫인상</b>입니다. 리멤버가 잘하는 "명함을 스캔해 쌓아두는 일" 대신, <b>예쁜 첫 명함을 만들어 건네고 그 인연을 이어가는 일</b>에 제품을 맞췄습니다.</p>
-      <p>리멤버·HiHello·Blinq·Popl 4종을 뜯어보고 나서 포지셔닝을 <b>"예쁜 첫 명함 → AI 관계 비서"</b>로 확정했습니다. 경쟁 앱이 교환의 <em>순간</em>에서 끝난다면, 잇츠미는 교환 이후 — 언제 어디서 만났는지, 얼마나 연락이 뜸해졌는지, 다시 만나기 전 무엇을 기억해야 하는지 — 를 다룹니다.</p>
+      <p>리멤버·HiHello·Blinq·Popl 4종을 뜯어보고 나서 포지셔닝을 <b>"예쁜 첫 명함 → AI 관계 비서"</b>로 확정했습니다. 잇츠미의 설계는 <em>교환 이후</em>에 초점을 맞췄습니다. 언제 어디서 만났는지, 얼마나 연락이 뜸해졌는지, 다시 만나기 전 무엇을 기억해야 하는지를 기록과 브리핑으로 연결했습니다.</p>
 
       <div class="feat">
         <div>
@@ -308,10 +418,52 @@
     </div>
   </section>
 
-  <!-- 02 아키텍처 -->
+  <!-- 02 기획 과정 -->
   <section>
     <div class="rail">
-      <div class="kicker">02 / Architecture</div>
+      <div class="kicker">02 / Planning</div>
+      <h2>죽은 명함 데이터를 관계로 바꾸는 순서</h2>
+      <p>요구사항 우선순위와 심사 대응</p>
+    </div>
+    <div class="body-col">
+      <p class="lead">종이 명함을 받은 뒤 서랍이나 사진첩에 묻히는 문제를 먼저 풀기 위해, <b>만들고 건네기 → 받아서 모으기 → 만난 다음</b>의 세 단계로 범위를 나눴습니다. 1인 개발이므로 예쁜 명함 생성과 QR 공유를 P0로 두고, 관계 관리 기능은 실제 사용 흐름이 확인된 뒤 확장했습니다.</p>
+      <div class="feat">
+        <div><h4>P0 · 교환의 순간</h4><div class="sub">MUST SHIP</div><ul><li>명함 생성·편집·QR 공유</li><li>앱이 없는 상대도 여는 웹 명함</li><li>소셜·이메일 로그인 5종과 계정 삭제</li></ul></div>
+        <div><h4>P1 · 다시 찾기</h4><div class="sub">TRUST &amp; RETENTION</div><ul><li>지갑·이벤트 그룹핑·검색</li><li>종이 명함 OCR과 사용자 확인</li><li>변경된 명함 자동 최신화</li></ul></div>
+        <div><h4>P2 · 관계 유지</h4><div class="sub">AFTER THE MEETING</div><ul><li>만남 브리핑·안부문자 초안</li><li>관계 온도·만남 지도·조회 분석</li><li>위젯·Wallet·내보내기</li></ul></div>
+      </div>
+      <h3>심사 반려도 기획 문제로 다시 정의했습니다</h3>
+      <p>App Store 심사에서 발생한 3건을 코드·권한 고지·미완성 기능 노출로 분류했습니다. 구글 로그인 크래시는 플로우를 수정하고, 카메라 권한은 사용 맥락에 맞는 문구로 바꾸고, 동작하지 않던 NFC는 마감 안에 억지로 구현하지 않고 제거했습니다. 기능을 더하는 것보다 <b>사용자에게 보이는 약속과 실제 동작을 일치시키는 것</b>을 우선한 판단입니다.</p>
+    </div>
+  </section>
+
+  <!-- 03 AI 에이전트 개발 -->
+  <section>
+    <div class="rail">
+      <div class="kicker">03 / AI Agent Development</div>
+      <h2>모델을 고르는 일부터 에이전트에게 맡기지 않았습니다</h2>
+      <p>반복 구현은 자동화하고 제품 판단은 직접</p>
+    </div>
+    <div class="body-col">
+      <p class="lead">Claude Code와 Codex는 화면·타입·Cloud Functions처럼 반복되는 작업을 빠르게 정리하는 개발 파트너로 사용했습니다. 저는 먼저 데이터 경계와 수용 기준을 적고, 에이전트가 만든 변경은 iOS·Android 실기기와 심사 체크리스트로 다시 확인했습니다.</p>
+      <div class="sheet">
+        <table>
+          <thead><tr><th>단계</th><th>에이전트에 지시한 일</th><th>제가 직접 판단한 일</th></tr></thead>
+          <tbody>
+            <tr><td>1. 탐색</td><td class="t">기존 화면·서비스 모듈·Functions의 의존 관계를 읽고 변경 영향 범위와 누락된 테스트를 목록화</td><td class="t">P0/P1/P2 우선순위와 “명함을 저장하기 전 사용자가 수정한다”는 신뢰 기준 확정</td></tr>
+            <tr><td>2. 구현</td><td class="t">반복되는 TypeScript 타입, 입력 검증, 화면 상태, Cloud Function 프록시 보일러플레이트 생성</td><td class="t">명함 OCR에는 정확도 우선 Claude Vision, 브리핑·안부문자에는 비용·속도 우선 Claude Haiku 선택</td></tr>
+            <tr><td>3. 검증</td><td class="t">심사 시나리오와 실사용자 피드백을 재현하는 체크리스트·회귀 테스트 초안 작성</td><td class="t">촬영 각도·조명 때문에 신뢰도가 낮은 OCR 결과는 자동 저장하지 않고 사용자 확인 단계로 되돌리기</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">제품 안의 Claude API 기능과 개발 과정의 AI 에이전트는 역할이 다릅니다. 전자는 사용자가 쓰는 기능이고, 후자는 제가 설계한 범위를 빠르게 구현·검증하기 위한 도구였습니다. 최종 배포 여부와 심사 대응은 제가 결정했습니다.</p>
+    </div>
+  </section>
+
+  <!-- 04 아키텍처 -->
+  <section>
+    <div class="rail">
+      <div class="kicker">04 / Architecture</div>
       <h2>어떻게 굴러가나</h2>
       <p>클라이언트 · 서버 · 외부 API의 경계</p>
     </div>
@@ -366,10 +518,10 @@
     </div>
   </section>
 
-  <!-- 03 문제 해결 -->
+  <!-- 05 문제 해결 -->
   <section>
     <div class="rail">
-      <div class="kicker">03 / Debugging</div>
+      <div class="kicker">05 / Debugging</div>
       <h2>직접 부딪힌 문제들</h2>
       <p>증상 → 원인 → 해결 → 결과 순으로 정리했습니다</p>
     </div>
@@ -380,7 +532,7 @@
         <dl class="rows">
           <dt>증상</dt><dd>1.4 제출본이 <b>2.1a(구글 로그인 크래시)</b>, <b>5.1.1(카메라 권한 목적 미고지)</b>, <b>2.1(미완성 NFC 기능 노출)</b>로 연속 반려.</dd>
           <dt>원인</dt><dd>세 건의 성격이 전부 달랐습니다. 크래시는 코드 결함, 권한은 <code>Info.plist</code> 문구 누락, NFC는 릴리즈 노트에만 있고 동작하지 않던 기능이었습니다.</dd>
-          <dt>해결</dt><dd>크래시는 로그인 플로우 수정, 권한은 사용 목적 문구를 화면 맥락에 맞게 재작성, NFC는 <b>구현 대신 제거</b>를 선택해 심사 리스크를 없앴습니다. 위치 권한 누락(<code>ITMS-90683</code>)도 함께 처리.</dd>
+          <dt>해결</dt><dd>크래시는 로그인 플로우 수정, 권한은 사용 목적 문구를 화면 맥락에 맞게 재작성, NFC는 <b>구현 대신 제거</b>를 선택해 실제 동작 범위와 출시 안내를 맞췄습니다. 위치 권한 누락(<code>ITMS-90683</code>)도 함께 처리.</dd>
           <dt>결과</dt><dd class="res">재제출 후 통과. 이후 1.4.1 · 1.4.2 업데이트까지 반려 없이 배포.</dd>
         </dl>
       </div>
@@ -411,7 +563,7 @@
           <dt>증상</dt><dd>내 명함 조회 통계를 볼 때마다 조회 이력 <b>전체</b>를 읽어옴. 사용자가 늘수록 요금이 그대로 따라 오르는 구조.</dd>
           <dt>원인</dt><dd>기능을 먼저 붙이느라 읽기 범위를 설계하지 않았습니다. 화면 진입 = 전체 컬렉션 스캔.</dd>
           <dt>해결</dt><dd>전체 이력 읽기를 제거하고 필요한 집계·기간만 읽도록 재작성. 조회 기록도 불필요한 Cloud Run 왕복을 없애고 클라이언트에서 직접 기록하도록 정리.</dd>
-          <dt>결과</dt><dd class="res">기능(주간 차트 · 최다 조회자 · 최근 목록)은 유지한 채 읽기량을 사용량과 분리.</dd>
+          <dt>결과</dt><dd class="res">주간 차트·최다 조회자·최근 목록은 유지하고, 화면 진입마다 전체 이력을 읽던 경로를 제거. 실제 요금 절감률은 이 기록에서 수치로 제시하지 않습니다.</dd>
         </dl>
       </div>
 
@@ -421,7 +573,7 @@
           <dt>증상</dt><dd>분명 로그인해 뒀는데 앱을 켜면 <b>가끔</b> 로그인 화면으로 튕김. 재현이 들쭉날쭉했습니다.</dd>
           <dt>원인</dt><dd>스플래시 2.5초 타이머가 Firebase의 세션 복원보다 먼저 끝나면, 클로저에 갇힌 <code>user = null</code>을 읽고 로그인 화면으로 보내던 것.</dd>
           <dt>해결</dt><dd>인증 상태를 <code>userRef</code>로 분리해 타이머 만료 <b>시점의 최신 값</b>을 참조하도록 수정. 같은 패턴(stale closure)이 화면 전환에도 있어 <code>screenRef</code>로 함께 정리.</dd>
-          <dt>결과</dt><dd class="res">자동 로그인 실패 재발 없음.</dd>
+          <dt>결과</dt><dd class="res">수정 후 확인한 범위에서 자동 로그인 실패 재발 없음. 확인 기간·횟수와 장기 운영 재발률은 이 기록에 포함하지 않았습니다.</dd>
         </dl>
       </div>
 
@@ -437,15 +589,16 @@
     </div>
   </section>
 
-  <!-- 04 AI -->
+  <!-- 06 제품 AI -->
   <section>
     <div class="rail">
-      <div class="kicker">04 / AI</div>
+      <div class="kicker">06 / Product AI</div>
       <h2>AI를 붙인 방식</h2>
       <p>기능이 아니라 구조로 다뤘습니다</p>
     </div>
     <div class="body-col">
       <p class="lead">모델 호출을 앱에서 직접 하지 않고 <b>Cloud Functions 프록시(<code>claudeProxy</code>) 한 곳</b>으로 모았습니다. 키가 앱 번들에 실리지 않고, 모델을 바꿔도 앱을 재배포할 필요가 없습니다.</p>
+      <p class="note">AI는 사용자가 검토할 인식 결과와 문안 초안을 제공합니다. 명함 인식 정확도, 브리핑 품질, 관계 유지율에 대한 정량 평가는 아직 이 기록에 포함하지 않았습니다.</p>
       <div class="sheet">
         <table>
           <thead><tr><th>기능</th><th>모델 · 방식</th><th>설계에서 신경 쓴 점</th></tr></thead>
@@ -461,10 +614,10 @@
     </div>
   </section>
 
-  <!-- 05 타임라인 -->
+  <!-- 07 타임라인 -->
   <section>
     <div class="rail">
-      <div class="kicker">05 / Timeline</div>
+      <div class="kicker">07 / Timeline</div>
       <h2>6개월의 진행</h2>
       <p>커밋 128개로 남은 기록</p>
     </div>
@@ -481,10 +634,10 @@
     </div>
   </section>
 
-  <!-- 06 스택 -->
+  <!-- 08 스택 -->
   <section>
     <div class="rail">
-      <div class="kicker">06 / Stack</div>
+      <div class="kicker">08 / Stack</div>
       <h2>사용한 기술</h2>
       <p>각 선택의 이유를 함께 적었습니다</p>
     </div>
@@ -507,57 +660,22 @@
     </div>
   </section>
 
-  <!-- 07 자소서 소재 -->
   <section>
     <div class="rail">
-      <div class="kicker">07 / Talking points</div>
-      <h2>자기소개서에 쓸 소재</h2>
-      <p>주장 한 줄 + 뒷받침할 사실</p>
+      <div class="kicker">09 / Outcome · Reflection</div>
+      <h2>출시로 확인한 것과 남은 검증</h2>
+      <p>배포·기능 검증과 사용자 성과를 구분합니다</p>
     </div>
     <div class="body-col">
-      <p class="lead">아래는 위 내용을 문항별로 꺼내 쓰기 쉽게 정리한 것입니다. 굵은 숫자·고유명사가 근거이므로, 문장은 바꾸되 <b>근거는 그대로 유지</b>하는 편이 좋습니다.</p>
-
+      <p class="lead"><b>App Store 1.4.2 공개</b>, 심사 반려 3건 수정, 실시간 명함 갱신·푸시의 E2E 검증이 이 기록의 결과입니다. 가족·지인 테스트는 개발 기기에서 놓친 권한과 화면 결함을 찾는 데 사용했습니다.</p>
+      <p><b>128 커밋 · 14,121줄</b>은 구현 범위를 설명합니다. 상단의 9:5 명함 프리뷰는 앱 화면을 재구성한 예시이며, 웹 명함은 앱이 없는 상대도 링크로 확인하는 결과물입니다.</p>
+      <p class="note">Google Play는 공개 앱 상세 URL이 확인되지 않아 상단에 패키지명 검색 링크를 연결했습니다. Android 1.0.20의 빌드·심사·배포 과정은 타임라인에 기록했습니다.</p>
       <div class="quote">
-        <div class="qh">도전 · 끈기 문항</div>
-        <blockquote>"만드는 것보다 끝까지 내놓는 게 어렵다는 걸, 반려 세 번을 통과시키며 배웠습니다."</blockquote>
-        <ul>
-          <li>App Store 반려 <b>3건</b>(크래시 · 권한 고지 · 미완성 기능 노출)을 성격별로 나눠 처리, 재제출 통과</li>
-          <li>미완성이던 NFC는 <b>구현 대신 제거</b>를 택함 — 일정과 리스크를 놓고 내린 판단</li>
-          <li>iOS 빌드 <b>14회</b>, Android versionCode <b>22</b>까지 실제 배포·운영</li>
-        </ul>
+        <div class="qh">운영 중 반영한 피드백</div>
+        <blockquote>“기능이 많은데 어디부터 눌러야 할지 모르겠다”는 피드백을 정보 구조의 문제로 해석했습니다.</blockquote>
+        <ul><li>편집·설정 화면을 아코디언으로 나누고, 명함 상세를 3탭으로 분리해 정보 밀도를 낮췄습니다.</li><li>가족·지인 테스트에서 나온 사진 권한 저장 실패, 카드 1장 정렬, 다크모드 가독성 문제를 한 릴리즈에 묶어 반영했습니다.</li><li>다음 버전은 영어 지원과 배포 국가 확대를 준비하고 있습니다.</li></ul>
       </div>
-
-      <div class="quote">
-        <div class="qh">문제 해결 · 분석력 문항</div>
-        <blockquote>"증상이 아니라 원인을 고치는 습관을 프로젝트 내내 지켰습니다."</blockquote>
-        <ul>
-          <li>안드로이드 키보드 가림 → 원인은 <b>targetSdk 36의 엣지투엣지 강제</b>. SDK를 낮추는 우회 대신 IME 인셋을 직접 처리</li>
-          <li>동작하지 않던 실시간 갱신 → <b>ownerId 체인 단절 + 필드 불일치</b> 두 지점을 찾아 복구</li>
-          <li>간헐적 로그아웃 → 스플래시 타이머와 세션 복원의 <b>경쟁 상태</b>로 규명</li>
-        </ul>
-      </div>
-
-      <div class="quote">
-        <div class="qh">사용자 지향 · 협업/소통 문항</div>
-        <blockquote>"제 기기에서 되는 것과 사용자의 기기에서 되는 것은 다른 문제였습니다."</blockquote>
-        <ul>
-          <li>가족·지인 실사용 테스트에서 나온 버그(<b>사진 권한 · 카드 정렬 · 다크모드 가독성</b>)를 한 릴리즈에 묶어 반영</li>
-          <li>정보가 빽빽하다는 피드백에 <b>편집·설정 화면을 아코디언으로, 명함 상세를 3탭으로</b> 재설계</li>
-          <li>기능 이름과 안내 문구도 사용자의 말로 교정 — "웹으로 자랑하기"를 "나만의 명함 서재"로 바꾼 것이 예</li>
-        </ul>
-      </div>
-
-      <div class="quote">
-        <div class="qh">전공(산업경영공학) 연결 · 직무 적합성 문항</div>
-        <blockquote>"기능을 늘리는 대신, 쓰이는 자리를 정하고 비용을 관리했습니다."</blockquote>
-        <ul>
-          <li>경쟁 앱 <b>4종</b> 분석 후 타깃 공백(첫 명함이 필요한 대학생·취준생)을 골라 포지셔닝을 문서로 확정하고 로드맵을 그 순서대로 실행</li>
-          <li>조회 분석의 <b>Firestore 읽기 구조를 재설계</b>해 사용량과 요금의 연동을 끊음</li>
-          <li>출시 절차를 <b>런북 문서</b>로 남겨 재현 가능하게 만듦(키 등록 순서를 놓치면 전 사용자 로그인이 막히는 구간 포함)</li>
-        </ul>
-      </div>
-
-      <p class="note">면접에서 자주 이어지는 질문: <b>"왜 Firebase였나"</b>(1인 운영 · 서버 비용/시간), <b>"AI를 왜 프록시로 뺐나"</b>(키 노출 방지 + 앱 재배포 없이 모델 교체), <b>"가장 어려웠던 버그"</b>(엣지투엣지 IME 또는 ownerId 체인 — 둘 다 원인 규명 과정을 말할 수 있음).</p>
+      <p>사용자 수·재방문율·관계 유지 효과는 아직 이 기록에서 수치로 제시하지 않습니다. 커밋 수와 코드 줄 수는 제품의 사용 효과를 뜻하지 않습니다.</p>
     </div>
   </section>
 

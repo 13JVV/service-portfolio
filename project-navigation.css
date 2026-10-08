@@ -1,0 +1,6 @@
+/* A small, static return path for directly opened project records. */
+.portfolio-return{max-width:1200px;margin:0 auto;padding:14px 24px;font:12px/1.5 system-ui,sans-serif}
+.portfolio-return>a{display:inline-flex;align-items:center;min-height:44px;padding:8px 0;color:inherit;text-decoration:underline;text-underline-offset:4px;opacity:.8}
+.portfolio-return>a:hover{opacity:1}
+.portfolio-return>a:focus-visible{outline:2px solid currentColor;outline-offset:5px}
+@media print{.portfolio-return{display:none}}

@@ -179,6 +179,8 @@
     .snapshot{grid-template-columns:repeat(2,1fr)}
     .snapshot div:nth-child(2){border-right:none}
     .snapshot div:nth-child(-n+2){border-bottom:1px solid var(--rule-soft)}
+    .sim-head{flex-wrap:wrap}
+    .sim-head .reset{min-height:44px;padding:10px 14px}
     .sim-grid{grid-template-columns:1fr}
     .sim-col{border-right:none;border-bottom:1px solid var(--rule-soft)}
     .two{grid-template-columns:1fr;gap:8px}
@@ -191,9 +193,98 @@
   }
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
   .fill{transition:width .28s ease}
+
+  /* 제목 다음에 읽는 의사결정 흐름: 이 figure 안에서만 적용 */
+  .case-decision-figure {
+    margin: 0 0 22px;
+    padding: 16px;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    background: var(--paper);
+    color: var(--ink);
+  }
+  .case-decision-figure .case-decision-track {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .case-decision-figure .case-decision-step {
+    position: relative;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+  }
+  .case-decision-figure .case-decision-step + .case-decision-step::before {
+    content: "";
+    position: absolute;
+    left: -13px;
+    top: 31px;
+    width: 6px;
+    height: 6px;
+    border-top: 1px solid var(--teal);
+    border-right: 1px solid var(--teal);
+    transform: rotate(45deg);
+  }
+  .case-decision-figure .case-decision-label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--teal);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .08em;
+  }
+  .case-decision-figure .case-decision-step strong {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    word-break: keep-all;
+  }
+  .case-decision-figure .case-decision-step p {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 12px;
+    line-height: 1.65;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+  .case-decision-figure .case-decision-boundary {
+    margin: 14px 0 0;
+    padding-top: 11px;
+    border-top: 1px solid var(--rule);
+    color: var(--ink-soft);
+    font-size: 11.5px;
+    line-height: 1.6;
+  }
+  .case-decision-figure figcaption {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 10.5px;
+    line-height: 1.6;
+  }
+  @media (max-width: 620px) {
+    .case-decision-figure .case-decision-track {
+      grid-template-columns: 1fr;
+      gap: 22px;
+    }
+    .case-decision-figure .case-decision-step + .case-decision-step::before {
+      left: 3px;
+      top: -15px;
+      transform: rotate(135deg);
+    }
+    .case-decision-figure .case-decision-label { margin-bottom: 3px; }
+    .case-decision-figure .case-decision-step strong { margin-bottom: 3px; }
+  }
+
 </style>
+<link rel="stylesheet" href="../../project-navigation.css">
 </head>
 <body>
+<div class="portfolio-return" role="navigation" aria-label="포트폴리오"><a href="../../#projects">← 프로젝트 목록</a></div>
 <div class="wrap">
 
   <div class="band">
@@ -206,9 +297,30 @@
   <div class="hero">
     <div>
       <h1>생성형 AI 서비스<br>구독 모델 분석</h1>
+      <figure class="case-decision-figure" aria-label="AI 구독 모델 분석 의사결정 흐름">
+        <ol class="case-decision-track">
+          <li class="case-decision-step">
+            <span class="case-decision-label">01 / 문제</span>
+            <strong>정확도가 우선일까</strong>
+            <p>단순 평점으로는 가격·기능의 우선순위 비교가 어려움</p>
+          </li>
+          <li class="case-decision-step">
+            <span class="case-decision-label">02 / 선택</span>
+            <strong>가상 대안의 선택</strong>
+            <p>DCE로 대안 하나를 고르게 해 속성 간 선호 비교</p>
+          </li>
+          <li class="case-decision-step">
+            <span class="case-decision-label">03 / 해석</span>
+            <strong>범위를 한정한 결과</strong>
+            <p>설정한 속성 범위에서 해석하고 실제 구매는 후속 검증</p>
+          </li>
+        </ol>
+        <p class="case-decision-boundary">모형 내 선택 확률과 실제 시장점유율·구매 행동을 구분합니다.</p>
+        <figcaption>본문을 바탕으로 재구성한 의사결정 흐름입니다. 효과를 측정한 도표가 아닙니다.</figcaption>
+      </figure>
       <p class="thesis">이산선택실험으로 소비자 113명의 구독 선택을 관측한 결과,
-        지불의사를 가장 크게 끌어올린 속성은 정확도가 아니라
-        <mark>추론 전문성과 보안성</mark>이었다.</p>
+        설정한 속성 범위 안에서 상대적 중요도가 가장 높았던 항목은
+        <mark>추론 전문성 26.4%</mark>이었다.</p>
       <div class="hero-meta">
         방법 <span>이산선택실험(DCE) · 조건부 로짓(Conditional Logit)</span><br>
         도구 <span>R (mlogit, dplyr, openxlsx)</span><br>
@@ -217,7 +329,7 @@
     </div>
 
     <div class="stimulus">
-      <div class="stimulus-cap">시장 시뮬레이션 — 신제품 출시 시 선택 확률</div>
+      <div class="stimulus-cap">가상 3개 제품 시나리오 — 모형 내 선택 확률</div>
       <table>
         <thead>
           <tr><th></th><th>제품 1</th><th>제품 2</th><th class="chosen">제품 3</th></tr>
@@ -241,7 +353,7 @@
 
   <div class="snapshot">
     <div><span class="snap-n">113</span><span class="snap-l">유효 응답자 (버전1 54 + 버전2 59)</span></div>
-    <div><span class="snap-n">2,034</span><span class="snap-l">분석 관측치 (113 × 6 선택상황 × 3 대안)</span></div>
+    <div><span class="snap-n">2,034</span><span class="snap-l">대안 단위 행 (113명 × 6문항 × 3대안)</span></div>
     <div><span class="snap-n">5</span><span class="snap-l">실험 속성 (가격·정확도·보안성·개인화·전문성)</span></div>
     <div><span class="snap-n">26.4<small style="font-size:15px">%</small></span><span class="snap-l">1위 속성 전문성의 상대적 중요도</span></div>
   </div>
@@ -251,14 +363,14 @@
     <h2>연구 문제</h2>
     <h3>무엇이 유료 구독을 결정하는가</h3>
     <p class="lead">생성형 AI 구독 서비스가 늘어나면서 사업자들은 대체로 “모델 성능(정확도)”을 앞세워 가격을 책정한다.
-      이 프로젝트는 소비자가 실제로 어떤 속성에 돈을 지불하는지를 진술이 아닌 선택 행동으로 확인했다.</p>
+      이 프로젝트는 가상 구독 대안 중 하나를 고르는 이산선택실험으로 속성 간 선호와 가격의 관계를 추정했다. 실제 구매·결제 행동을 관측한 연구는 아니다.</p>
 
     <div class="sheet">
       <table>
         <tbody>
           <tr><th style="width:110px">연구 목적</th><td>생성형 AI 구독 속성이 소비자의 구독 선택에 미치는 영향을 분석하고, 가장 선호되는 서비스 구성을 확인한다.</td></tr>
           <tr><th>연구 문제</th><td>생성형 AI의 어떤 속성이 소비자의 유료 구독 의향에 가장 큰 영향을 끼치는가?</td></tr>
-          <tr><th>연구 가설</th><td>정확도 수준이 유료 구독 구매의향에 가장 큰 영향을 끼칠 것이다. <span class="base">(→ 검정 결과 기각)</span></td></tr>
+          <tr><th>연구 가설</th><td>정확도 수준이 유료 구독 구매의향에 가장 큰 영향을 끼칠 것이다. <span class="base">(→ 실험의 상대적 중요도 순위에서 지지되지 않음)</span></td></tr>
         </tbody>
       </table>
     </div>
@@ -269,7 +381,7 @@
     <h2>실험 설계</h2>
     <h3>5개 속성으로 만든 선택 상황</h3>
     <p>속성과 수준을 조합해 3개 대안을 한 세트로 묶고, 응답자에게 총 6개 세트를 제시했다.
-      제시 순서에 따른 편향을 통제하기 위해 설문을 두 버전으로 나눠 배포했다.</p>
+      제시 순서에 따른 영향을 줄이기 위해 설문을 두 버전으로 나눠 배포했다. 모든 속성을 중요하다고 평가하는 단순 평점 대신, 가격과 기능 사이의 선택을 비교할 수 있도록 DCE를 사용했다.</p>
 
     <div class="sheet">
       <table>
@@ -288,7 +400,7 @@
 
     <div class="two">
       <div>
-        <h4>순서 효과 통제</h4>
+        <h4>제시 순서 분산</h4>
         <ul class="plain">
           <li><b>버전 1</b> 대안세트 1 → 6 순서로 제시 <span class="base">(54명)</span></li>
           <li><b>버전 2</b> 대안세트 6 → 1 역순으로 제시 <span class="base">(59명)</span></li>
@@ -312,7 +424,7 @@
     <h2>데이터 파이프라인</h2>
     <h3>응답자 단위에서 대안 단위로</h3>
     <p>조건부 로짓은 “한 행 = 하나의 대안”이어야 추정할 수 있다.
-      설문 원본(응답자 1명 = 1행)을 대안 단위로 펼치는 것이 전처리의 핵심이었다.</p>
+      설문 원본(응답자 1명 = 1행)을 대안 단위로 펼치는 것이 전처리의 핵심이었다. 113명의 678개 선택 문항을 2,034개 대안 행으로 표현한 것으로, 2,034명을 조사한 것은 아니다.</p>
 
     <ol class="steps">
       <li><b>중도포기 응답 제거 및 변수명 정리</b><span>두 버전의 엑셀 파일에서 미완료 응답을 삭제하고 변수명을 영문으로 통일</span></li>
@@ -359,8 +471,8 @@
         <h4>읽어낸 것</h4>
         <ul class="plain">
           <li>가격만 음(-)의 계수, 나머지 속성은 모두 양(+)</li>
-          <li>보안·개인화의 <b>중간 수준은 유의하지 않고 높은 수준에서만 유의</b> — 소비자는 어중간한 개선에 반응하지 않는다</li>
-          <li>전문가급 전문성(+1.306)이 전체 계수 중 최대</li>
+          <li>보안·개인화의 <b>중간 수준은 기준 수준과 유의한 차이를 확인하지 못했다</b>. 효과가 없다는 결론과는 구분한다.</li>
+          <li>범주형 속성의 기준 대비 계수 중 전문가급 전문성(+1.306)이 최대</li>
         </ul>
       </div>
       <div>
@@ -379,7 +491,7 @@
   <!-- 5. 결과 -->
   <section>
     <h2>핵심 결과</h2>
-    <h3>지불의사는 전문성과 보안에 몰린다</h3>
+    <h3>설정한 속성 범위에서 전문성의 중요도가 가장 높았다</h3>
 
     <div class="two">
       <div>
@@ -391,7 +503,7 @@
           <div class="bar-row"><span>가격</span><span class="track"><span class="fill" style="width:63.6%"></span></span><span class="v">16.8%</span></div>
           <div class="bar-row"><span>정확도</span><span class="track"><span class="fill" style="width:62.1%"></span></span><span class="v">16.4%</span></div>
         </div>
-        <p style="margin-top:16px;font-size:14px;color:var(--ink-soft)">소비자는 가격과 정확도보다 AI의 전문성과 보안성을 더 중요하게 고려한다.</p>
+        <p style="margin-top:16px;font-size:14px;color:var(--ink-soft)">이 표본과 속성 수준 범위에서는 전문성·보안성의 상대적 중요도가 높았다. 가격·정확도의 범위를 바꾸면 중요도 순위도 달라질 수 있다.</p>
       </div>
       <div>
         <h4>한계지불의사금액 (WTP)</h4>
@@ -408,7 +520,7 @@
             </tbody>
           </table>
         </div>
-        <p style="font-size:12.5px;color:var(--muted)">각 기준 수준(일반 전문성·낮은 보안성·제한적 개인화) 대비 추가 지불의사 금액.</p>
+        <p style="font-size:12.5px;color:var(--muted)">범주형 속성은 기준 수준 대비 변화, 정확도는 1%p 변화에 대한 추정 WTP다. 변화 단위가 달라 단순 배수로 비교하지 않는다. 일부 추정치는 제시한 최대 가격($200)을 넘으며, 신뢰구간이 없는 점추정치이므로 실제 적정 구독료로 해석하지 않는다.</p>
       </div>
     </div>
   </section>
@@ -416,7 +528,7 @@
   <!-- 6. 교란변수 -->
   <section>
     <h2>강건성 검토</h2>
-    <h3>성별은 가격 민감도를 가르지 않았다</h3>
+    <h3>성별에 따른 가격 민감도 차이는 확인하지 못했다</h3>
     <p>성별(남성=0, 여성=1)과 가격의 상호작용항을 추가해 세그먼트별 가격 민감도 차이를 검정했다.</p>
 
     <pre class="console"><span class="cm">Coefficients :</span>
@@ -442,13 +554,13 @@ price:gender여성      <span class="hl">-0.00040091</span>   0.00149304   -0.26
       </table>
     </div>
     <p>남녀 모두 <b>전문성 → 보안성 → 개인화</b> 순으로 중요도 순위가 동일했다.
-      따라서 성별 세분화 마케팅보다 핵심 가치 중심의 통합 전략이 타당하다는 결론으로 이어졌다.</p>
+      다만 유의하지 않은 상호작용만으로 성별 차이가 없거나 통합 마케팅이 우월하다고 확정할 수는 없다.</p>
   </section>
 
   <!-- 7. 시뮬레이터 -->
   <section>
     <h2>시장 시뮬레이션</h2>
-    <h3>추정 계수로 신제품의 점유율을 예측한다</h3>
+    <h3>속성 조합에 따른 선택 확률을 비교한다</h3>
     <p>추정된 효용 계수를 그대로 사용해 세 제품이 경쟁하는 시장의 선택 확률을 계산했다.
       아래에서 속성 조합을 바꾸면 조건부 로짓 공식 <code>P<sub>j</sub> = exp(V<sub>j</sub>) / Σ exp(V<sub>k</sub>)</code>로 확률이 다시 계산된다.</p>
 
@@ -459,35 +571,32 @@ price:gender여성      <span class="hl">-0.00040091</span>   0.00149304   -0.26
         <button class="reset" id="reset" type="button">기본 시나리오로 되돌리기</button>
       </div>
       <div class="sim-grid" id="grid"></div>
-      <div class="out" id="out"></div>
-      <div class="sim-note">계산에 사용된 계수는 기본 모형(m1)의 추정치입니다. 기본 시나리오에서 25.5 / 30.2 / 44.3%로 발표자료의 결과가 그대로 재현됩니다.</div>
+      <div class="out" id="out" role="status" aria-live="polite" aria-atomic="true" aria-label="모형 내 선택 확률"></div>
+      <div class="sim-note">기본 모형(m1)으로 계산한 가상 3개 대안의 선택 확률입니다. 기본값은 25.5 / 30.2 / 44.3%이며, 실제 전환율이나 시장 점유율을 측정한 결과가 아닙니다. 미구독 대안은 포함하지 않았습니다.</div>
     </div>
   </section>
 
   <!-- 8. 결론 -->
   <section>
     <h2>결론</h2>
-    <h3>가설은 기각되었다</h3>
+    <h3>정확도 외의 구독 가치를 검증할 근거를 얻었다</h3>
     <div class="verdict">
-      <h4>정확도가 아니라 전문성(추론 수준)이 유료 구독 의향을 가장 크게 움직인다.</h4>
-      <p><span class="rejected">“정확도가 가장 큰 영향을 끼칠 것이다”라는 가설은 기각되었다.</span>
-        정확도는 소비자가 AI 서비스에 이미 기대하는 기본 전제로 작동하며, 추가 상승분에 대한 지불의사는 1%p당 $9.8에 그쳤다.</p>
-      <p>반면 전문가급 전문성($314.1)과 높은 보안성($245.4)은 그 수십 배의 지불의사를 이끌어냈다.
-        구독 서비스는 정확도만 끌어올리는 전략보다 전문성·보안·개인화를 함께 상위 수준으로 제공할 때 선택 가능성이 높아진다.</p>
-      <p>시뮬레이션에서도 전문가급 전문성을 갖추고 가격을 $20으로 책정한 기업용 제품이
-        더 저렴하고 더 정확한 경쟁 제품($8, 90%)을 제치고 44.3%의 선택 확률을 기록했다.</p>
+      <h4>이 실험에서는 전문성의 상대적 중요도가 가장 높았다.</h4>
+      <p><span class="rejected">정확도가 가장 중요할 것이라는 예상은 상대적 중요도 순위에서 지지되지 않았다.</span> 전문성 26.4%, 보안성 20.7%, 정확도 16.4%로, 기능 우선순위를 다시 검토할 근거를 얻었다. 순위 차이의 통계적 유의성은 별도로 검정하지 않았다.</p>
+      <p>전문가급 전문성의 WTP $314.1은 일반 수준 대비 변화이고, 정확도 $9.8은 1%p 상승분이다. 서로 다른 변화 단위를 배수로 비교하지 않고, 부분가치 범위와 상대적 중요도를 함께 해석했다.</p>
+      <p>$20·전문가급 제품의 44.3%는 지정한 세 대안 안에서의 모형 내 선택 확률이다. 실제 출시 성과를 주장하기보다, 기업 구매 담당자 표본과 실제 구매 실험으로 확인할 후속 가설로 정리했다.</p>
     </div>
   </section>
 
   <!-- 9. 한계 -->
   <section>
     <h2>한계와 개선 방향</h2>
-    <h3>다음에 한다면 이렇게</h3>
+    <h3>실제 시장 적용 전에 확인할 조건</h3>
     <div class="two">
       <div>
         <h4>이번 설계의 한계</h4>
         <ul class="plain">
-          <li><b>표본 편중</b> 113명 중 20대가 77%로, 기업 구매 결정권자 세그먼트가 사실상 빠져 있다</li>
+          <li><b>표본 편중</b> 113명 중 20대가 77%로, 기업 구매 담당자 집단으로 결과를 일반화하기 어렵다</li>
           <li><b>가격 수준의 비대칭</b> $0 · $8 · $20 · $200 구간이 고르지 않아 가격 계수가 고가 대안에 민감하게 반응했을 수 있다</li>
           <li><b>IIA 가정</b> 조건부 로짓은 대안 간 독립성을 가정하므로 유사 제품이 많은 실제 시장과 차이가 있다</li>
           <li><b>개인 이질성 미반영</b> 모든 응답자가 동일한 선호 계수를 갖는다고 가정했다</li>
@@ -505,54 +614,8 @@ price:gender여성      <span class="hl">-0.00040091</span>   0.00149304   -0.26
     </div>
   </section>
 
-  <!-- 지원용 -->
-  <div class="apply">
-    <h2>포트폴리오 · 기업 지원용 정리</h2>
-    <h3>이 프로젝트를 말로 설명해야 할 때</h3>
-
-    <h4>한 줄 요약</h4>
-    <p style="font-size:16px">이산선택실험으로 113명의 생성형 AI 구독 선택 데이터(2,034 관측)를 수집하고 조건부 로짓으로 분석해,
-      소비자의 지불의사가 정확도보다 전문성·보안성에 집중된다는 사실을 확인하고 신제품 선택 확률 44%를 예측했다.</p>
-
-    <h4>자기소개서 문단 초안</h4>
-    <p style="font-size:14.5px;color:var(--ink-soft);max-width:52em">
-      “생성형 AI 구독 시장에서 사업자들이 성능 지표를 앞세우는 것과 달리 소비자의 실제 지불 기준은 다를 수 있다는 문제의식에서 출발했습니다.
-      5개 속성으로 이산선택실험을 설계하고 순서 효과 통제를 위해 설문을 두 버전으로 배포해 113명의 응답을 확보했으며,
-      <span class="fill-in">저는 [담당 역할: 설문 설계 / R 전처리 / 모형 추정 / 결과 해석 중 실제 담당 부분]을 맡았습니다.</span>
-      응답자 단위 데이터를 대안 단위 2,034행으로 재구조화해 조건부 로짓을 추정한 결과,
-      전문성의 상대적 중요도가 26.4%로 1위였고 전문가급 전문성에 대한 지불의사는 $314로 정확도 1%p당 $9.8의 30배가 넘었습니다.
-      이를 바탕으로 전문가급 성능을 $20에 제공하는 기업용 제품의 선택 확률을 44%로 예측해,
-      가격 인하보다 전문성·보안 강화가 유효한 전략임을 제안했습니다.”
-    </p>
-    <p style="font-size:12.5px;color:var(--muted)">노란 표시 부분만 본인 역할로 바꿔 쓰면 됩니다.</p>
-
-    <h4>예상 질문 대비</h4>
-    <div class="qa">
-      <b>Q. 왜 설문으로 “중요한 속성”을 직접 묻지 않고 이산선택실험을 했나요?</b>
-      <p>직접 물으면 응답자는 모든 속성이 중요하다고 답하거나 사회적으로 바람직한 답을 고르는 경향이 있습니다.
-        선택 실험은 트레이드오프가 강제된 상황에서의 실제 선택을 관측하므로, 속성 간 상대적 중요도와 금전적 가치를 함께 추정할 수 있습니다.</p>
-    </div>
-    <div class="qa">
-      <b>Q. 보안·개인화의 중간 수준이 유의하지 않았다는 것은 무슨 의미인가요?</b>
-      <p>기준 수준(낮음/제한적)과 비교했을 때 소비자의 효용에 유의미한 차이가 없었다는 뜻입니다.
-        어중간한 개선은 선택에 영향을 주지 못하고, 높은 수준으로 확실히 올릴 때만 지불의사가 발생한다는 실무적 함의로 연결됩니다.</p>
-    </div>
-    <div class="qa">
-      <b>Q. 이 결과를 실제 사업에 적용한다면?</b>
-      <p>기능 로드맵의 우선순위를 정확도 벤치마크 경쟁에서 도메인 전문성과 보안 인증 쪽으로 옮기는 근거가 됩니다.
-        다만 표본이 20대에 편중되어 있어 기업 구매 담당자 대상 재검증이 선행되어야 한다고 봅니다.</p>
-    </div>
-
-    <h4>기술 스택 및 역량 키워드</h4>
-    <div class="tags">
-      <span>이산선택실험(DCE) 설계</span><span>조건부 로짓 / 확률효용모형</span><span>R · mlogit</span><span>dplyr 데이터 전처리</span>
-      <span>Wide → Long 재구조화</span><span>더미 코딩 · 상호작용항</span><span>부분가치 · 상대적 중요도</span><span>한계지불의사금액(WTP)</span>
-      <span>시장 점유율 시뮬레이션</span><span>가설 검정 및 해석</span><span>설문 순서효과 통제</span>
-    </div>
-  </div>
-
   <footer>
-    원자료: 「신기술 시장분석」 기말 발표 자료(2조, 30장). 이 문서는 포트폴리오 열람용으로 재구성한 요약본이며, 모든 수치는 원자료의 추정 결과를 그대로 따랐습니다.
+    원자료: 「신기술 시장분석」 기말 발표 자료(2조, 30장). 이 문서는 포트폴리오 열람용으로 재구성한 요약본이며, 수치는 원자료의 추정 결과이며, 대안 단위 행 수·WTP 변화 단위·모형 내 선택 확률의 해석 범위를 함께 표시했습니다.
   </footer>
 </div>
 

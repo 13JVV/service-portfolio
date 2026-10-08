@@ -1,3 +1,8 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CrowdSense 개발 기록</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -292,11 +297,103 @@
     .ba-arrow { justify-self: start; transform: rotate(90deg); }
     .round { grid-template-columns: 1fr; gap: 4px; }
     .stack { grid-template-columns: 1fr; }
+    .result-demo-grid { grid-template-columns: 1fr !important; }
   }
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; animation: none !important; }
   }
+
+  /* 제목 다음에 읽는 의사결정 흐름: 이 figure 안에서만 적용 */
+  .case-decision-figure {
+    margin: 0 0 22px;
+    padding: 16px;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    background: var(--paper);
+    color: var(--ink);
+  }
+  .case-decision-figure .case-decision-track {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .case-decision-figure .case-decision-step {
+    position: relative;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+  }
+  .case-decision-figure .case-decision-step + .case-decision-step::before {
+    content: "";
+    position: absolute;
+    left: -13px;
+    top: 31px;
+    width: 6px;
+    height: 6px;
+    border-top: 1px solid var(--brand);
+    border-right: 1px solid var(--brand);
+    transform: rotate(45deg);
+  }
+  .case-decision-figure .case-decision-label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--brand);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .08em;
+  }
+  .case-decision-figure .case-decision-step strong {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    word-break: keep-all;
+  }
+  .case-decision-figure .case-decision-step p {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 12px;
+    line-height: 1.65;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+  .case-decision-figure .case-decision-boundary {
+    margin: 14px 0 0;
+    padding-top: 11px;
+    border-top: 1px solid var(--rule);
+    color: var(--ink-soft);
+    font-size: 11.5px;
+    line-height: 1.6;
+  }
+  .case-decision-figure figcaption {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 10.5px;
+    line-height: 1.6;
+  }
+  @media (max-width: 620px) {
+    .case-decision-figure .case-decision-track {
+      grid-template-columns: 1fr;
+      gap: 22px;
+    }
+    .case-decision-figure .case-decision-step + .case-decision-step::before {
+      left: 3px;
+      top: -15px;
+      transform: rotate(135deg);
+    }
+    .case-decision-figure .case-decision-label { margin-bottom: 3px; }
+    .case-decision-figure .case-decision-step strong { margin-bottom: 3px; }
+  }
+
 </style>
+<link rel="stylesheet" href="../../project-navigation.css">
+</head>
+<body>
+<div class="portfolio-return" role="navigation" aria-label="포트폴리오"><a href="../../#projects">← 프로젝트 목록</a></div>
 
 <header>
   <div class="wrap head-inner">
@@ -311,10 +408,31 @@
     </div>
 
     <div style="display:flex;flex-direction:column;gap:14px">
-      <h1>인파 참사를 막는 건<br>경보가 아니라 그 다음 1분입니다</h1>
+      <h1>인파 경보 다음에 필요한<br>판단과 대응을 한 화면으로</h1>
+      <figure class="case-decision-figure" aria-label="CrowdSense 의사결정 흐름">
+        <ol class="case-decision-track">
+          <li class="case-decision-step">
+            <span class="case-decision-label">01 / 문제</span>
+            <strong>관측 지연·오차</strong>
+            <p>현재 시각과 중앙값만으로 위험을 단정하기 어려움</p>
+          </li>
+          <li class="case-decision-step">
+            <span class="case-decision-label">02 / 선택</span>
+            <strong>판정 가능성 분리</strong>
+            <p>관측 시각·구간을 유지하고 불확실하면 ‘판정 불가’</p>
+          </li>
+          <li class="case-decision-step">
+            <span class="case-decision-label">03 / 검토</span>
+            <strong>초안 + 담당자 검토</strong>
+            <p>조치·전파·보고를 연결하고 현장 여건은 별도 확인</p>
+          </li>
+        </ol>
+        <p class="case-decision-boundary">판단 근거·대응 초안의 구현과 실제 위험 예측·현장 대응 효과의 검증을 구분합니다.</p>
+        <figcaption>본문을 바탕으로 재구성한 의사결정 흐름입니다. 효과를 측정한 도표가 아닙니다.</figcaption>
+      </figure>
       <p class="lede">
-        밀집 위험을 경보 전에 예측하고, 경보 순간 담당 공무원이 해야 할
-        조치·대피·전파·보고를 즉시 만들어내는 AI 관제 레이어.
+        공공데이터로 밀집 추세를 계산하고, 조치·전파·보고 초안을 연결한 AI 관제 지원 서비스.
+        데이터의 지연과 불확실성을 드러내고 담당자가 판단할 근거를 함께 제공합니다.
       </p>
     </div>
 
@@ -335,11 +453,11 @@
 <div class="metrics">
   <div class="metric">
     <div class="metric-num">32<span class="unit">곳</span></div>
-    <div class="metric-label">서울 실시간 감시지점<br>인파사고 위험도 기준 선정</div>
+    <div class="metric-label">서울 데이터 연동 지점<br>인파사고 위험도 기준 선정</div>
   </div>
   <div class="metric">
     <div class="metric-num">33<span class="unit">분</span></div>
-    <div class="metric-label">공공데이터 노출 지연 실측<br>예측 기준점을 관측 시각으로 잡은 이유</div>
+    <div class="metric-label">공공데이터 노출 지연 관측 사례<br>예측 기준점을 관측 시각으로 잡은 이유</div>
   </div>
   <div class="metric">
     <div class="metric-num">4<span class="unit">개 국어</span></div>
@@ -357,12 +475,12 @@
   <section class="wrap">
     <div class="sec-head">
       <span class="eyebrow">Problem</span>
-      <h2>기존 시스템은 경보에서 멈춥니다</h2>
+      <h2>경보를 받은 뒤, 무엇을 할지 정해야 합니다</h2>
     </div>
 
     <p class="body-text">
       행정안전부 인파관리지원시스템(2025~, 전국 100개소)은 기지국 기반 밀집도를 히트맵으로 보여주고
-      임계를 넘으면 담당 공무원에게 문자를 보냅니다. 여기까지는 잘 작동합니다.
+      임계를 넘으면 담당 공무원에게 문자를 보내는 시스템입니다. 이 감지·경보 흐름을 프로젝트의 출발점으로 삼았습니다.
     </p>
     <p class="body-text">
       문제는 그 다음입니다. <strong>문자를 받은 담당자가 "지금 무엇을, 누구에게, 어떤 말로"
@@ -370,9 +488,9 @@
       각각 다른 어조와 다른 내용이어야 하는데, 그걸 압박 상황에서 몇 분 안에 만들어야 합니다.
     </p>
     <p class="body-text">
-      10·29 이태원 참사가 보여준 것처럼 <em>골든타임의 대응 품질이 피해 규모를 결정</em>합니다.
-      CrowdSense는 그 빈 구간 — 감지 다음의 1분 — 을 표준화·자동화합니다.
-      기존 시스템의 대체가 아니라, 그 경보를 입력으로 받아 대응을 완성하는 <strong>보완 레이어</strong>입니다.
+      CrowdSense의 범위는 <em>경보 이후 담당자가 검토할 대응 초안과 기록을 준비하는 일</em>입니다.
+      관측 데이터, 분산 공간 후보, 역할별 문안을 한 흐름에 묶었습니다.
+      생성 문안의 사용에는 <strong>담당자의 검토와 실제 현장의 개방·통행 여건 확인</strong>이 필요합니다.
     </p>
 
     <div style="margin-top:28px">
@@ -403,7 +521,73 @@
           <span class="stage-d">골든타임 KPI · 보고서 자동 생성</span>
         </div>
       </div>
-      <p class="pipeline-note">회색은 기존 시스템이 이미 하는 일, 주황은 CrowdSense가 채우는 구간입니다.</p>
+      <p class="pipeline-note">회색은 출발점인 감지·경보, 주황은 이번 프로젝트에서 구현한 예측·문안·기록 흐름입니다. 현장 대응 시간 단축 효과는 이 기록에서 수치로 제시하지 않습니다.</p>
+    </div>
+  </section>
+
+  <!-- ── 기획 과정 ────────────────────────────────────── -->
+  <section class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Planning</span>
+      <h2>정확한 숫자보다 먼저, 판단 가능한 범위를 정했습니다</h2>
+      <p class="sec-sub">기획·설계·개발·배포를 혼자 맡았기 때문에 모든 기능을 동시에 만들 수 없었습니다. 먼저 실제 데이터가 말해주는 제약을 확인하고, 담당자의 첫 1분에 필요한 기능부터 우선순위를 정했습니다.</p>
+    </div>
+
+    <div class="decisions">
+      <article class="decision">
+        <div class="d-head"><span class="d-idx">01</span><h3 class="d-title">공공데이터의 형식과 지연부터 확인했습니다</h3></div>
+        <p class="d-body">서울 실시간 도시데이터와 전국문화축제표준데이터는 정확한 한 점의 수치가 아니라 <strong>구간값·지연된 관측값</strong>으로 들어왔습니다. 이 제약을 숨기고 평균값으로 눌러 쓰면 경보 임계값 자체가 오차보다 작아진다고 판단해, 데이터 품질을 먼저 확인한 뒤 판정 로직을 구간 기반으로 다시 설계했습니다.</p>
+        <div class="evidence"><span class="ev-label">Priority</span><span class="ev-text">P0: 판정 불가를 표시하고 잘못된 확신을 막기 · P1: 선행 위험 예측 · P2: 보고서와 운영 확장</span></div>
+      </article>
+      <article class="decision">
+        <div class="d-head"><span class="d-idx">02</span><h3 class="d-title">유저플로우를 ‘경보 이후’ 기준으로 쪼갰습니다</h3></div>
+        <p class="d-body">담당자가 화면에 들어온 뒤 <strong>위험 확인 → AI 브리핑 확인 → 조치·대피·전파·보고 문안 선택 → 타임라인 기록</strong>으로 이어지는 흐름을 먼저 고정했습니다. 지도와 분석 기능은 이 흐름을 방해하지 않는 범위에서 후순위로 미뤘고, 실제 조치로 이어지는 문안과 근거 표시를 먼저 구현했습니다.</p>
+        <div class="evidence"><span class="ev-label">Trade-off</span><span class="ev-text">완성도 높은 관제 화면보다, 압박 상황에서 다음 행동을 1분 안에 고를 수 있는 구조를 우선</span></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ── AI 에이전트 개발 ─────────────────────────────── -->
+  <section class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">AI Agent Development</span>
+      <h2>에이전트를 지휘하고, 안전 경계는 코드로 고정했습니다</h2>
+      <p class="sec-sub">Claude Code와 Codex는 반복 작업과 검증 루프를 맡겼고, 어떤 데이터가 안전한지·무엇을 화면에 내보낼지는 제가 직접 결정했습니다.</p>
+    </div>
+
+    <div class="stack">
+      <div class="stack-grp">
+        <h3>Prompt</h3>
+        <ul>
+          <li>“기능을 추가하기 전에 현재 타입·라우트·저장 구조를 읽고 영향 범위를 먼저 적어라”</li>
+          <li>“구간값의 부호가 결정되지 않으면 경보 대신 판정 불가를 반환하라”</li>
+          <li>“위험도·도달 시각·조치·대피·전파·보고 6개 섹션을 JSON Schema에 맞춰 반환하고 근거 필드를 빠뜨리지 마라”</li>
+        </ul>
+      </div>
+      <div class="stack-grp">
+        <h3>Agent Sequence</h3>
+        <ul>
+          <li>Claude Code/Codex로 반복되는 타입·목데이터·테스트 픽스처 생성</li>
+          <li>프롬프트 변경마다 동일 시나리오를 재생해 결과 diff와 누락 필드 확인</li>
+          <li>리뷰 에이전트가 보류하면 수정 후 헤드리스 브라우저에서 저장까지 재검증</li>
+        </ul>
+      </div>
+      <div class="stack-grp">
+        <h3>Human Decisions</h3>
+        <ul>
+          <li>Claude API를 JSON Schema 강제 구조화 출력으로 묶어 위험도·도달 시각·조치·대피·전파·보고를 자동 생성</li>
+          <li>시민에게 보여줄 장소와 담당자가 확인해야 할 장소를 입력 단계에서 분리</li>
+          <li>모델이 제안한 문안이라도 데이터 근거가 없으면 표시하지 않도록 기준을 수정</li>
+        </ul>
+      </div>
+      <div class="stack-grp">
+        <h3>Verification</h3>
+        <ul>
+          <li>프롬프트 강화 3회에서 위반이 반복된 뒤, 문구가 아닌 입력 구조로 해결</li>
+          <li>동일 케이스 재실행 <strong>6회에서 위반이 관찰되지 않음</strong> · 일반적인 안전성을 입증한 결과는 아님</li>
+          <li>코드 생성 결과는 그대로 채택하지 않고 타입 검사·실제 데이터·브라우저 흐름으로 확인</li>
+        </ul>
+      </div>
     </div>
   </section>
 
@@ -434,7 +618,7 @@
         </p>
         <p class="d-body">
           순유입을 구간 그대로 들고 다니면서, <strong>부호가 결정되는 창</strong>(구간이 0을 넘지 않는 창)만
-          판정에 쓰도록 바꿨습니다. 그런 창이 없으면 <code>판정 불가</code>로 표시합니다.
+          판정에 쓰도록 바꿨습니다. 그런 창이 없으면 <code>판정 불가</code>로 표시합니다. 판정 가능한 관측의 비율인 <strong>커버리지</strong>와 실제 위험을 맞혔는지는 별도로 평가해야 합니다.
           화면이 비는 게 답답하지만, 모르는 것을 모른다고 말하는 편이 틀린 확신보다 낫습니다.
         </p>
         <div class="evidence">
@@ -450,7 +634,7 @@
         </div>
         <p class="d-body">
           추세를 원 인원(명/분)으로 판정하고 있었습니다. 그런데 체류 인원 <strong>8.5만 명</strong>인 강남역에서
-          +150명/분은 아무 의미가 없고, <strong>1.3만 명</strong>인 이태원에서는 유의미합니다.
+          +150명/분이 차지하는 비율은 작고, <strong>1.3만 명</strong>인 이태원에서는 더 큽니다.
           같은 숫자가 지점마다 다른 뜻인데 같은 규칙으로 판정하고 있었던 거죠.
         </p>
         <p class="d-body">
@@ -460,17 +644,17 @@
         </p>
         <div class="evidence">
           <span class="ev-label">Measured</span>
-          <span class="ev-text">강남역 체류 <b>85,000</b>명 vs 이태원 <b>13,000</b>명 — 같은 유입에 6.5배 다른 밀도 영향</span>
+          <span class="ev-text">강남역 체류 <b>85,000</b>명 vs 이태원 <b>13,000</b>명 — 같은 유입에 약 6.5배 다른 체류 인원 대비 비율</span>
         </div>
       </article>
 
       <article class="decision">
         <div class="d-head">
           <span class="d-idx">03</span>
-          <h3 class="d-title">데이터가 33분 늦게 온다는 사실을 예측식에 반영하기</h3>
+          <h3 class="d-title">33분 지연 사례가 바꾼 예측 기준점</h3>
         </div>
         <p class="d-body">
-          서울시 공공데이터는 실시간이 아닙니다. 관측 후 노출까지 <strong>실측 33분</strong>이 걸립니다.
+          서울시 공공데이터를 측정했을 때 관측 후 노출까지 <strong>33분 지연된 사례</strong>가 있었습니다.
           서버 현재 시각을 기준으로 임계 도달 시각을 계산하면, 예측이 통째로 <strong>33분 뒤로 밀립니다</strong> —
           경보가 구조적으로 늦게 뜹니다.
         </p>
@@ -487,7 +671,7 @@
           <span class="ba-arrow">→</span>
           <div class="ba-cell good">
             <span class="k">After</span>
-            <span class="v">관측 시각 기준 + 데이터 나이 노출 → 경보 시점 정상화</span>
+            <span class="v">관측 시각 기준 + 데이터 나이 노출 → 시간 기준 오류 수정</span>
           </div>
         </div>
       </article>
@@ -510,12 +694,12 @@
         <p class="d-body">
           문구를 더 붙이는 대신 <strong>입력에서 갈랐습니다.</strong>
           <code>publicSafeDestinations</code>(시민 문안 허용)와 <code>verifyBeforeUse</code>(조치사항 전용)로
-          나눠서 넘기니, 같은 케이스 재실행에서 위반이 0건이 됐습니다.
-          <em>안전 규칙은 모델의 판단에 맡길 게 아니라 입력 구조로 강제해야 한다</em>는 게 이 프로젝트에서
-          가장 크게 배운 것입니다.
+          나눠서 넘기니, 같은 케이스를 6회 재실행한 범위에서 위반이 관찰되지 않았습니다.
+          <em>모델에 주는 입력부터 사용 가능 범위를 좁히는 방식</em>을 선택했습니다.
+          이 소규모 재시험만으로 다른 장소·시간대나 실제 현장의 안전을 보장할 수는 없습니다.
         </p>
         <div class="evidence">
-          <span class="ev-label">Verified</span>
+          <span class="ev-label">Scenario test</span>
           <span class="ev-text">프롬프트 강화 3회 → 위반 <b>3/4</b>회 · 입력 분리 후 → 위반 <b>0/6</b>회</span>
         </div>
       </article>
@@ -541,7 +725,7 @@
         </ul>
         <div class="evidence">
           <span class="ev-label">Result</span>
-          <span class="ev-text">분산 공간 커버리지 <b>27/32</b> → <b>32/32</b> 지점 · 좌표 이상 <b>4</b>건 제외</span>
+          <span class="ev-text">분산 공간 후보가 있는 지점 <b>27/32</b> → <b>32/32</b> · 좌표 이상 <b>4</b>건 제외. 후보 확보 수치이며 실제 개방·수용 가능 여부는 별도 확인</span>
         </div>
       </article>
 
@@ -569,7 +753,7 @@
           <span class="ba-arrow">→</span>
           <div class="ba-cell good">
             <span class="k">Fix</span>
-            <span class="v">KPI 기준점 3개 보존 후 <span style="font-family:var(--mono)">30초 / 60초</span> 정확</span>
+            <span class="v">재현 테스트: 기준점 3개 보존 후 <span style="font-family:var(--mono)">30초 / 60초</span> 기대값 일치</span>
           </div>
         </div>
       </article>
@@ -665,7 +849,7 @@
   <section class="wrap">
     <div class="sec-head">
       <span class="eyebrow">Architecture</span>
-      <h2>서울에서 검증하고 전국으로 넓히는 구조</h2>
+      <h2>지역·데이터원이 달라져도 판단 근거를 유지하는 구조</h2>
     </div>
 
     <p class="body-text">
@@ -700,6 +884,8 @@
         </tbody>
       </table>
     </div>
+
+    <p class="pipeline-note">비교 표는 프로젝트 당시 파악한 기존 시스템 설명과 자체 구현 범위 기준입니다. 외부 시스템의 전체 기능이나 현장 성능을 검증한 결과는 아닙니다.</p>
 
     <p class="body-text" style="margin-top:18px">
       접근 통제도 판매를 전제로 설계했습니다. API 키는 <strong>해시로만</strong> 환경변수에 보관하고
@@ -784,7 +970,7 @@
           LLM에 안전 규칙을 프롬프트로 세 라운드에 걸쳐 강화했지만 세 번 다 위반이 재현됐습니다.
           문구를 더하는 대신 <strong>입력 자체를 두 목록으로 분리</strong>해
           시민 문안에 쓸 수 있는 장소와 확인이 필요한 장소를 구조적으로 갈랐고,
-          재실행에서 위반이 0건이 됐습니다.
+          동일 케이스 6회 재실행에서 위반이 관찰되지 않았습니다.
           <strong>모델의 판단에 맡길 것과 코드로 강제할 것을 구분하는 기준</strong>을
           이 과정에서 얻었습니다.
         </p>
@@ -818,7 +1004,7 @@
   <section class="wrap">
     <div class="sec-head">
       <span class="eyebrow">Status</span>
-      <h2>지금 상태와 다음</h2>
+      <h2>구현 결과와 검증이 남은 범위</h2>
     </div>
 
     <div class="status">
@@ -844,10 +1030,24 @@
       </div>
     </div>
 
+    <figure style="margin:22px 0;border:1px solid var(--rule);border-radius:10px;overflow:hidden;background:var(--card);box-shadow:var(--shadow);margin-bottom:22px" aria-label="CrowdSense 화면 구성을 재구성한 예시. 실측 데이터가 아닙니다.">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--rule-soft);background:var(--paper);font-family:var(--mono);font-size:11px;color:var(--muted)"><span style="width:7px;height:7px;border-radius:50%;background:var(--brand)"></span> CROWDSENSE / INTERFACE MOCKUP <span style="margin-left:auto">재구성 예시</span></div>
+      <div class="result-demo-grid" style="display:grid;grid-template-columns:1.3fr 1fr;gap:0;min-height:180px">
+        <div style="padding:20px;background:linear-gradient(135deg,#213536,#142121);color:#e7eee3;position:relative">
+          <span style="font-family:var(--mono);font-size:10px;color:#9bcbb0">위험 지도 구성 예시</span>
+          <div style="height:104px;margin-top:14px;background:radial-gradient(circle at 58% 42%,#ff784b 0 4%,#d9574255 5% 20%,transparent 21%),linear-gradient(145deg,#294746,#1c3030);border:1px solid #52716b;border-radius:7px;position:relative"><span style="position:absolute;left:16%;top:67%;width:68%;height:3px;background:#84ada0;transform:rotate(-18deg)"></span><span style="position:absolute;right:16%;top:22%;padding:5px 7px;background:#211d1ae6;color:#ffbf8f;border-radius:4px;font:10px var(--mono)">위험 상태 예시</span></div>
+        </div>
+        <div style="padding:20px;background:var(--card)"><span style="font:10px var(--mono);color:var(--muted)">AI RESPONSE BRIEFING</span><h3 style="margin:10px 0 8px;font-size:17px">다음 1분의 우선 조치</h3><ol style="margin:0;padding-left:20px;color:var(--ink-soft);font-size:13px;line-height:1.8"><li>밀집 구역 현장 확인</li><li>대피 동선·문안 검토</li><li>상황 보고와 타임라인 저장</li></ol></div>
+      </div>
+      <figcaption style="padding:12px 14px;border-top:1px solid var(--rule-soft);font-size:12px;color:var(--muted)">관제 화면의 정보 흐름을 재구성한 예시입니다. 실측 화면·실시간 경보·예측 성능을 나타내지 않으며, 실제 대응은 담당자의 현장 확인과 문안 검토가 필요합니다.</figcaption>
+    </figure>
+
     <p class="body-text" style="margin-top:22px">
-      정확도 수치는 아직 없습니다. 데이터가 쌓이는 중이고, <strong>없는 결과를 있다고 쓰지 않는 것</strong>이
-      이 프로젝트 내내 지켜 온 기준이라 여기서도 같게 적었습니다.
+      현재 확인한 결과는 <strong>32개 지점 데이터 연동, 시나리오 재시험, 기록 저장 오류 수정</strong>입니다.
+      예측 정확도·오경보율 평가는 데이터 축적 후 진행 예정입니다. 현장 대응 시간·사고 감소 효과도 이 기록에서 입증하지 않습니다.
+      데이터 수집 범위와 재현 테스트 결과를 실제 안전 성과와 구분해 기록합니다.
     </p>
+    <p class="body-text"><strong>회고.</strong> 화면이 열려 있을 때의 기능 검증만으로 상시 감시나 예측 정확도를 주장할 수 없었습니다. 다음 단계는 서버 측 무인 감시 루프와 선행 시간·적중률 백테스트로, 운영의 빈틈과 성능을 따로 확인하는 것입니다.</p>
   </section>
 
 </main>
@@ -857,3 +1057,5 @@
   제4회 재난안전데이터 활용 창업경진대회 최우수상 (행정안전부 장관상)
 <script src="../../recruiter-clean.js"></script>
 </footer>
+</body>
+</html>

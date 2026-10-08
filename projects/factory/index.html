@@ -174,23 +174,23 @@
     section{break-inside:avoid}
   }
 </style>
+<link rel="stylesheet" href="../../project-navigation.css">
 </head>
 <body>
+<div class="portfolio-return" role="navigation" aria-label="포트폴리오"><a href="../../#projects">← 프로젝트 목록</a></div>
 <div class="wrap">
 
 <header class="hero">
   <p class="kicker">시스템 시뮬레이션 · 팀 프로젝트</p>
-  <h1>검사를 다섯 번 하던 칫솔 라인을 한 번에 흐르게</h1>
-  <p class="lede">칫솔 제조업체 ‘위덴’의 전 공정을 Arena로 모델링해 병목을 수치로 특정하고,
-    <b>검수 통합 · U자형 셀 배치 · 배치 출고 제거</b> 세 가지를 적용해
-    시간당 생산량 <b>182 → 338ea</b>, 평균 리드타임 <b>905.6 → 648.4분</b>으로 개선했습니다.</p>
+  <h1>대기 병목을 줄이는 칫솔 생산라인 설계</h1>
+  <p class="lede">칫솔 제조업체 ‘위덴’의 공정을 Arena로 모델링하고, 대기시간 리포트에서 개선 지점을 찾았습니다.
+    <b>검수 통합 · U자형 셀 배치 · 배치 출고 제거</b>를 함께 적용한 시뮬레이션에서
+    시간당 생산량이 <b>182 → 338ea(+85.7%)</b>로 증가했습니다. 실제 공장에 적용한 실측 성과는 아닙니다.</p>
 
   <dl class="meta">
     <div><dt>대상</dt><dd>칫솔 제조업체 ‘위덴’</dd></div>
     <div><dt>도구</dt><dd>Rockwell Arena</dd></div>
     <div><dt>팀</dt><dd>7조 · 5명</dd></div>
-    <div><dt>본인 역할</dt><dd><span class="todo">담당 파트 채우기</span></dd></div>
-    <div><dt>기간</dt><dd><span class="todo">기간 채우기</span></dd></div>
   </dl>
 </header>
 
@@ -266,60 +266,7 @@
   <p class="swipe">← 가로로 넘겨서 보기</p>
 </section>
 
-<section>
-  <h2>결과</h2>
-  <p class="sub">동일 조건(8시간 × 5 replication)으로 기존 모델과 개선 모델을 각각 돌려 비교했습니다.</p>
 
-  <div class="kpi">
-    <div class="kpi-row">
-      <div>
-        <div class="kpi-name">시간당 생산량</div>
-        <div class="kpi-def">1시간당 완성되는 칫솔 수</div>
-      </div>
-      <div class="bars">
-        <div class="bar"><span>기존</span><div class="track"><div class="fill b" style="width:53.8%"></div></div><span class="val b">182 ea</span></div>
-        <div class="bar"><span>개선</span><div class="track"><div class="fill a" style="width:100%"></div></div><span class="val">338 ea</span></div>
-      </div>
-      <div class="delta"><strong>+85.7%</strong><span>같은 8시간 기준</span></div>
-    </div>
-
-    <div class="kpi-row">
-      <div>
-        <div class="kpi-name">평균 리드타임</div>
-        <div class="kpi-def">원자재 투입부터 완제품 포장까지</div>
-      </div>
-      <div class="bars">
-        <div class="bar"><span>기존</span><div class="track"><div class="fill b" style="width:100%"></div></div><span class="val b">905.6 min</span></div>
-        <div class="bar"><span>개선</span><div class="track"><div class="fill a" style="width:71.6%"></div></div><span class="val">648.4 min</span></div>
-      </div>
-      <div class="delta"><strong>−28.4%</strong><span>제품 1개 완성 시간</span></div>
-    </div>
-
-    <div class="kpi-row">
-      <div>
-        <div class="kpi-name">총 공정 대기 시간</div>
-        <div class="kpi-def">가공되지 않고 대기열에 머문 시간</div>
-      </div>
-      <div class="bars">
-        <div class="bar"><span>기존</span><div class="track"><div class="fill b" style="width:100%"></div></div><span class="val b">666.8 min</span></div>
-        <div class="bar"><span>개선</span><div class="track"><div class="fill a" style="width:81.8%"></div></div><span class="val">545.5 min</span></div>
-      </div>
-      <div class="delta"><strong>−18.2%</strong><span>병목 정체 해소</span></div>
-    </div>
-
-    <div class="kpi-row">
-      <div>
-        <div class="kpi-name">평균 이동 시간</div>
-        <div class="kpi-def">공정 간 이동에 쓰인 시간</div>
-      </div>
-      <div class="bars">
-        <div class="bar"><span>기존</span><div class="track"><div class="fill b" style="width:100%"></div></div><span class="val b">399.1 min</span></div>
-        <div class="bar"><span>개선</span><div class="track"><div class="fill a" style="width:52.6%"></div></div><span class="val">210.0 min</span></div>
-      </div>
-      <div class="delta"><strong>−47.4%</strong><span>U자형 배치 효과</span></div>
-    </div>
-  </div>
-</section>
 
 <section>
   <h2>문제를 어디서 찾았나</h2>
@@ -327,7 +274,7 @@
 
   <table class="q">
     <thead>
-      <tr><th>대기열</th><th>성격</th><th>평균 대기</th><th>Half Width</th></tr>
+      <tr><th>대기열</th><th>성격</th><th>평균 대기*</th><th>Half Width*</th></tr>
     </thead>
     <tbody>
       <tr class="top"><td>캡_핸들_결합 Queue2</td><td>합류 대기</td><td>426.83</td><td>371.82</td></tr>
@@ -339,12 +286,11 @@
       <tr><td>칫솔랩 포장 / 포장 검수</td><td>포장·검수</td><td>7.82 / 7.13</td><td>2.08 / 1.95</td></tr>
     </tbody>
   </table>
-  <p class="caption">여기서 개선 방향이 갈렸습니다. 묶음 대기가 리드타임을 먹고 있으니 <b>배치를 없애고</b>,
-    검사가 흐름을 계속 끊으니 <b>검수를 한곳으로 모으고</b>, 이동과 작업자 고립이 겹치니 <b>라인을 U자로 접는다</b>.</p>
+  <p class="caption">* 시간 지표의 단위는 원본 리포트 확인이 필요합니다. 대기 원인에 대응해 <b>출고 배치 제거</b>, <b>검수 통합</b>, <b>U자형 셀 배치</b>를 선택했습니다. 결합 대기열의 Half Width가 커 평균 순위만으로 병목 효과를 확정하지 않았습니다.</p>
 </section>
 
 <section>
-  <h2>세 가지 개선 레버</h2>
+  <h2>원인에 대응한 세 가지 개선안</h2>
   <p class="sub">각각 AS-IS 문제, TO-BE 설계, 기대효과 순으로 정리했습니다.</p>
 
   <div class="lever">
@@ -360,7 +306,7 @@
         <li>중간 정체 구간 제거로 Non-Stop Flow 구성</li>
       </ul></div>
     </div>
-    <p class="gain">resource 활용도 증가, 전체 cycle time 감소</p>
+    <p class="gain">설계 의도: 검사 대기 분산과 공정 흐름 연속화. 품질 유지 여부는 별도 검증 필요</p>
   </div>
 
   <div class="lever">
@@ -376,7 +322,7 @@
         <li>포장 작업자를 set으로 묶어 병목 구간을 돕는 다능공 운영</li>
       </ul></div>
     </div>
-    <p class="gain">작업자 동선 최소화와 이용률 향상, 인박스 포장 대기 감소</p>
+    <p class="gain">설계 의도: 이동 동선 축소와 병목 구간의 작업자 지원. 단독 적용 효과는 미측정</p>
   </div>
 
   <div class="lever">
@@ -391,8 +337,64 @@
         <li>완제품이 공장에 머무는 시간 최소화</li>
       </ul></div>
     </div>
-    <p class="gain">재공품 감축, 리드타임 단축, Throughput 향상</p>
+    <p class="gain">설계 의도: 출고 수량을 채우는 대기 제거. 재공품·물류 비용 효과는 미측정</p>
   </div>
+</section>
+
+<section>
+  <h2>시뮬레이션 결과</h2>
+  <p class="sub">동일 실행 조건(8시간 × 5 replication)에서 기존 모델과 세 개선안을 함께 적용한 모델을 비교했습니다. 생산량 증가는 모형 내 결과이며 개별 개선안의 기여도는 분리하지 않았습니다.</p>
+
+  <div class="kpi">
+    <div class="kpi-row">
+      <div>
+        <div class="kpi-name">시간당 생산량</div>
+        <div class="kpi-def">1시간당 완성되는 칫솔 수</div>
+      </div>
+      <div class="bars">
+        <div class="bar"><span>기존</span><div class="track"><div class="fill b" style="width:53.8%"></div></div><span class="val b">182 ea</span></div>
+        <div class="bar"><span>개선</span><div class="track"><div class="fill a" style="width:100%"></div></div><span class="val">338 ea</span></div>
+      </div>
+      <div class="delta"><strong>+85.7%</strong><span>모형 내 상대 증가</span></div>
+    </div>
+
+    <div class="kpi-row">
+      <div>
+        <div class="kpi-name">평균 리드타임</div>
+        <div class="kpi-def">원자료의 평균 리드타임 · 단위 확인 필요</div>
+      </div>
+      <div class="bars">
+        <div class="bar"><span>기존</span><div class="track"><div class="fill b" style="width:100%"></div></div><span class="val b">905.6*</span></div>
+        <div class="bar"><span>개선</span><div class="track"><div class="fill a" style="width:71.6%"></div></div><span class="val">648.4*</span></div>
+      </div>
+      <div class="delta"><strong>−28.4%</strong><span>보고값 기준 변화</span></div>
+    </div>
+
+    <div class="kpi-row">
+      <div>
+        <div class="kpi-name">총 공정 대기 시간</div>
+        <div class="kpi-def">원자료의 대기 지표 · 집계·단위 확인 필요</div>
+      </div>
+      <div class="bars">
+        <div class="bar"><span>기존</span><div class="track"><div class="fill b" style="width:100%"></div></div><span class="val b">666.8*</span></div>
+        <div class="bar"><span>개선</span><div class="track"><div class="fill a" style="width:81.8%"></div></div><span class="val">545.5*</span></div>
+      </div>
+      <div class="delta"><strong>−18.2%</strong><span>보고값 기준 변화</span></div>
+    </div>
+
+    <div class="kpi-row">
+      <div>
+        <div class="kpi-name">평균 이동 시간</div>
+        <div class="kpi-def">원자료의 이동 지표 · 집계·단위 확인 필요</div>
+      </div>
+      <div class="bars">
+        <div class="bar"><span>기존</span><div class="track"><div class="fill b" style="width:100%"></div></div><span class="val b">399.1*</span></div>
+        <div class="bar"><span>개선</span><div class="track"><div class="fill a" style="width:52.6%"></div></div><span class="val">210.0*</span></div>
+      </div>
+      <div class="delta"><strong>−47.4%</strong><span>통합 개선안 결과</span></div>
+    </div>
+  </div>
+<p class="caption">* 원자료 요약에는 시간값이 min으로 표기되지만 모델 설정은 Base Time Units = Seconds입니다. 단위를 확인할 때까지 원값만 표시하며, 분 단위 리드타임이나 8시간 실행 길이와 직접 비교하지 않습니다.</p>
 </section>
 
 <section>
@@ -408,56 +410,13 @@
 </section>
 
 <section>
-  <h2>지원 서류에 바로 쓰는 문장</h2>
-  <p class="sub">복사해서 쓰되, 회사 직무에 맞춰 맨 앞 한 문장만 바꾸면 됩니다.</p>
-
-  <div class="pitch">
-    <p class="oneline">칫솔 제조 전 공정을 Arena로 모델링해 대기시간 데이터로 병목을 특정하고,
-      검수 통합·U자형 셀 배치·배치 출고 제거 세 가지를 설계해 시간당 생산량을 85.7% 끌어올린 프로젝트입니다.</p>
-
-    <h3>이력서 항목</h3>
-    <ul>
-      <li>사출–인쇄–식모–결합–포장 5개 공정과 검사·이동·포장 분기를 Arena로 모델링(8시간 × 5 replication), Waiting Time 리포트로 병목 대기열 상위 3개를 정량 특정</li>
-      <li>공정마다 반복되던 직렬 검사 모듈을 병렬 통합 검수존으로 재설계하고, 직선형 라인을 U자형 셀로 재배치해 이동 시간 47.4% 단축</li>
-      <li>출고 직전 50개 배치 공정을 1개 흐름으로 전환해 평균 리드타임 905.6 → 648.4분(−28.4%), 시간당 생산량 182 → 338ea(+85.7%) 달성</li>
-    </ul>
-
-    <div class="qa">
-      <h3>면접에서 나올 질문</h3>
-      <dl>
-        <dt>왜 하필 이 세 가지를 골랐나요?</dt>
-        <dd>감이 아니라 대기시간 리포트에서 출발했다고 답하세요. 상위 병목이 결합·묶음·검사에 몰려 있었고, 각 병목의 원인 유형(배치 대기 / 흐름 단절 / 동선)에 하나씩 대응시킨 구조입니다.</dd>
-
-        <dt>세 개 중 어느 개선이 가장 효과가 컸나요?</dt>
-        <dd>지금 모델은 세 개를 동시에 적용한 결과만 있습니다. 단독 적용 실험을 안 했다는 점을 인정하고, “다시 한다면 각 안을 개별로 켜고 끄는 요인 실험을 설계하겠다”로 마무리하는 편이 훨씬 좋게 들립니다.</dd>
-
-        <dt>검사를 줄였는데 불량이 새어 나가지 않나요?</dt>
-        <dd>검사 항목 자체를 없앤 게 아니라 시점을 모아 병렬로 처리한 것이라고 설명하세요. 다만 불량률을 KPI로 측정하지 않은 건 한계이니 먼저 인정하는 편이 안전합니다.</dd>
-
-        <dt>replication 5회면 신뢰할 수 있나요?</dt>
-        <dd>일부 대기열은 half width가 평균만큼 커서(캡_핸들_결합 426.8 ± 371.8) 신뢰구간이 넓습니다. 이 지표는 반복 횟수를 늘려야 한다고 먼저 말하면 오히려 점수를 얻습니다.</dd>
-
-        <dt>U자형 배치를 Arena에서 어떻게 표현했나요?</dt>
-        <dd>Station 간 이동 시간 파라미터 조정과 Resource Set 공유로 구현했다는 점, 즉 물리 배치를 모델 파라미터로 번역한 과정을 설명하면 됩니다.</dd>
-      </dl>
-    </div>
-  </div>
-</section>
-
-<section>
-  <h2>제출 전에 손볼 곳</h2>
-  <p class="sub">원본 발표자료를 그대로 옮기면서 눈에 걸린 부분입니다. 면접관이 파고들기 쉬운 순서로 적었습니다.</p>
+  <h2>검증 범위와 남은 질문</h2>
+  <p class="sub">개선안의 방향은 시뮬레이션으로 비교했고, 현장 적용 판단에 필요한 검증은 남아 있습니다.</p>
   <ol class="fix prose">
-    <li><b>‘평균 이동 시간’의 정의가 값과 맞지 않습니다</b>
-      <span>정의 칸에는 “실제 작업을 수행한 비율”이라고 적혀 있는데 값은 399.1 min입니다. 정의를 “제품 1개당 누적 이동 시간”으로 고치세요.</span></li>
-    <li><b>리드타임 905.6분이 런 길이 480분보다 깁니다</b>
-      <span>8시간 런에서 나온 평균 리드타임이 8시간을 넘는 이유(초기 과부하, warm-up 미설정, 미완료 엔티티 처리 방식)를 한 줄로 준비해 두세요. 가장 먼저 들어올 질문입니다.</span></li>
-    <li><b>Warm-up이 0이고 replication이 5회입니다</b>
-      <span>정상상태 도달 전 구간이 통계에 섞입니다. 여유가 되면 warm-up을 주고 replication을 10~20회로 올려 다시 돌린 값으로 교체하면 수치 신뢰도가 확 올라갑니다.</span></li>
-    <li><b>품질·비용 지표가 없습니다</b>
-      <span>생산성만 좋아진 그림이라 “품질은?”이 반드시 따라옵니다. 불량률이나 재공품 수 같은 지표 하나만 추가해도 이야기가 완결됩니다.</span></li>
-    <li><b>본인 역할이 비어 있습니다</b>
-      <span>맨 위 메타 항목에 담당 파트(모델링 / 데이터 수집 / 개선안 설계 / 발표)를 구체적으로 채우세요. 5인 팀플에서 채용 담당자가 가장 궁금해하는 항목입니다.</span></li>
+    <li><b>시간 단위와 지표 정의</b><span>요약표의 min 표기와 모델의 Seconds 설정이 일치하는지 원본 리포트에서 확인해야 합니다. 리드타임·대기·이동 시간의 집계 대상도 함께 확인해야 절대값을 해석할 수 있습니다.</span></li>
+    <li><b>반복 실험의 불확실성</b><span>5회 반복 중 결합 대기열은 평균 426.83에 Half Width 371.82로 변동이 큽니다. 추가 반복과 신뢰구간 확인이 필요하며, Warm-up 0 설정은 종료형 8시간 운영을 비교하려는 목적에 적합한지도 검토해야 합니다.</span></li>
+    <li><b>개선안별 기여도</b><span>세 개선안을 동시에 적용했으므로 생산량 증가를 어느 한 변경의 효과로 돌릴 수 없습니다. 개별 적용과 조합 실험으로 상호작용을 확인하는 것이 다음 단계입니다.</span></li>
+    <li><b>품질과 실행 비용</b><span>불량 검출률·재검사 비용·작업자 다기능화 비용은 비교하지 않았습니다. 검수 통합의 품질 영향과 한 개씩 출고하는 운영의 물류 제약을 확인해야 합니다.</span></li>
   </ol>
 </section>
 
