@@ -94,3 +94,12 @@ body{overflow-x:hidden;overflow-y:auto}
 .index-collection .index-row strong{font-size:clamp(23px,2.6vw,36px);color:#bbb}
 .index-collection .index-row small{font-size:9px}
 @media(max-width:700px){.index-collection .index-row strong{font-size:23px}.index-collection .index-row{grid-template-columns:36px 1fr 20px}}
+
+/* Keep 3D decoration out of hit testing; native controls own the full target. */
+.spatial-scene,.scene-camera,.floor,#nodes,.node{pointer-events:none}
+.node-trigger,.core{pointer-events:auto}
+.node-trigger *,.core>*{pointer-events:none}
+/* The preview is already outside the 3D floor, so focus must not reorder it. */
+.node.is-active{z-index:1}
+/* Camera easing is handled by app.js; a second CSS tween moves click targets. */
+.scene-camera{transition:none}

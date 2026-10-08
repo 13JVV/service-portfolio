@@ -34,6 +34,12 @@ function setup(file='index.html',options={}) {
 const env=setup(),{w,frames}=env,q=s=>w.document.querySelector(s),all=s=>[...w.document.querySelectorAll(s)];
 await tick();
 ok(env.errors.length===0,'home scripts initialize without DOM errors');
+const hitStyles=w.document.createElement('style');hitStyles.textContent=source('style.css');w.document.head.append(hitStyles);
+ok(all('.spatial-scene,.scene-camera,.floor,#nodes,.node').every(n=>w.getComputedStyle(n).pointerEvents==='none'),'3D decorative layers do not become pointer targets');
+ok(all('.node-trigger,.core').every(n=>w.getComputedStyle(n).pointerEvents==='auto'),'native project links and About button accept pointer input');
+ok(all('.node-trigger svg,.node-trigger .node-base,.core-center').every(n=>w.getComputedStyle(n).pointerEvents==='none'),'decorative children cannot retarget native pointer clicks');
+ok(w.getComputedStyle(q('.scene-camera')).transition==='none','camera movement has no second CSS tween');
+
 ok(q('#about-dialog').textContent.includes('산업경영공학에서 배운 문제 구조화와 운영 개선'),'local About paragraph survives the merge');
 ok(all('.node-trigger[href]:not([data-collection])').length===4&&all('.node-trigger[href][data-collection]').length===1,'space has four main links and one ETC link');
 ok(all('.index-row[href]:not([data-collection])').length===4&&all('.index-row[href][data-collection]').length===1,'list has four main links and one ETC link');
@@ -48,6 +54,7 @@ for(const props of [{},{ctrlKey:true},{metaKey:true},{button:1}]) {
   first.dispatchEvent(e);ok(!e.defaultPrevented,'native link behavior remains unhandled '+JSON.stringify(props));
 }
 first.focus();ok(frames.size===1,'keyboard focus starts one preview loop');
+ok(w.getComputedStyle(first.closest('.node')).zIndex===w.getComputedStyle(q('.node:not(.is-active)')).zIndex,'preview activation does not change 3D stacking order');
 env.flush(50);ok(frames.size===1,'preview loop does not duplicate');
 q('.node-collection .node-trigger').focus();ok(frames.size===0&&!q('#project-dialog').open,'ETC focus is a plain summary link without animation');first.focus();
 q('#motion').click();ok(frames.size===0,'MOTION OFF cancels preview animation');
