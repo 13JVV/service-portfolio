@@ -26,6 +26,52 @@ const dialog = document.querySelector('#project-dialog');
 const about = document.querySelector('#about-dialog');
 const indexPanel = document.querySelector('#index-panel');
 const motion = document.querySelector('#motion');
+const core = document.querySelector('#core-button');
+const coreChargeDuration = 1400;
+let coreTimer = 0, coreHovered = false, coreBlocked = false;
+core.style.setProperty('--core-charge-duration',`${coreChargeDuration}ms`);
+function cancelCoreCharge(block=false) {
+  clearTimeout(coreTimer); coreTimer=0;
+  core.classList.remove('is-charging','charge-complete');
+  if(block&&coreHovered) coreBlocked=true;
+}
+function canChargeCore() {
+  return fine.matches&&!coreBlocked&&!document.hidden&&indexPanel.hidden&&!dialog.open&&!about.open;
+}
+function startCoreCharge(event) {
+  if(event.pointerType==='touch'||core.contains(event.relatedTarget)) return;
+  coreHovered=true;
+  if(!canChargeCore()||coreTimer) return;
+  // Freeze camera drift while the pointer is dwelling on this 3D control.
+  tx=cx;ty=cy;clearTimeout(hoverTimer);activate(-1);syncFrame();
+  core.classList.add('is-charging');
+  coreTimer=setTimeout(()=>{
+    if(!coreHovered||!canChargeCore()) {cancelCoreCharge();return;}
+    core.classList.add('charge-complete');
+    // Let the complete fill paint before the dialog covers the button.
+    coreTimer=setTimeout(()=>{
+      if(!coreHovered||!canChargeCore()) {cancelCoreCharge();return;}
+      coreBlocked=true;
+      core.focus({preventScroll:true});
+      navigate('#about');
+    },80);
+  },coreChargeDuration);
+}
+core.addEventListener('pointerenter',startCoreCharge);
+core.addEventListener('pointerleave',event=>{
+  if(core.contains(event.relatedTarget)) return;
+  coreHovered=false;cancelCoreCharge();
+  // Opening a top-layer dialog also emits leave; that must not re-arm hover.
+  if(!dialog.open&&!about.open) coreBlocked=false;
+});
+core.addEventListener('pointercancel',()=>cancelCoreCharge(true));
+document.addEventListener('pointermove',event=>{
+  if(coreBlocked&&!dialog.open&&!about.open&&!core.contains(event.target)) {
+    coreBlocked=false;coreHovered=false;
+  }
+},{passive:true});
+addEventListener('blur',()=>cancelCoreCharge(true));
+fine.addEventListener('change',()=>cancelCoreCharge(true));
 const detailContext = document.querySelector('#detail-canvas').getContext('2d');
 const captionIndex = document.querySelector('.caption-index');
 const captionTitle = document.querySelector('.caption-title');
@@ -89,7 +135,7 @@ function fit() {
 }
 fit(); addEventListener('resize',fit);
 document.querySelector('#universe').addEventListener('pointermove',e=>{
-  if(!fine.matches||paused||active>=0||!indexPanel.hidden||dialog.open||about.open) return;
+  if(!fine.matches||paused||coreHovered||active>=0||!indexPanel.hidden||dialog.open||about.open) return;
   tx=(e.clientX/innerWidth-.5)*18; ty=(e.clientY/innerHeight-.5)*10; syncFrame();
 },{passive:true});
 document.querySelector('#universe').addEventListener('pointerleave',()=>{tx=ty=0;syncFrame()});
@@ -120,6 +166,7 @@ function frame(now) {
   if(needsFrame()) frameId=requestAnimationFrame(frame);
 }
 function syncMotion() {
+  cancelCoreCharge(true);
   document.body.classList.toggle('paused',paused);
   motion.setAttribute('aria-pressed',String(paused));
   motion.setAttribute('aria-label',paused?'애니메이션 재생':'애니메이션 일시정지');
@@ -129,6 +176,7 @@ function syncMotion() {
 motion.addEventListener('click',()=>{paused=!paused;userPaused=paused;try {localStorage.setItem('portfolio-motion',paused?'paused':'playing')} catch {} syncMotion()});
 reduced.addEventListener('change',e=>{paused=e.matches||userPaused;syncMotion()});
 document.addEventListener('visibilitychange',()=>{
+  if(document.hidden) cancelCoreCharge(true);
   document.body.classList.toggle('page-hidden',document.hidden); syncFrame();
 });
 function populateDetail(i) {
@@ -175,6 +223,7 @@ function setView(index) {
   clearTimeout(hoverTimer);activate(-1);syncFrame();
 }
 function renderRoute() {
+  cancelCoreCharge(true);
   const hash=location.hash;
   const i=hash.startsWith('#preview/')?projects.findIndex(p=>hash==='#preview/'+p.id):-1;
   const showAbout=hash==='#about';
@@ -207,7 +256,7 @@ document.querySelector('#next-project').addEventListener('click',()=>navigate('#
 document.querySelectorAll('dialog .close').forEach(b=>b.addEventListener('click',closeOverlay));
 [dialog,about].forEach(d=>d.addEventListener('cancel',e=>{e.preventDefault();closeOverlay()}));
 document.querySelector('#about-button').addEventListener('click',()=>navigate('#about'));
-document.querySelector('#core-button').addEventListener('click',()=>navigate('#about'));
+core.addEventListener('click',()=>{cancelCoreCharge(true);navigate('#about')});
 document.querySelector('.skip-link').addEventListener('click',e=>{e.preventDefault();navigate('#projects');indexPanel.focus({preventScroll:true});resetWorldScroll()});
 document.querySelector('#spatial-view').addEventListener('click',()=>navigate(''));
 document.querySelector('#index-view').addEventListener('click',()=>navigate('#projects'));
@@ -215,7 +264,10 @@ document.querySelector('#world-button').addEventListener('click',()=>navigate('#
 addEventListener('hashchange',renderRoute);
 addEventListener('popstate',renderRoute);
 addEventListener('pageshow',()=>{clearTimeout(hoverTimer);activate(-1);renderRoute()});
-addEventListener('pagehide',()=>{clearTimeout(hoverTimer);if(frameId)cancelAnimationFrame(frameId);frameId=0;last=0;});
-addEventListener('keydown',e=>{if(e.key==='Escape'&&!dialog.open&&!about.open) {clearTimeout(hoverTimer);activate(-1);}});
+addEventListener('pagehide',()=>{cancelCoreCharge(true);clearTimeout(hoverTimer);if(frameId)cancelAnimationFrame(frameId);frameId=0;last=0;});
+addEventListener('keydown',e=>{
+  if(e.key==='Tab') cancelCoreCharge(true);
+  if(e.key==='Escape'&&!dialog.open&&!about.open) {cancelCoreCharge(true);clearTimeout(hoverTimer);activate(-1);}
+});
 dialog.setAttribute('aria-labelledby','detail-title');
 syncMotion(); renderRoute(); document.body.classList.add('world-enter');

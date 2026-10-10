@@ -18,6 +18,11 @@ function setup(file='index.html',options={}) {
   w.matchMedia=query=>{const m={matches:query.includes('reduced')?!!options.reduced:!options.touch,addEventListener(type,fn){this.listener=fn}};media.set(query,m);return m};
   w.requestAnimationFrame=fn=>{frames.set(++sequence,fn);return sequence};
   w.cancelAnimationFrame=id=>frames.delete(id);
+  const timers=new Map();let clock=0,timerSequence=0;
+  if(options.manualTimers) {
+    w.setTimeout=(fn,delay=0)=>{const id=++timerSequence;timers.set(id,{fn,at:clock+delay});return id};
+    w.clearTimeout=id=>timers.delete(id);
+  }
   Object.defineProperty(w.document,'hidden',{get:()=>hidden});
   w.HTMLCanvasElement.prototype.getContext=()=>new Proxy({createRadialGradient:()=>({addColorStop(){}}),measureText:()=>({width:20})},{get(o,k){return o[k]||((...args)=>{if(k==='fillRect'||k==='fill')paints++;if(k==='fillText')drawnText.push(args[0]);if(k==='roundRect')rectangles.push(args);})},set(o,k,v){o[k]=v;return true}});
   w.HTMLDialogElement.prototype.showModal=function(){this.setAttribute('open','');this.querySelector('button')?.focus()};
@@ -28,7 +33,7 @@ function setup(file='index.html',options={}) {
     if(el.src) {const p=path.resolve(root,path.dirname(file),el.getAttribute('src'));run(fs.readFileSync(p,'utf8'))}
     else if(el.textContent.trim())run(el.textContent);
   }
-  return {d,w,frames,media,errors,drawnText,rectangles,get paints(){return paints},flush(t){const batch=[...frames.values()];frames.clear();batch.forEach(fn=>fn(t))},hide(value){hidden=value;w.document.dispatchEvent(new w.Event('visibilitychange'))}};
+  return {d,w,frames,media,errors,drawnText,rectangles,timers,advance(ms){const end=clock+ms;let next;while((next=[...timers].filter(([,t])=>t.at<=end).sort((a,b)=>a[1].at-b[1].at)[0])){const [id,t]=next;timers.delete(id);clock=t.at;t.fn()}clock=end},get paints(){return paints},flush(t){const batch=[...frames.values()];frames.clear();batch.forEach(fn=>fn(t))},hide(value){hidden=value;w.document.dispatchEvent(new w.Event('visibilitychange'))}};
 }
 (async()=>{
 const env=setup(),{w,frames}=env,q=s=>w.document.querySelector(s),all=s=>[...w.document.querySelectorAll(s)];
@@ -96,6 +101,53 @@ q('.skip-link').click();ok(!q('#index-panel').hidden&&w.document.activeElement==
 universe.scrollTop=162;w.dispatchEvent(new w.Event('pageshow'));ok(universe.scrollTop===0,'BFCache/pageshow clears restored world wrapper scroll');
 ok(env.errors.length===0,'all interaction routes complete without DOM exceptions');
 env.d.window.close();
+// Manual time verifies the dwell lifecycle without sleeping or using an idle RAF loop.
+const hover=setup('index.html',{manualTimers:true}),hw=hover.w,hq=s=>hw.document.querySelector(s),core=hq('#core-button');
+function pointer(target,type,relatedTarget=null,pointerType='mouse') {
+  const e=new hw.MouseEvent(type,{relatedTarget,bubbles:type==='pointermove'});
+  Object.defineProperty(e,'pointerType',{value:pointerType});target.dispatchEvent(e);
+}
+const enter=()=>pointer(core,'pointerenter'),leave=()=>pointer(core,'pointerleave',hw.document.body);
+enter();hover.advance(600);
+ok(core.classList.contains('is-charging')&&!hq('#about-dialog').open&&hover.frames.size===0,'central dwell starts one finite timer without an animation loop');
+pointer(core,'pointerleave',hq('.core-center'));pointer(core,'pointerenter',hq('.core-fill'));
+hover.advance(799);ok(!hq('#about-dialog').open&&!core.classList.contains('charge-complete'),'moving between button text and background does not reset or finish dwell early');
+hover.advance(1);ok(core.classList.contains('charge-complete')&&!hq('#about-dialog').open,'complete orange fill is shown before About opens');
+hover.advance(80);ok(hq('#about-dialog').open&&hw.location.hash==='#about'&&hover.timers.size===0,'full dwell automatically opens routed About exactly once');
+leave(); // The dialog top layer can generate this event without real movement.
+hq('#about-dialog .close').click();hover.advance(0);await tick();hover.advance(0);await tick();
+ok(!hq('#about-dialog').open&&hw.document.activeElement===core,'auto-open dismissal restores the central button focus');
+enter();hover.advance(2000);ok(!hq('#about-dialog').open&&hover.timers.size===0,'synthetic enter after closing does not immediately reopen About');
+pointer(hw.document.body,'pointermove');enter();hover.advance(1480);
+ok(hq('#about-dialog').open,'moving outside then hovering again opens About again');
+hq('#about-dialog').dispatchEvent(new hw.Event('cancel',{cancelable:true}));hover.advance(0);await tick();hover.advance(0);await tick();
+pointer(hw.document.body,'pointermove');enter();hover.advance(900);leave();hover.advance(2000);
+ok(!hq('#about-dialog').open&&!core.classList.contains('is-charging')&&hover.timers.size===0,'leaving before fill cancels and resets the orange state');
+enter();hover.advance(1399);ok(!hq('#about-dialog').open,'a new hover requires its full dwell duration');leave();
+core.focus();hover.advance(2000);ok(!hq('#about-dialog').open&&hover.timers.size===0,'keyboard focus alone never starts a hover dwell');
+pointer(core,'pointerenter',null,'touch');hover.advance(2000);ok(!hq('#about-dialog').open&&hover.timers.size===0,'touch pointer entry on a hybrid device does not dwell-open');
+core.click();ok(hq('#about-dialog').open,'native click still opens About immediately without waiting');
+hq('#about-dialog .close').click();hover.advance(0);await tick();hover.advance(0);await tick();
+for(const [label,interrupt] of [
+  ['Tab navigation',()=>hw.dispatchEvent(new hw.KeyboardEvent('keydown',{key:'Tab'}))],
+  ['Escape',()=>hw.dispatchEvent(new hw.KeyboardEvent('keydown',{key:'Escape'}))],
+  ['hidden page',()=>hover.hide(true)],
+  ['pagehide',()=>hw.dispatchEvent(new hw.Event('pagehide'))],
+  ['window blur',()=>hw.dispatchEvent(new hw.Event('blur'))],
+  ['pointer cancellation',()=>pointer(core,'pointercancel')]
+]) {
+  leave();pointer(hw.document.body,'pointermove');enter();hover.advance(700);interrupt();hover.advance(2000);
+  ok(!hq('#about-dialog').open&&hover.timers.size===0&&!core.classList.contains('is-charging'),`${label} cancels an unfinished central hover`);hover.hide(false);
+}
+leave();enter();hover.advance(700);hq('#index-view').click();hover.advance(2000);
+ok(!hq('#about-dialog').open&&hover.timers.size===0&&!hq('#index-panel').hidden,'switching to the list cancels central hover');
+hover.d.window.close();
+for(const options of [{reduced:true},{savedMotion:'paused'}]) {
+  const h=setup('index.html',{...options,manualTimers:true}),c=h.w.document.querySelector('#core-button');
+  c.dispatchEvent(new h.w.Event('pointerenter'));h.advance(1399);
+  ok(!h.w.document.querySelector('#about-dialog').open&&h.frames.size===0,'static-motion hover preserves deliberate dwell '+JSON.stringify(options));
+  h.advance(81);ok(h.w.document.querySelector('#about-dialog').open&&h.frames.size===0,'static-motion hover opens About without continuous animation '+JSON.stringify(options));h.d.window.close();
+}
 for(const options of [{reduced:true},{savedMotion:'paused'},{touch:true}]) {
  const e=setup('index.html',options);await tick();const a=e.w.document.querySelector('.node-trigger');a.focus();
  if(options.reduced||options.savedMotion)ok(e.frames.size===0&&e.w.document.body.classList.contains('paused'),'reduced/saved motion creates a static preview '+JSON.stringify(options));
