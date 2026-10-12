@@ -79,7 +79,7 @@ ok(q('#index-panel').scrollTop===90,'preview keeps the reader position in the pr
 
 ok(q('#detail-link').getAttribute('target')===null,'full record stays in the same tab by default');
 q('#next-project').click();ok(w.location.hash==='#preview/itsme'&&q('#detail-title').textContent==='It’s me','next preview updates data and route');
-ok(q('#detail-status').textContent.includes('1.4.2 공개')&&q('#detail-status').textContent.includes('1.5.0 심사 대기'),'Itsme modal separates the released version from pending review');
+ok(q('#detail-status').textContent.includes('iOS 1.5.0 공개')&&!q('#detail-status').textContent.includes('심사 대기'),'Itsme modal records the publicly released version');
 ok(q('#detail-description').textContent.includes('세로')&&q('#detail-tags').textContent.includes('내 명함 · 지갑 · 스캔 · 설정'),'Itsme modal carries portrait and four-tab redesign');
 ok(env.drawnText.includes('세로 기본 · 가로 선택')&&env.drawnText.includes('명함을 탭하면 뒷면 QR'),'Itsme canvas describes optional landscape and QR on the back');
 ok(env.rectangles.some(r=>r[2]===250&&r[3]===400)&&env.rectangles.some(r=>r[2]===145&&r[3]===232),'Itsme canvas draws portrait front and back cards');
@@ -175,7 +175,7 @@ for(const id of ['crowdsense','itsme','pet','subscription','factory','campus','l
    ok(doc.querySelectorAll('.cardmock[data-orientation="portrait"]').length===2,'Itsme detail depicts two portrait faces');
    ok(!doc.querySelector('.cardmock:not(.cardmock-back) .qr')&&!!doc.querySelector('.cardmock-back .qr'),'QR is drawn on the back face, not the front');
    ok(doc.body.textContent.includes('세로형이 기본')&&doc.body.textContent.includes('가로형도 선택')&&doc.body.textContent.includes('명함을 누르면 뒷면 QR'),'Itsme detail preserves the user-provided card behavior');
-   ok(doc.body.textContent.includes('내 명함 · 지갑 · 스캔 · 설정')&&doc.body.textContent.includes('심사 대기'),'Itsme detail records four tabs and the pending release');
+   ok(doc.body.textContent.includes('내 명함 · 지갑 · 스캔 · 설정')&&doc.body.textContent.includes('2026년 10월 9일 App Store에 공개')&&!doc.body.textContent.includes('심사 대기'),'Itsme detail records four tabs and the confirmed public release');
    ok(!doc.body.textContent.includes('가로 9 : 세로 5')&&!doc.body.textContent.includes('9:5 명함 프리뷰'),'obsolete landscape-default captions are absent');
  }
  if(id==='etc') {
