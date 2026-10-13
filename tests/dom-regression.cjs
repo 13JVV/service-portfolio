@@ -46,6 +46,10 @@ ok(all('.node-trigger svg,.node-trigger .node-base,.core-center').every(n=>w.get
 ok(w.getComputedStyle(q('.scene-camera')).transition==='none','camera movement has no second CSS tween');
 
 ok(q('#about-dialog').textContent.includes('산업경영공학에서 배운 문제 구조화와 운영 개선'),'local About paragraph survives the merge');
+ok(q('#about-dialog').textContent.includes('2027.02 졸업 예정')&&q('#about-dialog').textContent.includes('2027.01부터 근무 가능'),'About shows current graduation and availability');
+ok(source('projects/itsme/index.html').includes('1.5.1(build 19)')&&source('projects/itsme/index.html').includes('TestFlight 전송을 App Store 공개 완료로 계산하지 않습니다'),'Itsme separates TestFlight transfer from public release');
+ok(source('projects/pet/index.html').includes('후속 백엔드 변경은 아직 완료하지 않았습니다'),'Pet separates planned backend work from existing release');
+ok(source('projects/crowdsense/index.html').includes('최종 성능 결과로 쓰지 않습니다')&&!source('projects/crowdsense/index.html').includes('통신사·지자체 파일럿을 전제로'),'CrowdSense separates future evaluation and customer adoption from verified results');
 ok(all('.node-trigger[href]:not([data-collection])').length===4&&all('.node-trigger[href][data-collection]').length===1,'space has four main links and one ETC link');
 ok(all('.index-row[href]:not([data-collection])').length===4&&all('.index-row[href][data-collection]').length===1,'list has four main links and one ETC link');
 ok(all('.index-row').slice(0,4).map(a=>a.getAttribute('href')).join(',')==='./projects/crowdsense/,./projects/itsme/,./projects/pet/,./projects/subscription/','four selected cases appear first');

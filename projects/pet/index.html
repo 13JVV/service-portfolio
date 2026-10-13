@@ -432,7 +432,7 @@
   </p>
 
   <dl class="meta">
-    <div><dt>역할</dt><dd>프론트엔드 · 기능/DB 설계</dd></div>
+    <div><dt>역할</dt><dd>프론트엔드 · 기능/DB 설계 · API 연동 · 배포</dd></div>
     <div><dt>팀</dt><dd>총 3명 (본인 포함 · 백엔드 2명)</dd></div>
     <div><dt>기간</dt><dd>2026.07 – 진행 중</dd></div>
     <div><dt>배포</dt><dd><a href="https://apps.apple.com/kr/app/%EB%B0%98%EA%B0%91%EA%BC%AC%EB%A6%AC/id6810158091" target="_blank" rel="noopener">App Store 1.1.4 공개 ↗</a></dd></div>
@@ -482,7 +482,7 @@
   <section>
     <h2>AI Agent Development</h2>
     <p class="h2sub">자연어를 규칙으로 바꾸는 과정을 쪼개서 지시했습니다</p>
-    <p>Claude Code와 Codex에는 파싱 로직과 화면 연동을 한 번에 만들라고 하지 않고, <strong>원문 정규화 → 키워드 추출 → 구조화된 조건 저장 → 반려동물 프로필과 판정 → 설명 문구 생성</strong> 순서로 나눠 지시했습니다. 각 단계에서 예시 문장과 예외 케이스를 먼저 확인하게 하고, 실제 관광 데이터로 결과를 다시 대조했습니다.</p>
+    <p>제가 맡은 기능/DB 설계와 앱·API 연동 범위에서 Claude Code와 Codex를 활용했습니다. 조건 판별의 요구사항을 <strong>원문 정규화 → 키워드 추출 → 구조화된 조건 저장 → 반려동물 프로필과 판정 → 설명 문구 생성</strong> 순서로 나눠 정리했습니다. 예시 문장과 예외 케이스, API 응답 계약을 확인하고 실제 관광 데이터와 앱 표시 결과를 대조했습니다. 백엔드 구현은 팀원 2명의 담당 범위입니다.</p>
     <div class="rows">
       <div class="row"><div class="row-k">Prompt</div><div class="row-v">“10kg 미만·소형견·실외만·리드줄 필수처럼 서로 다른 표현을 같은 조건 필드로 정규화하고, 근거 원문을 함께 보존하라.”</div></div>
       <div class="row"><div class="row-k">반복 작업</div><div class="row-v">파싱 fixture 생성, TypeScript 타입·API 응답 계약 정리, 48,786건 상태 분류 결과의 누락·중복 검사</div></div>
@@ -499,7 +499,7 @@
       <div class="row"><div class="row-k">설계</div><div class="row-v">기능 명세 · DB 스키마 · 조건 파싱 파이프라인 · 게이미피케이션</div></div>
       <div class="row"><div class="row-k">배포</div><div class="row-v">EAS 빌드 · App Store Connect · TestFlight · 소셜 로그인 4종 콘솔 등록</div></div>
     </div>
-    <p class="note">백엔드(Spring)는 팀원 2명이 맡았습니다. 아래 판단 사례는 모두 앱과 연동 층에서 내린 것입니다.</p>
+    <p class="note">본인은 프론트엔드·기능/DB 설계·API 연동·배포를 맡았고, 백엔드(Spring) 구현은 팀원 2명이 맡았습니다. 아래 판단 사례는 앱과 연동 층을 중심으로 정리했습니다.</p>
   </section>
 
   <section>
@@ -666,12 +666,13 @@
       <div class="row"><div class="row-k">게임 요소</div><div class="row-v"><span class="state wait">진행</span> 도장·뱃지 1차 완료, 레벨·경험치 연동 예정</div></div>
     </div>
     <p class="note">출시는 앱의 공개 상태입니다. 시설 조건 판별의 정확도, 현장 입장 성공률, 이용자 만족도는 아직 이 기록에서 수치로 제시하지 않습니다. 조건이 모호하거나 없는 시설은 방문 전 직접 확인이 필요합니다.</p>
+    <p class="note">2026.10.13 기준, 후속 백엔드 변경은 아직 완료하지 않았습니다. 기존 앱 공개·연동 결과와 새 변경 작업을 구분하며, 위 구현 수치는 기존 개발 기록 기준입니다.</p>
     <p><strong>회고.</strong> 실제 시설 ID로 판별부터 출입증까지 확인하면서, 목 데이터만으로는 제품의 연결 흐름을 검증할 수 없다는 점을 배웠습니다. 다음 버전에서는 조건 원문의 품질을 높이고, 게임 요소와 공개 배포 이후의 피드백을 연결할 계획입니다.</p>
   </section>
 
   <footer>
     <span>반갑꼬리 · 반려동물 동반여행 AI 판별</span>
-    <span>2026.09</span>
+    <span>상태 갱신 2026.10.13 · 구현 수치는 기존 기록</span>
   </footer>
 </div>
 <script src="../../recruiter-clean.js"></script>
