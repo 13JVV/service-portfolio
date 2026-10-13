@@ -107,3 +107,6 @@ body.paused .core.is-charging .core-center{color:#f7884b;transition:none}
 .node.is-active{z-index:1}
 /* Camera easing is handled by app.js; a second CSS tween moves click targets. */
 .scene-camera{transition:none}
+
+/* Keep the complete About dialog reachable on short or zoomed viewports. */
+#about-dialog{max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow-y:auto;overscroll-behavior:contain}
