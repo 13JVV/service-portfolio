@@ -1,6 +1,6 @@
 const portfolioProjects = [
  {id:'crowdsense',title:'CrowdSense',channel:'01 / SAFETY INTELLIGENCE',status:'최우수상 · 행정안전부 장관상',type:'service',description:'위험을 예측하는 데서 멈추지 않고,<br>담당자의 다음 행동까지 설계한 AI 관제 서비스.',problem:'경보가 울린 뒤, 무엇을 해야 할까?',metric:'최우수상',metricText:'행정안전부 장관상 · 운영 효과는 별도 검증 필요',tags:['AI 재난안전','1인 풀사이클','정부 공모전 최우수상']},
- {id:'itsme',title:'It’s me',channel:'02 / DIGITAL IDENTITY',status:'iOS 1.5.0 공개',type:'service',description:'휴대폰에서 보기 좋은 세로 명함을 기본으로.<br>1.5.0은 네 개 탭과 탭해서 여는 뒷면 QR로 재구성했습니다.',problem:'종이 명함의 정보는 왜 거기서 멈출까?',metric:'1.5.0',metricText:'세로 기본 · 가로 선택 · iOS 공개',tags:['내 명함 · 지갑 · 스캔 · 설정','1인 기획개발']},
+ {id:'itsme',title:'It’s me',channel:'02 / DIGITAL IDENTITY',status:'iOS 1.5.1 공개',type:'service',description:'휴대폰에서 보기 좋은 세로 명함을 기본으로.<br>1.5.0은 네 개 탭과 탭해서 여는 뒷면 QR로 재구성했습니다.',problem:'종이 명함의 정보는 왜 거기서 멈출까?',metric:'1.5.1',metricText:'세로 기본 · 가로 선택 · iOS 공개',tags:['내 명함 · 지갑 · 스캔 · 설정','1인 기획개발']},
  {id:'pet',title:'반갑꼬리',channel:'03 / PET-FRIENDLY DISCOVERY',status:'App Store 공개 · iOS 1.1.4',type:'service',description:'“반려동물 동반 가능” 너머의 진짜 조건.<br>우리 반려동물과 갈 수 있는 장소를 찾는 서비스.',problem:'동반 가능이라는데, 우리 강아지도 될까?',metric:'48,786',metricText:'곳의 관광 시설 데이터에서 출발',tags:['조건 판별·API 연동','앱·기능/DB 설계','3인 팀 · 백엔드 2명']},
  {id:'campus',title:'캠퍼스 안전 자원 배분',channel:'04 / RESOURCE INTELLIGENCE',status:'개념 설계 · 검증 계획',type:'service',description:'한정된 순찰 인력과 정비 예산.<br>강화학습 기반 배분 대안과 검증 방법을 설계했습니다.',problem:'같은 자원으로, 더 안전하게 만들 수 있을까?',metric:'4개 전공',metricText:'5인 팀 총괄 · 실제 지역 데이터',tags:['PPO 적용 설계','다학제 협업','안전 운영 설계']},
  {id:'subscription',title:'AI 구독, 선택의 이유',channel:'04 / CONSUMER INSIGHT',status:'완료',type:'data',description:'사용자는 무엇에 기꺼이 지불할까?<br>선택 실험으로 추정한 전문성과 보안성의 가치.',problem:'정확도가 높으면, 더 비싸도 선택할까?',metric:'2,034',metricText:'대안 행 · 113명 × 6문항 × 3대안',tags:['이산선택실험','시장조사','조건부 로짓']},
@@ -19,7 +19,7 @@ function itsme(c,t){
   rect(c,0,0,960,540,'#deddd4');
   for(let i=0;i<8;i++)line(c,[[i*150-100,0],[i*150+350,540]],'#bcbeb532');
   text(c,'It’s me',45,70,43,'#242822',700);
-  text(c,'1.5.0 · iOS RELEASED',47,98,11,'#687361');
+  text(c,'1.5.1 · iOS RELEASED',47,98,11,'#687361');
   text(c,'세로 기본 · 가로 선택',47,395,20,'#424b39',600);
   text(c,'내 명함 · 지갑 · 스캔 · 설정',47,428,12,'#78816c');
   c.save();c.translate(675,277+Math.sin(t*.8)*7);c.rotate(-.065+Math.sin(t*.4)*.012);

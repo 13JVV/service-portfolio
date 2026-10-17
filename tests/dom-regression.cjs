@@ -48,7 +48,8 @@ ok(w.getComputedStyle(q('.scene-camera')).transition==='none','camera movement h
 ok(q('#about-dialog').textContent.includes('산업경영공학에서 배운 문제 구조화와 운영 개선'),'local About paragraph survives the merge');
 ok(source('style.css').includes('#about-dialog{max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow-y:auto;'),'About remains scrollable within short and zoomed viewports');
 ok(q('#about-dialog').textContent.includes('2027.02 졸업 예정')&&q('#about-dialog').textContent.includes('2027.01부터 근무 가능'),'About shows current graduation and availability');
-ok(source('projects/itsme/index.html').includes('1.5.1(build 19)')&&source('projects/itsme/index.html').includes('TestFlight 전송을 App Store 공개 완료로 계산하지 않습니다'),'Itsme separates TestFlight transfer from public release');
+ok(source('projects/itsme/index.html').includes('App Store에서 iOS 1.5.1 공개를 확인했습니다')&&source('projects/itsme/index.html').includes('실제 설치 후 동작은 별도 검증이 필요합니다'),'Itsme records the verified public iOS release without claiming device validation');
+ok(source('projects/itsme/index.html').includes('https://play.google.com/store/apps/details?id=com.jaewoo.itsme')&&source('projects/itsme/index.html').includes('Android 1.0.21과 업데이트 날짜 2026.10.16')&&source('projects/itsme/index.html').includes('전체 기기 반영 여부와 설치 후 동작은 별도 확인이 필요합니다'),'Itsme links the verified Android listing and preserves rollout verification limits');
 ok(source('projects/pet/index.html').includes('후속 백엔드 변경은 아직 완료하지 않았습니다'),'Pet separates planned backend work from existing release');
 ok(source('projects/crowdsense/index.html').includes('최종 성능 결과로 쓰지 않습니다')&&!source('projects/crowdsense/index.html').includes('통신사·지자체 파일럿을 전제로'),'CrowdSense separates future evaluation and customer adoption from verified results');
 ok(all('.node-trigger[href]:not([data-collection])').length===4&&all('.node-trigger[href][data-collection]').length===1,'space has four main links and one ETC link');
@@ -84,7 +85,7 @@ ok(q('#index-panel').scrollTop===90,'preview keeps the reader position in the pr
 
 ok(q('#detail-link').getAttribute('target')===null,'full record stays in the same tab by default');
 q('#next-project').click();ok(w.location.hash==='#preview/itsme'&&q('#detail-title').textContent==='It’s me','next preview updates data and route');
-ok(q('#detail-status').textContent.includes('iOS 1.5.0 공개')&&!q('#detail-status').textContent.includes('심사 대기'),'Itsme modal records the publicly released version');
+ok(q('#detail-status').textContent.includes('iOS 1.5.1 공개')&&!q('#detail-status').textContent.includes('심사 대기'),'Itsme modal records the publicly released version');
 ok(q('#detail-description').textContent.includes('세로')&&q('#detail-tags').textContent.includes('내 명함 · 지갑 · 스캔 · 설정'),'Itsme modal carries portrait and four-tab redesign');
 ok(env.drawnText.includes('세로 기본 · 가로 선택')&&env.drawnText.includes('명함을 탭하면 뒷면 QR'),'Itsme canvas describes optional landscape and QR on the back');
 ok(env.rectangles.some(r=>r[2]===250&&r[3]===400)&&env.rectangles.some(r=>r[2]===145&&r[3]===232),'Itsme canvas draws portrait front and back cards');
